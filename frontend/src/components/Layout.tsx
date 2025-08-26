@@ -82,17 +82,18 @@ export default function Layout({ children }: LayoutProps) {
         {children}
       </main>
       
-      <footer className="bg-purdue-black text-white py-8 mt-auto">
+      <footer className="bg-purdue-black text-white py-12 mt-auto">
         <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="mb-4 md:mb-0">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between">
+            <div className="mb-6 md:mb-0">
               <img 
-                src="/purdue-logo.svg" 
+                src="/purdue-logo-vertical.svg" 
                 alt="Purdue University" 
-                className="h-8 w-auto brightness-0 invert"
+                className="h-24 w-auto"
               />
             </div>
-            <div className="text-center md:text-right">
+            
+            <div className="text-left md:text-right">
               <p className="text-sm text-purdue-gray-300">
                 © {new Date().getFullYear()} Purdue University. All rights reserved.
               </p>
