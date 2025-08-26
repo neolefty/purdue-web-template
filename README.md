@@ -1,6 +1,38 @@
 # Django React Template for Purdue Web Applications
 
-A modern, production-ready template for building web applications with Django backend and React frontend, specifically configured for Purdue University requirements.
+A starter template for web applications that can be easily hosted and maintained at Purdue, with Purdue authentication and branding. This template combines [Django](https://www.djangoproject.com/) (Python backend) with [React](https://react.dev/) (JavaScript frontend), aiming to balance modern development practices with a standardized approach that many developers are familiar with.
+
+**Note**: This is an early-stage template that will evolve based on feedback and real-world use.
+
+## Overview
+
+### For Decision Makers
+
+This template provides:
+- Pre-configured Purdue login integration (SAML/CAS)
+- Purdue visual styling as a starting point
+- Modern web development setup that many developers are familiar with
+- A path to production requiring only a Python backend (no Node.js in production)
+- Security best practices and production-ready configuration
+
+### Technical Architecture
+
+- **Backend**: Django (Python) - Handles authentication, database, APIs
+- **Frontend**: React (TypeScript) - User interface, compiles to static files  
+- **Development**: Docker Compose for consistent local environment
+- **Production**: Django serves both API and compiled React files
+
+### Why This Approach?
+
+**Pros:**
+- Django's mature authentication system
+- React for modern, interactive UIs
+- Multi-database support out of the box
+- Can migrate to other architectures if needs change
+- No Node.js required in production (simpler deployment)
+
+**Cons:**
+- Not ideal for SEO or server-side rendering — Next.js (a React distribution) would support that at the cost of complexity
 
 ## Features
 
@@ -12,13 +44,14 @@ A modern, production-ready template for building web applications with Django ba
 - **Docker Compose** for development
 - **Hot reloading** in development
 - **Health checks** ensure services start in correct order
+- **API documentation** with Swagger/OpenAPI
 - **Production-ready** configuration
 
 ## Quick Start
 
 ### Prerequisites
 
-- Docker and Docker Compose
+- Docker Desktop (for `docker compose`)
 - Git
 
 ### Getting Started
@@ -98,6 +131,8 @@ Set the `AUTH_METHOD` environment variable:
 - `email` - Email/password authentication (default for development)
 - `saml` - Purdue SAML SSO (for production)
 
+Both modes use the same API interface, making development easier.
+
 ### Environment Variables
 
 Key environment variables (see `.env.example` for full list):
@@ -172,14 +207,6 @@ npm install
 npm run dev
 ```
 
-## API Documentation
-
-The API is documented using OpenAPI/Swagger. Access the documentation at:
-
-- Swagger UI: http://localhost:8000/api/swagger/
-- ReDoc: http://localhost:8000/api/redoc/
-- OpenAPI Schema: http://localhost:8000/api/schema/
-
 ## Customization
 
 ### Adding Purdue SAML
@@ -207,6 +234,14 @@ Edit the Tailwind configuration in `frontend/tailwind.config.js`:
 3. Register URLs in `backend/apps/api/urls.py`
 4. Add TypeScript types in `frontend/src/api/`
 5. Create React Query hooks for the endpoints
+
+### Making It Your Own
+
+TODO: Document the process for:
+1. Forking this template
+2. Renaming for your project
+3. Setting up Purdue authentication
+4. Basic customization steps
 
 ## Production Deployment
 
@@ -348,6 +383,24 @@ python manage.py migrate         # Apply migrations
 - Production: `backend/config/settings/production.py`
 - Base (shared): `backend/config/settings/base.py`
 
+## API Documentation
+
+The API is documented using OpenAPI/Swagger. Access the documentation at:
+
+- Swagger UI: http://localhost:8000/api/swagger/
+- ReDoc: http://localhost:8000/api/redoc/
+- OpenAPI Schema: http://localhost:8000/api/schema/
+
+## Technology Stack
+
+| Layer | Technology | Rationale |
+|-------|------------|-----------|
+| Backend API | Django 5.1+ | Mature, secure, good auth support |
+| Frontend | React 18 + Vite | Popular, good developer experience |
+| CSS | TailwindCSS | Utility-first, easy to customize |
+| Database | PostgreSQL | Robust, widely supported |
+| Dev Environment | Docker | Consistency across machines |
+
 ## Testing
 
 ### Backend Tests
@@ -361,6 +414,21 @@ docker compose exec backend python manage.py test
 ```bash
 docker compose exec frontend npm test
 ```
+
+## Known Limitations
+
+- No server-side rendering (affects SEO, initial load)
+- Requires knowledge of both Python and JavaScript
+- Still experimental, not battle-tested
+- Limited mobile app support
+
+## Future Options
+
+This template doesn't lock you into specific choices. You could:
+- Add server-side rendering with Next.js
+- Replace React with another framework
+- Split into microservices
+- Add WebSocket support for real-time features
 
 ## Troubleshooting
 
@@ -385,6 +453,20 @@ For SAML authentication problems:
 2. Check metadata URL is accessible
 3. Ensure entity ID matches Purdue's configuration
 
+## Resources
+
+### Purdue-Specific
+- [Purdue SAML/Authentication Documentation](https://www.purdue.edu/securepurdue/identity-access/authentication-options.php)
+- [Purdue Visual Identity](https://marcom.purdue.edu/our-brand/visual-identity/)
+- [Purdue IT Service Portal](https://service.purdue.edu/)
+- Example applications (coming soon)
+
+### Technologies
+- [Django Documentation](https://docs.djangoproject.com/)
+- [React Documentation](https://react.dev/)
+- [Vite Documentation](https://vitejs.dev/)
+- [Docker Compose](https://docs.docker.com/compose/)
+
 ## Contributing
 
 1. Fork the repository
@@ -399,10 +481,10 @@ MIT License - See LICENSE file for details
 
 ## Support
 
-For issues or questions:
-- Contact the development team via Microsoft Teams
+This is an evolving template. For questions or suggestions:
+- Contact the development team via Microsoft Teams (preferred)
 - Email: wbbaker@purdue.edu, deshunz@purdue.edu, brooksa@purdue.edu
-- Create an issue on GitHub
+- Create an issue on [GitHub](https://github.itap.purdue.edu/wbbaker/django-react-template/issues)
 - [Purdue IT Service Portal](https://service.purdue.edu/)
 
 ## Acknowledgments
