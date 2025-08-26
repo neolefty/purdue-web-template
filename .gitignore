@@ -40,6 +40,9 @@ dist-ssr/
 .env.local
 .env.*.local
 
+# MCP
+logs
+
 # IDE
 .vscode/
 .idea/
