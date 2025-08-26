@@ -17,27 +17,36 @@ export default function Layout({ children }: LayoutProps) {
   
   return (
     <div className="min-h-screen bg-purdue-gray-50">
-      <nav className="bg-purdue-black shadow-lg">
-        <div className="container-app">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-8">
-              <Link to="/" className="flex items-center space-x-2">
-                <span className="text-purdue-gold text-2xl text-headline">
-                  Purdue App
-                </span>
-              </Link>
+      <nav className="bg-white border-b-2 border-purdue-gray-100">
+        <div className="container mx-auto px-4">
+          <div className="flex justify-between items-center h-20">
+            <div className="flex items-center space-x-12">
+              {/* Purdue Logo */}
+              <a 
+                href="https://www.purdue.edu" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="block"
+              >
+                <img 
+                  src="/purdue-logo.svg" 
+                  alt="Purdue University" 
+                  className="h-10 w-auto"
+                />
+              </a>
               
-              <div className="hidden md:flex space-x-4">
+              {/* Navigation Links */}
+              <div className="hidden md:flex items-center space-x-8">
                 <Link 
                   to="/" 
-                  className="text-white hover:text-purdue-gold px-3 py-2 rounded-md text-sm font-medium"
+                  className="nav-link text-purdue-black font-acumin font-medium text-base"
                 >
                   Home
                 </Link>
                 {isAuthenticated && (
                   <Link 
                     to="/dashboard" 
-                    className="text-white hover:text-purdue-gold px-3 py-2 rounded-md text-sm font-medium"
+                    className="nav-link text-purdue-black font-acumin font-medium text-base"
                   >
                     Dashboard
                   </Link>
@@ -45,22 +54,22 @@ export default function Layout({ children }: LayoutProps) {
               </div>
             </div>
             
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-6">
               {isAuthenticated ? (
                 <>
-                  <span className="text-white text-sm">
+                  <span className="text-purdue-gray-600 text-sm">
                     Welcome, {user?.first_name || user?.username}
                   </span>
                   <button
                     onClick={handleLogout}
                     disabled={logout.isPending}
-                    className="btn-primary text-sm"
+                    className="btn-secondary btn-sm"
                   >
                     {logout.isPending ? 'Logging out...' : 'Logout'}
                   </button>
                 </>
               ) : (
-                <Link to="/login" className="btn-primary text-sm">
+                <Link to="/login" className="btn-secondary btn-sm">
                   Login
                 </Link>
               )}
@@ -73,12 +82,24 @@ export default function Layout({ children }: LayoutProps) {
         {children}
       </main>
       
-      <footer className="bg-purdue-black text-white py-8 mt-12">
-        <div className="container-app">
-          <div className="text-center">
-            <p className="text-sm">
-              © {new Date().getFullYear()} Purdue University. All rights reserved.
-            </p>
+      <footer className="bg-purdue-black text-white py-8 mt-auto">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col md:flex-row justify-between items-center">
+            <div className="mb-4 md:mb-0">
+              <img 
+                src="/purdue-logo.svg" 
+                alt="Purdue University" 
+                className="h-8 w-auto brightness-0 invert"
+              />
+            </div>
+            <div className="text-center md:text-right">
+              <p className="text-sm text-purdue-gray-300">
+                © {new Date().getFullYear()} Purdue University. All rights reserved.
+              </p>
+              <p className="text-xs text-purdue-gray-400 mt-1">
+                An equal access/equal opportunity university
+              </p>
+            </div>
           </div>
         </div>
       </footer>
