@@ -22,7 +22,7 @@ export default function Layout({ children }: LayoutProps) {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-8">
               <Link to="/" className="flex items-center space-x-2">
-                <span className="text-purdue-gold text-2xl font-heading font-bold">
+                <span className="text-purdue-gold text-2xl text-headline">
                   Purdue App
                 </span>
               </Link>

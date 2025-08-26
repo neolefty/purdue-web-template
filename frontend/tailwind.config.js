@@ -28,9 +28,20 @@ export default {
         },
       },
       fontFamily: {
-        'sans': ['Arial', 'Helvetica', 'sans-serif'],
-        'serif': ['Georgia', 'serif'],
-        'heading': ['Franklin Gothic', 'Arial', 'sans-serif'],
+        // Purdue brand fonts
+        'acumin': ['acumin-pro', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'],
+        'acumin-condensed': ['acumin-pro-condensed', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'],
+        // United Sans - needs separate licensing, using Impact as fallback per brand guidelines
+        'united': ['United Sans', 'Impact', 'Arial Black', 'Arial', 'sans-serif'],
+        'source': ['source-serif-pro', 'Georgia', 'serif'],
+        // Default font stacks
+        'sans': ['acumin-pro', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'],
+        'serif': ['source-serif-pro', 'Georgia', 'serif'],
+        'heading': ['acumin-pro', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'],
+        // Alternative fonts when brand fonts unavailable (per brand guide)
+        'impact': ['Impact', 'Arial Black', 'Arial', 'sans-serif'],
+        'franklin': ['Franklin Gothic', 'Arial', 'sans-serif'],
+        'georgia': ['Georgia', 'serif'],
       },
       spacing: {
         '18': '4.5rem',

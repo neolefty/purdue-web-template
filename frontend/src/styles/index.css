@@ -2,13 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Purdue brand fonts loaded via Adobe Fonts (Typekit) in index.html */
+/* Using the same font kit as purdue.edu (ghc8hdz) which includes:
+   - Acumin Pro (multiple weights)
+   - Source Serif Pro (multiple weights)
+   Note: United Sans may need separate licensing */
+
 @layer base {
   body {
-    @apply bg-white text-purdue-gray-800 antialiased;
+    @apply bg-white text-purdue-gray-800 antialiased font-sans;
   }
   
-  h1, h2, h3, h4, h5, h6 {
-    @apply font-heading text-purdue-black;
+  p {
+    @apply leading-relaxed;
   }
   
   a {
@@ -17,20 +23,68 @@
 }
 
 @layer components {
+  /* Semantic typography classes following Purdue brand guidelines */
+  
+  /* Headlines and Display Text - Acumin Pro */
+  .text-headline {
+    @apply font-acumin font-bold uppercase tracking-tight;
+  }
+  
+  .text-subhead {
+    @apply font-acumin font-bold;
+  }
+  
+  /* Body Text - Acumin Pro (default) */
+  .text-body {
+    @apply font-acumin font-normal;
+  }
+  
+  /* Callouts and Data - United Sans */
+  .text-callout {
+    @apply font-united font-bold;
+  }
+  
+  .text-stat {
+    @apply font-united font-bold text-5xl;
+  }
+  
+  .text-data {
+    @apply font-united font-bold;
+  }
+  
+  .text-caption {
+    @apply font-united text-xs uppercase tracking-widest font-bold;
+  }
+  
+  /* Long-form Reading - Source Serif Pro */
+  .text-article {
+    @apply font-source leading-relaxed;
+  }
+  
+  .text-quote {
+    @apply font-source italic text-lg;
+  }
+  
+  /* Component styles */
   .btn {
     @apply inline-flex items-center justify-center px-4 py-2 font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2;
   }
   
   .btn-primary {
-    @apply btn bg-purdue-gold text-purdue-black hover:bg-purdue-gold-dark focus:ring-purdue-gold;
+    @apply btn bg-purdue-gold text-purdue-black hover:bg-purdue-black hover:text-purdue-gold focus:ring-purdue-gold transition-all duration-200;
   }
   
   .btn-secondary {
-    @apply btn bg-purdue-black text-white hover:bg-purdue-gray-800 focus:ring-purdue-black;
+    @apply btn bg-purdue-black text-white hover:bg-purdue-gold hover:text-purdue-black focus:ring-purdue-black transition-all duration-200;
   }
   
   .btn-outline {
-    @apply btn border-2 border-purdue-gold text-purdue-gold hover:bg-purdue-gold hover:text-purdue-black focus:ring-purdue-gold;
+    @apply btn border-2 border-purdue-gold text-purdue-gold hover:bg-purdue-black hover:text-purdue-gold hover:border-purdue-black focus:ring-purdue-gold transition-all duration-200;
+  }
+  
+  /* Action button style (United Sans) */
+  .btn-action {
+    @apply font-united font-bold uppercase tracking-wider px-10 py-4;
   }
   
   .input {

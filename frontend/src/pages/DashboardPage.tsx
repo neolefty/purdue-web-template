@@ -30,11 +30,11 @@ export default function DashboardPage() {
   return (
     <div className="container-app py-12">
       <div className="max-w-6xl mx-auto">
-        <h1 className="text-3xl font-heading font-bold mb-8">Dashboard</h1>
+        <h1 className="text-3xl text-headline mb-8">Dashboard</h1>
         
         <div className="grid md:grid-cols-2 gap-6">
           <div className="card">
-            <h2 className="text-xl font-heading font-semibold mb-4">User Information</h2>
+            <h2 className="text-xl text-subhead mb-4">User Information</h2>
             <dl className="space-y-2">
               <div>
                 <dt className="text-sm font-medium text-purdue-gray-500">Name</dt>
@@ -60,7 +60,7 @@ export default function DashboardPage() {
           </div>
           
           <div className="card">
-            <h2 className="text-xl font-heading font-semibold mb-4">System Status</h2>
+            <h2 className="text-xl text-subhead mb-4">System Status</h2>
             {health ? (
               <dl className="space-y-2">
                 <div>
@@ -107,7 +107,7 @@ export default function DashboardPage() {
         
         <div className="mt-8">
           <div className="card">
-            <h2 className="text-xl font-heading font-semibold mb-4">Quick Actions</h2>
+            <h2 className="text-xl text-subhead mb-4">Quick Actions</h2>
             <div className="grid md:grid-cols-3 gap-4">
               <button className="btn-outline">
                 Edit Profile
@@ -124,10 +124,10 @@ export default function DashboardPage() {
         
         <div className="mt-8">
           <div className="card bg-purdue-gold bg-opacity-10 border-purdue-gold">
-            <h2 className="text-xl font-heading font-semibold mb-2">
+            <h2 className="text-xl text-subhead mb-2">
               Welcome to Your Dashboard
             </h2>
-            <p className="text-purdue-gray-600">
+            <p className="text-purdue-gray-600 font-united">
               This is a starting point for your Purdue web application. 
               You can customize this dashboard to display relevant information for your users.
             </p>
