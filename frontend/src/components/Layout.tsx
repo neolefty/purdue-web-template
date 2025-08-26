@@ -1,5 +1,5 @@
 import { ReactNode } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, NavLink } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
 import { useLogout } from '@/api/auth'
 
@@ -37,19 +37,24 @@ export default function Layout({ children }: LayoutProps) {
               
               {/* Navigation Links */}
               <div className="hidden md:flex items-center space-x-8">
-                <Link 
+                <NavLink 
                   to="/" 
-                  className="nav-link text-purdue-black font-acumin font-medium text-base"
+                  className={({ isActive }) => 
+                    `nav-link ${isActive ? 'nav-link-active' : ''} text-purdue-black font-acumin font-medium text-base`
+                  }
+                  end
                 >
                   Home
-                </Link>
+                </NavLink>
                 {isAuthenticated && (
-                  <Link 
+                  <NavLink 
                     to="/dashboard" 
-                    className="nav-link text-purdue-black font-acumin font-medium text-base"
+                    className={({ isActive }) =>
+                      `nav-link ${isActive ? 'nav-link-active' : ''} text-purdue-black font-acumin font-medium text-base`
+                    }
                   >
                     Dashboard
-                  </Link>
+                  </NavLink>
                 )}
               </div>
             </div>
