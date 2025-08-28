@@ -1,6 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import apiClient from './client'
 
+// Helper to check if user has a session
+function hasSession(): boolean {
+  return document.cookie.includes('sessionid=')
+}
+
 export interface User {
   id: number
   username: string
@@ -66,6 +71,7 @@ export const useCurrentUser = () => {
     queryKey: ['currentUser'],
     queryFn: authApi.getCurrentUser,
     retry: false,
+    enabled: hasSession(), // Only fetch if we have a session cookie
   })
 }
 
@@ -75,7 +81,9 @@ export const useLogin = () => {
   return useMutation({
     mutationFn: authApi.login,
     onSuccess: (data) => {
+      // Set the user data immediately
       queryClient.setQueryData(['currentUser'], data.user)
+      // Invalidate to ensure fresh data (session cookie is now set)
       queryClient.invalidateQueries({ queryKey: ['currentUser'] })
     },
   })
@@ -87,7 +95,9 @@ export const useRegister = () => {
   return useMutation({
     mutationFn: authApi.register,
     onSuccess: (data) => {
+      // Set the user data immediately
       queryClient.setQueryData(['currentUser'], data.user)
+      // Invalidate to ensure fresh data (session cookie is now set)
       queryClient.invalidateQueries({ queryKey: ['currentUser'] })
     },
   })
