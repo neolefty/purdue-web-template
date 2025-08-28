@@ -1,11 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import apiClient from './client'
 
-// Helper to check if user has a session
-function hasSession(): boolean {
-  return document.cookie.includes('sessionid=')
-}
-
 export interface User {
   id: number
   username: string
@@ -71,7 +66,7 @@ export const useCurrentUser = () => {
     queryKey: ['currentUser'],
     queryFn: authApi.getCurrentUser,
     retry: false,
-    enabled: hasSession(), // Only fetch if we have a session cookie
+    // Always attempt to fetch user - backend will return 403 if no valid session
   })
 }
 
