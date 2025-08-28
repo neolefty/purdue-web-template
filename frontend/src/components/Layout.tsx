@@ -1,6 +1,6 @@
 import { ReactNode } from 'react'
 import { Link, NavLink } from 'react-router-dom'
-import { useAuth } from '@/contexts/AuthContext'
+import { useAuth } from '@/hooks/useAuth'
 import { useLogout } from '@/api/auth'
 
 interface LayoutProps {
@@ -10,11 +10,11 @@ interface LayoutProps {
 export default function Layout({ children }: LayoutProps) {
   const { user, isAuthenticated } = useAuth()
   const logout = useLogout()
-  
+
   const handleLogout = () => {
     logout.mutate()
   }
-  
+
   return (
     <div className="min-h-screen bg-purdue-gray-50">
       <nav className="bg-white border-b-2 border-purdue-gray-100">
@@ -22,24 +22,24 @@ export default function Layout({ children }: LayoutProps) {
           <div className="flex justify-between items-center h-20">
             <div className="flex items-center space-x-12">
               {/* Purdue Logo */}
-              <a 
-                href="https://www.purdue.edu" 
-                target="_blank" 
+              <a
+                href="https://www.purdue.edu"
+                target="_blank"
                 rel="noopener noreferrer"
                 className="block"
               >
-                <img 
-                  src="/purdue-logo.svg" 
-                  alt="Purdue University" 
+                <img
+                  src="/purdue-logo.svg"
+                  alt="Purdue University"
                   className="h-10 w-auto"
                 />
               </a>
-              
+
               {/* Navigation Links */}
               <div className="hidden md:flex items-center space-x-8">
-                <NavLink 
-                  to="/" 
-                  className={({ isActive }) => 
+                <NavLink
+                  to="/"
+                  className={({ isActive }) =>
                     `nav-link ${isActive ? 'nav-link-active' : ''} text-purdue-black font-acumin font-medium text-base`
                   }
                   end
@@ -47,8 +47,8 @@ export default function Layout({ children }: LayoutProps) {
                   Home
                 </NavLink>
                 {isAuthenticated && (
-                  <NavLink 
-                    to="/dashboard" 
+                  <NavLink
+                    to="/dashboard"
                     className={({ isActive }) =>
                       `nav-link ${isActive ? 'nav-link-active' : ''} text-purdue-black font-acumin font-medium text-base`
                     }
@@ -58,7 +58,7 @@ export default function Layout({ children }: LayoutProps) {
                 )}
               </div>
             </div>
-            
+
             <div className="flex items-center space-x-6">
               {isAuthenticated ? (
                 <>
@@ -82,22 +82,22 @@ export default function Layout({ children }: LayoutProps) {
           </div>
         </div>
       </nav>
-      
+
       <main className="flex-1">
         {children}
       </main>
-      
+
       <footer className="bg-purdue-black text-white py-12 mt-auto">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between">
             <div className="mb-6 md:mb-0">
-              <img 
-                src="/purdue-logo-vertical.svg" 
-                alt="Purdue University" 
+              <img
+                src="/purdue-logo-vertical.svg"
+                alt="Purdue University"
                 className="h-24 w-auto"
               />
             </div>
-            
+
             <div className="text-left md:text-right">
               <p className="text-sm text-purdue-gray-300">
                 © {new Date().getFullYear()} Purdue University. All rights reserved.

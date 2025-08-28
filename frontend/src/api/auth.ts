@@ -38,21 +38,21 @@ export interface RegisterData {
 
 // API functions
 const authApi = {
-  getConfig: () => 
+  getConfig: () =>
     apiClient.get<AuthConfig>('/auth/config/'),
-  
+
   getCurrentUser: () =>
     apiClient.get<User>('/auth/user/'),
-  
+
   login: (credentials: LoginCredentials) =>
     apiClient.post<{ user: User; message: string }>('/auth/login/', credentials),
-  
+
   register: (data: RegisterData) =>
     apiClient.post<{ user: User; message: string }>('/auth/register/', data),
-  
+
   logout: () =>
     apiClient.post('/auth/logout/'),
-  
+
   changePassword: (data: { old_password: string; new_password: string }) =>
     apiClient.post('/auth/change-password/', data),
 }
@@ -77,7 +77,7 @@ export const useCurrentUser = () => {
 
 export const useLogin = () => {
   const queryClient = useQueryClient()
-  
+
   return useMutation({
     mutationFn: authApi.login,
     onSuccess: (data) => {
@@ -91,7 +91,7 @@ export const useLogin = () => {
 
 export const useRegister = () => {
   const queryClient = useQueryClient()
-  
+
   return useMutation({
     mutationFn: authApi.register,
     onSuccess: (data) => {
@@ -105,7 +105,7 @@ export const useRegister = () => {
 
 export const useLogout = () => {
   const queryClient = useQueryClient()
-  
+
   return useMutation({
     mutationFn: authApi.logout,
     onSuccess: () => {

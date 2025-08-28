@@ -1,0 +1,106 @@
+version: '3'
+
+tasks:
+  # Frontend tasks
+  lint:frontend:
+    desc: Run ESLint on frontend code
+    cmds:
+      - docker compose exec frontend npm run lint
+
+  lint:frontend:fix:
+    desc: Run ESLint with auto-fix on frontend code
+    cmds:
+      - docker compose exec frontend npx eslint . --ext ts,tsx --fix
+
+  type-check:
+    desc: Run TypeScript type checking
+    cmds:
+      - docker compose exec frontend npm run type-check
+
+  # Backend tasks
+  lint:backend:
+    desc: Run all Python linters (flake8, black check, isort check)
+    cmds:
+      - echo "Running flake8..."
+      - docker compose exec backend flake8 .
+      - echo "Checking black formatting..."
+      - docker compose exec backend black --check .
+      - echo "Checking import sorting..."
+      - docker compose exec backend isort --check-only .
+
+  format:backend:
+    desc: Format Python code with black and isort
+    cmds:
+      - echo "Formatting with black..."
+      - docker compose exec backend black .
+      - echo "Sorting imports with isort..."
+      - docker compose exec backend isort .
+
+  mypy:
+    desc: Run mypy type checking on backend
+    cmds:
+      - docker compose exec backend mypy .
+
+  # Combined tasks
+  lint:
+    desc: Run all linters (frontend and backend)
+    cmds:
+      - task: lint:frontend
+      - task: lint:backend
+
+  format:
+    desc: Format all code
+    cmds:
+      - task: format:backend
+      - task: lint:frontend:fix
+
+  # Test tasks
+  test:frontend:
+    desc: Run frontend tests (when added)
+    cmds:
+      - echo "No frontend tests configured yet"
+
+  test:backend:
+    desc: Run backend tests
+    cmds:
+      - docker compose exec backend pytest
+
+  test:
+    desc: Run all tests
+    cmds:
+      - task: test:frontend
+      - task: test:backend
+
+  # Quick check before committing
+  pre-commit:
+    desc: Run all checks before committing (requires Docker containers running)
+    cmds:
+      - task: type-check
+      - task: lint
+      - task: test
+
+  # Utility tasks
+  shell:backend:
+    desc: Open a shell in the backend container
+    cmds:
+      - docker compose exec backend bash
+
+  shell:frontend:
+    desc: Open a shell in the frontend container
+    cmds:
+      - docker compose exec frontend sh
+
+  migrate:
+    desc: Run Django migrations
+    cmds:
+      - docker compose exec backend python manage.py migrate
+
+  makemigrations:
+    desc: Create Django migrations
+    cmds:
+      - docker compose exec backend python manage.py makemigrations
+
+  createsuperuser:
+    desc: Create Django superuser
+    cmds:
+      - docker compose exec backend python manage.py createsuperuser

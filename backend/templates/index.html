@@ -5,16 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Purdue Web Application</title>
     <meta name="description" content="Purdue Web Application">
-    
+
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
-    
+
     <!-- React app styles will be injected here by Vite -->
 </head>
 <body>
     <noscript>You need to enable JavaScript to run this application.</noscript>
     <div id="root"></div>
-    
+
     <!-- Django context for React -->
     <script>
         window.__DJANGO_CONTEXT__ = {
@@ -23,7 +23,7 @@
             csrfToken: '{{ csrf_token }}',
         };
     </script>
-    
+
     <!-- React app script will be injected here by Vite build -->
     {% if debug %}
         <!-- Development mode: Vite dev server -->

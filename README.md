@@ -18,7 +18,7 @@ This template provides:
 ### Technical Architecture
 
 - **Backend**: Django (Python) - Handles authentication, database, APIs
-- **Frontend**: React (TypeScript) - User interface, compiles to static files  
+- **Frontend**: React (TypeScript) - User interface, compiles to static files
 - **Development**: Docker Compose for consistent local environment
 - **Production**: Django serves both API and compiled React files
 
@@ -342,15 +342,15 @@ WantedBy=multi-user.target
 server {
     listen 80;
     server_name yourapp.purdue.edu;
-    
+
     location /static/ {
         alias /var/www/purdue-app/backend/staticfiles/;
     }
-    
+
     location /media/ {
         alias /var/www/purdue-app/backend/media/;
     }
-    
+
     location / {
         proxy_set_header Host $http_host;
         proxy_set_header X-Real-IP $remote_addr;

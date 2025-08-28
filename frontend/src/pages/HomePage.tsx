@@ -1,9 +1,9 @@
 import { Link } from 'react-router-dom'
-import { useAuth } from '@/contexts/AuthContext'
+import { useAuth } from '@/hooks/useAuth'
 
 export default function HomePage() {
   const { isAuthenticated } = useAuth()
-  
+
   return (
     <div className="container-app py-12">
       <div className="max-w-4xl mx-auto">
@@ -30,7 +30,7 @@ export default function HomePage() {
             </div>
           </div>
         </div>
-        
+
         <div className="grid md:grid-cols-3 gap-6 mb-12">
           <div className="card">
             <span className="text-caption text-purdue-gold mb-2 block">SECURITY</span>
@@ -44,7 +44,7 @@ export default function HomePage() {
               2FA Ready
             </div>
           </div>
-          
+
           <div className="card">
             <span className="text-caption text-purdue-gold mb-2 block">TECHNOLOGY</span>
             <h3 className="text-xl text-subhead mb-3">
@@ -57,7 +57,7 @@ export default function HomePage() {
               TypeScript First
             </div>
           </div>
-          
+
           <div className="card">
             <span className="text-caption text-purdue-gold mb-2 block">DEPLOYMENT</span>
             <h3 className="text-xl text-subhead mb-3">
@@ -71,7 +71,7 @@ export default function HomePage() {
             </div>
           </div>
         </div>
-        
+
         <div className="text-center">
           {isAuthenticated ? (
             <Link to="/dashboard" className="btn-primary btn-action">
@@ -83,22 +83,22 @@ export default function HomePage() {
             </Link>
           )}
         </div>
-        
+
         {/* Source Serif Pro example - longer form content */}
         <div className="mt-12 p-8 bg-white rounded-lg shadow-sm border border-purdue-gray-100">
           <h2 className="text-3xl text-headline mb-4">Why This Template?</h2>
           <p className="text-article text-purdue-gray-700 mb-4">
-            Building web applications for Purdue University requires balancing modern development 
-            practices with institutional requirements. This template provides a foundation that has 
+            Building web applications for Purdue University requires balancing modern development
+            practices with institutional requirements. This template provides a foundation that has
             been carefully crafted to meet both needs.
           </p>
           <blockquote className="text-quote text-purdue-gray-600 border-l-4 border-purdue-gold pl-4 my-6">
-            "A standardized approach that many developers are familiar with, reducing the learning 
+            "A standardized approach that many developers are familiar with, reducing the learning
             curve while maintaining enterprise-grade security and scalability."
           </blockquote>
           <p className="text-article text-purdue-gray-700">
-            Whether you're building a department portal, research tool, or campus-wide system, 
-            this template gives you a head start with authentication, database support, and 
+            Whether you're building a department portal, research tool, or campus-wide system,
+            this template gives you a head start with authentication, database support, and
             deployment configurations already in place.
           </p>
         </div>

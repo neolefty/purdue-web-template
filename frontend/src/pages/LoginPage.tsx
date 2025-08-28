@@ -1,28 +1,28 @@
 import { useState } from 'react'
 import { useNavigate, Navigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
-import { useAuth } from '@/contexts/AuthContext'
+import { useAuth } from '@/hooks/useAuth'
 import { useLogin, useRegister, LoginCredentials, RegisterData } from '@/api/auth'
 
 export default function LoginPage() {
   const navigate = useNavigate()
   const { isAuthenticated, authConfig } = useAuth()
   const [isRegisterMode, setIsRegisterMode] = useState(false)
-  
+
   const login = useLogin()
   const register = useRegister()
-  
+
   const {
     register: registerField,
     handleSubmit,
     formState: { errors },
     watch,
   } = useForm<LoginCredentials & RegisterData>()
-  
+
   if (isAuthenticated) {
     return <Navigate to="/dashboard" replace />
   }
-  
+
   const onSubmit = (data: LoginCredentials & RegisterData) => {
     if (isRegisterMode) {
       register.mutate(data, {
@@ -34,7 +34,7 @@ export default function LoginPage() {
       })
     }
   }
-  
+
   if (authConfig?.auth_method === 'saml') {
     return (
       <div className="container-app py-12">
@@ -55,7 +55,7 @@ export default function LoginPage() {
       </div>
     )
   }
-  
+
   return (
     <div className="container-app py-12">
       <div className="max-w-md mx-auto">
@@ -63,7 +63,7 @@ export default function LoginPage() {
           <h2 className="text-2xl font-heading font-bold mb-6">
             {isRegisterMode ? 'Create Account' : 'Login'}
           </h2>
-          
+
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             {isRegisterMode && (
               <>
@@ -87,7 +87,7 @@ export default function LoginPage() {
                     <p className="text-red-500 text-sm mt-1">{errors.username.message}</p>
                   )}
                 </div>
-                
+
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label htmlFor="first_name" className="label">
@@ -100,7 +100,7 @@ export default function LoginPage() {
                       placeholder="John"
                     />
                   </div>
-                  
+
                   <div>
                     <label htmlFor="last_name" className="label">
                       Last Name
@@ -115,7 +115,7 @@ export default function LoginPage() {
                 </div>
               </>
             )}
-            
+
             <div>
               <label htmlFor="email" className="label">
                 Email
@@ -136,7 +136,7 @@ export default function LoginPage() {
                 <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
               )}
             </div>
-            
+
             <div>
               <label htmlFor="password" className="label">
                 Password
@@ -157,7 +157,7 @@ export default function LoginPage() {
                 <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>
               )}
             </div>
-            
+
             {isRegisterMode && (
               <div>
                 <label htmlFor="password_confirm" className="label">
@@ -180,13 +180,13 @@ export default function LoginPage() {
                 )}
               </div>
             )}
-            
+
             {(login.error || register.error) && (
               <div className="bg-red-50 text-red-700 p-3 rounded-md text-sm">
                 {login.error?.message || register.error?.message || 'An error occurred'}
               </div>
             )}
-            
+
             <button
               type="submit"
               disabled={login.isPending || register.isPending}
@@ -199,7 +199,7 @@ export default function LoginPage() {
                 : 'Login'}
             </button>
           </form>
-          
+
           {authConfig?.allow_registration && (
             <div className="mt-6 text-center">
               <button

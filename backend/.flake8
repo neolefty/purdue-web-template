@@ -1,0 +1,16 @@
+[flake8]
+max-line-length = 100
+extend-ignore = E203, W503
+exclude =
+    .git,
+    __pycache__,
+    .venv,
+    venv,
+    migrations,
+    .mypy_cache,
+    .pytest_cache,
+    static,
+    media
+per-file-ignores =
+    */settings/*.py:F403,F405,F401
+    */backends.py:F401

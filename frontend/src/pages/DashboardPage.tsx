@@ -1,4 +1,4 @@
-import { useAuth } from '@/contexts/AuthContext'
+import { useAuth } from '@/hooks/useAuth'
 import { useQuery } from '@tanstack/react-query'
 import apiClient from '@/api/client'
 
@@ -16,19 +16,19 @@ interface HealthCheck {
 
 export default function DashboardPage() {
   const { user } = useAuth()
-  
+
   const { data: health } = useQuery({
     queryKey: ['health'],
     queryFn: () => apiClient.get<HealthCheck>('/health/'),
     // Refetch every 30 seconds
     refetchInterval: 30000,
   })
-  
+
   return (
     <div className="container-app py-12">
       <div className="max-w-6xl mx-auto">
         <h1 className="text-3xl text-headline mb-8">Dashboard</h1>
-        
+
         <div className="grid md:grid-cols-2 gap-6">
           <div className="card">
             <h2 className="text-xl text-subhead mb-4">User Information</h2>
@@ -55,7 +55,7 @@ export default function DashboardPage() {
               </div>
             </dl>
           </div>
-          
+
           <div className="card">
             <h2 className="text-xl text-subhead mb-4">System Status</h2>
             {health ? (
@@ -101,7 +101,7 @@ export default function DashboardPage() {
             )}
           </div>
         </div>
-        
+
         <div className="mt-8">
           <div className="card">
             <h2 className="text-xl text-subhead mb-4">Quick Actions</h2>
@@ -118,14 +118,14 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
-        
+
         <div className="mt-8">
           <div className="card bg-purdue-gold bg-opacity-10 border-purdue-gold">
             <h2 className="text-xl text-subhead mb-2">
               Welcome to Your Dashboard
             </h2>
             <p className="text-purdue-gray-600 font-united">
-              This is a starting point for your Purdue web application. 
+              This is a starting point for your Purdue web application.
               You can customize this dashboard to display relevant information for your users.
             </p>
           </div>

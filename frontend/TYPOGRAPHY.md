@@ -80,7 +80,7 @@ Instead of using raw font classes, use semantic classes that convey meaning:
 
 If you need direct control:
 - `font-acumin` - Force Acumin Pro
-- `font-united` - Force United Sans  
+- `font-united` - Force United Sans
 - `font-source` - Force Source Serif Pro
 
 ## Notes
