@@ -17,14 +17,11 @@ interface HealthCheck {
 export default function DashboardPage() {
   const { user } = useAuth()
   
-  // Check if we're in development mode
-  const isDevelopment = window.__DJANGO_CONTEXT__?.debug ?? false
-  
   const { data: health } = useQuery({
     queryKey: ['health'],
-    queryFn: () => apiClient.get<HealthCheck>('/health/').then(res => res.data),
-    // Refetch every 5 seconds in dev, every 60 seconds in prod
-    refetchInterval: isDevelopment ? 5000 : 60000,
+    queryFn: () => apiClient.get<HealthCheck>('/health/'),
+    // Refetch every 30 seconds
+    refetchInterval: 30000,
   })
   
   return (

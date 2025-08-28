@@ -34,24 +34,22 @@ export interface RegisterData {
 // API functions
 const authApi = {
   getConfig: () => 
-    apiClient.get<AuthConfig>('/auth/config/').then(res => res.data),
+    apiClient.get<AuthConfig>('/auth/config/'),
   
   getCurrentUser: () =>
-    apiClient.get<User>('/auth/user/').then(res => res.data),
+    apiClient.get<User>('/auth/user/'),
   
   login: (credentials: LoginCredentials) =>
-    apiClient.post<{ user: User; message: string }>('/auth/login/', credentials)
-      .then(res => res.data),
+    apiClient.post<{ user: User; message: string }>('/auth/login/', credentials),
   
   register: (data: RegisterData) =>
-    apiClient.post<{ user: User; message: string }>('/auth/register/', data)
-      .then(res => res.data),
+    apiClient.post<{ user: User; message: string }>('/auth/register/', data),
   
   logout: () =>
-    apiClient.post('/auth/logout/').then(res => res.data),
+    apiClient.post('/auth/logout/'),
   
   changePassword: (data: { old_password: string; new_password: string }) =>
-    apiClient.post('/auth/change-password/', data).then(res => res.data),
+    apiClient.post('/auth/change-password/', data),
 }
 
 // React Query hooks
