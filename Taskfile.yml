@@ -58,12 +58,17 @@ tasks:
   test:frontend:
     desc: Run frontend tests (when added)
     cmds:
-      - echo "No frontend tests configured yet"
+      - echo "ℹ️  No frontend tests configured yet"
 
   test:backend:
-    desc: Run backend tests
+    desc: Run backend tests with pytest
     cmds:
-      - docker compose exec backend pytest
+      - docker compose exec backend pytest -v
+
+  test:backend:coverage:
+    desc: Run backend tests with coverage report
+    cmds:
+      - docker compose exec backend pytest --cov=apps --cov-report=term-missing
 
   test:
     desc: Run all tests
