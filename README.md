@@ -157,6 +157,61 @@ CORS_ALLOWED_ORIGINS=http://localhost:5173
 
 ## Development
 
+### Task Runner
+
+This project includes a Taskfile for common development tasks. Install [Task](https://taskfile.dev/installation/) to use it:
+
+```bash
+# Run all linters
+task lint
+
+# Format code
+task format
+
+# Run tests
+task test
+
+# Run all checks before committing
+task pre-commit
+
+# View all available tasks
+task --list
+```
+
+### Code Quality & Linting
+
+The project uses automated code quality tools:
+
+**Backend (Python):**
+- **Black** - Code formatting
+- **isort** - Import sorting
+- **Flake8** - Linting
+- **mypy** - Type checking
+
+**Frontend (TypeScript/React):**
+- **ESLint** - Linting and code quality
+- **TypeScript** - Type checking
+
+### Pre-commit Hooks (Optional)
+
+Pre-commit hooks automatically check code quality before each commit. To enable them:
+
+```bash
+# Install pre-commit
+pip install pre-commit
+
+# Install the git hooks
+pre-commit install
+
+# Run hooks manually on all files
+pre-commit run --all-files
+```
+
+Once installed, the hooks will run automatically on `git commit`. To skip hooks temporarily:
+```bash
+git commit --no-verify
+```
+
 ### Backend Development
 
 ```bash
