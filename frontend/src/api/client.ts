@@ -8,10 +8,23 @@ const apiClient = axios.create({
   withCredentials: true,
 })
 
+// Helper function to get cookie value by name
+function getCookie(name: string): string | null {
+  const value = `; ${document.cookie}`
+  const parts = value.split(`; ${name}=`)
+  
+  if (parts.length === 2) {
+    const cookieValue = parts.pop()?.split(';').shift()
+    return cookieValue || null
+  }
+  
+  return null
+}
+
 // Add CSRF token to requests
 apiClient.interceptors.request.use((config) => {
-  const csrfToken = window.__DJANGO_CONTEXT__?.csrfToken || 
-    document.querySelector<HTMLMetaElement>('[name="csrf-token"]')?.content
+  // Get CSRF token from cookie (since we're using SessionAuthentication)
+  const csrfToken = getCookie('csrftoken')
   
   if (csrfToken) {
     config.headers['X-CSRFToken'] = csrfToken

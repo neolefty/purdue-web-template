@@ -215,6 +215,12 @@ CORS_ALLOWED_ORIGINS = env.list('CORS_ALLOWED_ORIGINS', default=[
     'http://localhost:3000',  # Alternative dev port
 ])
 CORS_ALLOW_CREDENTIALS = True
+
+# CSRF trusted origins (required for Django 4.0+)
+CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS', default=[
+    'http://localhost:5173',  # Vite dev server
+    'http://localhost:3000',  # Alternative dev port
+])
 CORS_ALLOW_HEADERS = [
     'accept',
     'accept-encoding',

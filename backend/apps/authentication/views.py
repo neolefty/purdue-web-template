@@ -81,10 +81,27 @@ def register_view(request):
 @permission_classes([IsAuthenticated])
 def logout_view(request):
     """
-    Logout endpoint
+    Logout endpoint - clears session and ensures cookies are deleted
     """
     logout(request)
-    return Response({'message': 'Logout successful'})
+    response = Response({'message': 'Logout successful'})
+    
+    # Delete session cookie to ensure clean logout
+    # Using getattr with defaults for cleaner code
+    response.delete_cookie(
+        key=settings.SESSION_COOKIE_NAME,
+        path=getattr(settings, 'SESSION_COOKIE_PATH', '/'),
+        domain=getattr(settings, 'SESSION_COOKIE_DOMAIN', None),
+    )
+    
+    # Delete CSRF cookie for complete cleanup
+    response.delete_cookie(
+        key=settings.CSRF_COOKIE_NAME,
+        path=getattr(settings, 'CSRF_COOKIE_PATH', '/'),
+        domain=getattr(settings, 'CSRF_COOKIE_DOMAIN', None),
+    )
+    
+    return response
 
 
 @api_view(['POST'])

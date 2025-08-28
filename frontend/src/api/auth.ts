@@ -101,8 +101,11 @@ export const useLogout = () => {
   return useMutation({
     mutationFn: authApi.logout,
     onSuccess: () => {
+      // Clear user from cache immediately
       queryClient.setQueryData(['currentUser'], null)
-      queryClient.invalidateQueries()
+      // Redirect to home - this will clear all client state
+      // No need to invalidateQueries since we're reloading anyway
+      window.location.href = '/'
     },
   })
 }
