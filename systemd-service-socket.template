@@ -1,0 +1,44 @@
+[Unit]
+Description=${APP_NAME} gunicorn daemon
+Requires=${APP_NAME}.socket
+After=network.target
+
+[Service]
+Type=notify
+User=${APP_USER}
+Group=${APP_GROUP}
+WorkingDirectory=${APP_DIR}/backend
+Environment="PATH=${APP_DIR}/venv/bin"
+
+# Using socket activation - systemd provides the socket
+ExecStart=${APP_DIR}/venv/bin/gunicorn \
+    --access-logfile ${LOG_DIR}/access.log \
+    --error-logfile ${LOG_DIR}/error.log \
+    --log-level ${GUNICORN_LOG_LEVEL} \
+    --workers ${GUNICORN_WORKERS} \
+    --worker-class ${GUNICORN_WORKER_CLASS} \
+    --timeout ${GUNICORN_TIMEOUT} \
+    --bind unix:${SOCKET_PATH} \
+    core.wsgi:application
+
+# Restart policy
+Restart=on-failure
+RestartSec=10
+
+# Process management
+KillMode=mixed
+KillSignal=SIGQUIT
+
+# Security hardening
+PrivateTmp=true
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=${APP_DIR} ${LOG_DIR}
+
+# Resource limits
+LimitNOFILE=65536
+LimitNPROC=4096
+
+[Install]
+WantedBy=multi-user.target

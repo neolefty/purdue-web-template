@@ -1,0 +1,11 @@
+[Unit]
+Description=${APP_NAME} gunicorn socket
+
+[Socket]
+ListenStream=${SOCKET_PATH}
+SocketUser=${APP_USER}
+SocketGroup=${APP_GROUP}
+SocketMode=0660
+
+[Install]
+WantedBy=sockets.target

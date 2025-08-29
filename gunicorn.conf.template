@@ -1,0 +1,67 @@
+# Gunicorn configuration
+# Generated from template
+
+import multiprocessing
+
+# Server socket
+bind = "unix:${SOCKET_PATH}"
+backlog = ${GUNICORN_BACKLOG}
+
+# Worker processes
+# Recommendation: 2-4 x CPU cores
+workers = ${GUNICORN_WORKERS}
+worker_class = "${GUNICORN_WORKER_CLASS}"
+
+# Worker connections (for async workers)
+worker_connections = ${GUNICORN_WORKER_CONNECTIONS}
+
+# Threads (for gthread worker)
+threads = ${GUNICORN_THREADS}
+
+# Request handling
+timeout = ${GUNICORN_TIMEOUT}
+graceful_timeout = ${GUNICORN_TIMEOUT}
+keepalive = ${GUNICORN_KEEPALIVE}
+
+# Restart workers after this many requests, to help limit memory leaks
+max_requests = ${GUNICORN_MAX_REQUESTS}
+max_requests_jitter = ${GUNICORN_MAX_REQUESTS_JITTER}
+
+# Logging
+loglevel = "${GUNICORN_LOG_LEVEL}"
+accesslog = "${LOG_DIR}/access.log"
+errorlog = "${LOG_DIR}/error.log"
+access_log_format = '%(h)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s" %(D)s %(p)s'
+
+# Log to stdout/stderr as well (useful for container deployments)
+capture_output = ${GUNICORN_CAPTURE_OUTPUT}
+
+# Process naming
+proc_name = "${APP_NAME}"
+default_proc_name = "${APP_NAME}-gunicorn"
+
+# Server mechanics
+daemon = False
+pidfile = "${PID_FILE}"
+user = "${APP_USER}"
+group = "${APP_GROUP}"
+tmp_upload_dir = None
+
+# Environment
+raw_env = [
+    "DJANGO_SETTINGS_MODULE=core.settings.production",
+]
+
+# Security
+limit_request_line = ${GUNICORN_LIMIT_REQUEST_LINE}
+limit_request_fields = ${GUNICORN_LIMIT_REQUEST_FIELDS}
+limit_request_field_size = ${GUNICORN_LIMIT_REQUEST_FIELD_SIZE}
+
+
+
+
+# Preload application
+preload_app = ${GUNICORN_PRELOAD}
+
+# Auto-reload (development only)
+reload = ${GUNICORN_RELOAD}
