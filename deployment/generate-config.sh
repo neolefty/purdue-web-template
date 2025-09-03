@@ -257,7 +257,7 @@ ExecStart=${APP_DIR}/venv/bin/gunicorn \\
     --config ${APP_DIR}/gunicorn_config.py \\
     --error-logfile ${LOG_DIR}/error.log \\
     --access-logfile ${LOG_DIR}/access.log \\
-    core.wsgi:application
+    config.wsgi:application
 
 ExecReload=/bin/kill -s HUP \$MAINPID
 ExecStop=/bin/kill -s TERM \$MAINPID

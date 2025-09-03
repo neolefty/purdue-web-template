@@ -10,6 +10,7 @@ Group=wbbaker
 WorkingDirectory=/opt/apps/template/backend
 Environment="PATH=/opt/apps/template/venv/bin"
 Environment="PYTHONPATH=/opt/apps/template/backend"
+Environment="DJANGO_SETTINGS_MODULE=config.settings.production"
 Environment="SECURE_SSL_REDIRECT=False"
 ExecStart=/opt/apps/template/venv/bin/gunicorn --bind unix:/run/template.sock --workers 3 --timeout 120 --access-logfile /opt/apps/template/logs/access.log --error-logfile /opt/apps/template/logs/error.log config.wsgi:application
 

@@ -9,6 +9,7 @@ User=${APP_USER}
 Group=${APP_GROUP}
 WorkingDirectory=${APP_DIR}/backend
 Environment="PATH=${APP_DIR}/venv/bin"
+Environment="DJANGO_SETTINGS_MODULE=config.settings.production"
 
 # Using socket activation - systemd provides the socket
 ExecStart=${APP_DIR}/venv/bin/gunicorn \
@@ -19,7 +20,7 @@ ExecStart=${APP_DIR}/venv/bin/gunicorn \
     --worker-class ${GUNICORN_WORKER_CLASS} \
     --timeout ${GUNICORN_TIMEOUT} \
     --bind unix:${SOCKET_PATH} \
-    core.wsgi:application
+    config.wsgi:application
 
 # Restart policy
 Restart=on-failure
