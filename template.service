@@ -1,0 +1,28 @@
+[Unit]
+Description=Django Template Application
+After=network.target
+Requires=template.socket
+
+[Service]
+Type=notify
+User=wbbaker
+Group=template
+WorkingDirectory=/opt/apps/template/backend
+Environment="PATH=/opt/apps/template/venv/bin"
+Environment="PYTHONPATH=/opt/apps/template/backend"
+Environment="SECURE_SSL_REDIRECT=False"
+ExecStart=/opt/apps/template/venv/bin/gunicorn \
+    --bind unix:/run/template/gunicorn.sock \
+    --workers 3 \
+    --timeout 120 \
+    --access-logfile /opt/apps/template/logs/access.log \
+    --error-logfile /opt/apps/template/logs/error.log \
+    config.wsgi:application
+
+Restart=on-failure
+RestartSec=5s
+KillMode=mixed
+KillSignal=SIGQUIT
+
+[Install]
+WantedBy=multi-user.target

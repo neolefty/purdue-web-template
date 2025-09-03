@@ -1,0 +1,12 @@
+[Unit]
+Description=Django Template Application Socket
+PartOf=template.service
+
+[Socket]
+ListenStream=/run/template/gunicorn.sock
+SocketUser=wbbaker
+SocketGroup=template
+SocketMode=0660
+
+[Install]
+WantedBy=sockets.target
