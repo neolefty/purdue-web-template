@@ -60,7 +60,7 @@ fi
 
 # Copy application files
 echo -e "${YELLOW}Copying application files...${NC}"
-rsync -rlv --exclude='node_modules' \
+rsync -rl --exclude='node_modules' \
           --exclude='__pycache__' \
           --exclude='*.pyc' \
           --exclude='.git' \
@@ -70,6 +70,7 @@ rsync -rlv --exclude='node_modules' \
           --exclude='frontend/dist' \
           --exclude='frontend/build' \
           ./ "${APP_DIR}/"
+echo -e "${GREEN}✓ Files copied to ${APP_DIR}${NC}"
 
 # Setup Python virtual environment
 echo -e "${YELLOW}Setting up Python virtual environment...${NC}"
@@ -91,24 +92,28 @@ source "${VENV_DIR}/bin/activate"
 
 # Install Python dependencies
 echo -e "${YELLOW}Installing Python dependencies...${NC}"
-pip install --upgrade pip
+pip install --upgrade pip -q
 # Install from requirements/production.txt directly
 if [[ -f "${BACKEND_DIR}/requirements/production.txt" ]]; then
-    pip install -r "${BACKEND_DIR}/requirements/production.txt"
+    echo "Installing from requirements/production.txt..."
+    pip install -r "${BACKEND_DIR}/requirements/production.txt" -q --progress-bar off
+    echo -e "${GREEN}✓ Python dependencies installed${NC}"
 elif [[ -f "${BACKEND_DIR}/requirements.txt" ]]; then
     # Fallback for legacy structure
-    pip install -r "${BACKEND_DIR}/requirements.txt"
+    echo "Installing from requirements.txt..."
+    pip install -r "${BACKEND_DIR}/requirements.txt" -q --progress-bar off
+    echo -e "${GREEN}✓ Python dependencies installed${NC}"
 else
     echo -e "${RED}Error: No requirements file found${NC}"
     exit 1
 fi
 # Gunicorn may already be in production.txt, but ensure it's installed
-pip install gunicorn
+pip install gunicorn -q
 
 # Build frontend
 echo -e "${YELLOW}Building frontend...${NC}"
 cd "${FRONTEND_DIR}"
-npm ci --production=false  # Install all deps for building
+npm ci --production=false --silent  # Install all deps for building
 npm run build
 
 # Move built frontend to static directory
