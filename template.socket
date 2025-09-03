@@ -4,8 +4,10 @@ PartOf=template.service
 
 [Socket]
 ListenStream=/run/template.sock
-SocketUser=wbbaker
-SocketGroup=template
+# Note: Change SocketUser/SocketGroup to match your web server user
+# Common values: nginx/nginx, www-data/www-data, apache/apache
+SocketUser=nginx
+SocketGroup=nginx
 SocketMode=0660
 
 [Install]
