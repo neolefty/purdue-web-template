@@ -58,3 +58,6 @@ logs
 backend/saml/*.key
 backend/saml/*.cert
 backend/saml/*.pem
+
+# MCP Puppeteer logs
+logs/mcp-puppeteer-*.log

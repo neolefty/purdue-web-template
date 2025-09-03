@@ -2,22 +2,15 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Current Work in Progress
+## Deployment System
 
-### Deployment System (Branch: `deployment-setup`)
-- **Status**: WIP - Ready for testing on AG Purdue infrastructure
-- **Target**: django-template-{dev,qa,prod}.ag.purdue.edu
-- **Next Steps**:
-  1. Test deployment on actual server (start with dev environment)
-  2. Verify systemd socket activation works with nginx user
-  3. Test static file serving and Django admin
-  4. Create docker-compose.prod.yml for local testing
-- **Key Files**: See DEPLOYMENT.md for complete documentation
-- **Special Requirements**:
-  - Server admin uses nginx user (not www-data)
-  - Prefers systemd socket activation
-  - Each environment gets its own subdomain
-  - May need to adjust Django settings for FORCE_SCRIPT_NAME if using path-based routing
+The deployment system is complete and tested. Key features:
+- **Non-root deployment**: Works without sudo/root access
+- **Socket activation**: Systemd socket files included for production
+- **Flexible configuration**: Environment-based settings with `.env` files
+- **SQLite support**: Can run without external database for demos/testing
+- **Automatic asset handling**: Template tags handle Vite's hashed filenames
+- **Documentation**: See DEPLOYMENT.md for complete guide
 
 ## Architecture Overview
 
