@@ -17,6 +17,10 @@ SECURE_HSTS_SECONDS = 31536000
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 SECURE_HSTS_PRELOAD = True
 
+# Trust proxy headers when behind nginx
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+USE_X_FORWARDED_HOST = True
+
 # Allowed hosts must be explicitly set in production
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS")
 

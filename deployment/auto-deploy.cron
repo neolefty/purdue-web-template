@@ -1,0 +1,21 @@
+# Cron configuration for auto-deployment
+# Add this to your crontab with: crontab -e
+# Or install system-wide in /etc/cron.d/template-auto-deploy
+
+# Environment variables
+APP_NAME=template
+AUTO_DEPLOY_EMAILS="admin@purdue.edu devteam@purdue.edu"
+AUTO_DEPLOY_BRANCH=main
+PATH=/usr/local/bin:/usr/bin:/bin
+
+# Check for updates every 5 minutes
+*/5 * * * * /opt/apps/template/deployment/auto-deploy.sh >> /var/log/template/auto-deploy-cron.log 2>&1
+
+# Alternative: Check hourly during business hours (8am-6pm, Monday-Friday)
+# 0 8-18 * * 1-5 /opt/apps/template/deployment/auto-deploy.sh >> /var/log/template/auto-deploy-cron.log 2>&1
+
+# Alternative: Check three times a day (9am, 1pm, 5pm) on weekdays
+# 0 9,13,17 * * 1-5 /opt/apps/template/deployment/auto-deploy.sh >> /var/log/template/auto-deploy-cron.log 2>&1
+
+# Alternative: Check once daily at 2am
+# 0 2 * * * /opt/apps/template/deployment/auto-deploy.sh >> /var/log/template/auto-deploy-cron.log 2>&1
