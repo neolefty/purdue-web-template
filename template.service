@@ -6,7 +6,7 @@ Requires=template.socket
 [Service]
 Type=notify
 User=wbbaker
-Group=template
+Group=wbbaker
 WorkingDirectory=/opt/apps/template/backend
 Environment="PATH=/opt/apps/template/venv/bin"
 Environment="PYTHONPATH=/opt/apps/template/backend"
