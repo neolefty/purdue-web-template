@@ -1,0 +1,134 @@
+# Docker Compose using actual deployment configuration system
+# This emulates the production environment using the deployment scripts
+
+services:
+  # PostgreSQL Database
+  db:
+    image: postgres:15
+    volumes:
+      - postgres_deploy_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: django_template_prod
+      POSTGRES_USER: django_template_user
+      POSTGRES_PASSWORD: productionpass123
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U django_template_user -d django_template_prod"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - deploy-network
+
+  # Mailhog for email testing
+  mailhog:
+    image: mailhog/mailhog
+    ports:
+      - "8025:8025"  # Web UI
+    networks:
+      - deploy-network
+
+  # Config Generator - generates nginx/gunicorn configs from templates
+  config-generator:
+    image: alpine:latest
+    volumes:
+      - ./:/workspace:ro
+      - generated_configs:/generated
+    command: >
+      sh -c "
+        apk add --no-cache bash &&
+        cd /workspace &&
+        bash generate-config.sh /workspace/deploy-docker.conf /generated &&
+        echo 'Configs generated successfully' &&
+        ls -la /generated/
+      "
+    networks:
+      - deploy-network
+
+  # Backend with Gunicorn using generated config
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.prod
+    volumes:
+      - ./backend:/app
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+      - gunicorn_socket:/run
+      - generated_configs:/etc/django-template:ro
+    env_file:
+      - ./deploy-docker.conf
+    command: >
+      sh -c "
+        echo 'Waiting for database...' &&
+        while ! nc -z db 5432; do sleep 1; done &&
+        echo 'Database is ready!' &&
+        echo 'Waiting for configs to be generated...' &&
+        while [ ! -f /etc/django-template/gunicorn_config.py ]; do sleep 1; done &&
+        echo 'Configs ready!' &&
+        python manage.py migrate --noinput &&
+        python manage.py collectstatic --noinput &&
+        echo 'Starting Gunicorn with generated config...' &&
+        mkdir -p /var/log/django-template &&
+        gunicorn config.wsgi:application --config /etc/django-template/gunicorn_config.py
+      "
+    depends_on:
+      db:
+        condition: service_healthy
+      config-generator:
+        condition: service_completed_successfully
+    networks:
+      - deploy-network
+
+  # Frontend build
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+    volumes:
+      - frontend_build:/app/dist
+    environment:
+      VITE_API_URL: http://django-template.local
+    networks:
+      - deploy-network
+
+  # Nginx using generated config
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - generated_configs:/etc/django-template:ro
+      - ./ssl:/etc/nginx/ssl:ro
+      - frontend_build:/usr/share/nginx/html:ro
+      - static_volume:/usr/share/nginx/static:ro
+      - media_volume:/usr/share/nginx/media:ro
+      - gunicorn_socket:/run:ro
+    command: >
+      sh -c "
+        echo 'Waiting for nginx config to be generated...' &&
+        while [ ! -f /etc/django-template/nginx-django-template.conf ]; do sleep 1; done &&
+        echo 'Config ready!' &&
+        cp /etc/django-template/nginx-django-template.conf /etc/nginx/conf.d/default.conf &&
+        nginx -g 'daemon off;'
+      "
+    depends_on:
+      - backend
+      - frontend
+      - config-generator
+    networks:
+      - deploy-network
+    extra_hosts:
+      - "django-template.local:127.0.0.1"
+
+volumes:
+  postgres_deploy_data:
+  static_volume:
+  media_volume:
+  frontend_build:
+  gunicorn_socket:
+  generated_configs:
+
+networks:
+  deploy-network:
+    driver: bridge

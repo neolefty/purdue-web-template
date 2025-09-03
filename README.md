@@ -64,7 +64,7 @@ cd django-react-template
 
 2. Copy the environment file:
 ```bash
-cp .env.example .env
+cp backend/.env.example backend/.env
 ```
 
 3. Start the development environment:
@@ -135,7 +135,7 @@ Both modes use the same API interface, making development easier.
 
 ### Environment Variables
 
-Key environment variables (see `.env.example` for full list):
+Key environment variables (see `backend/.env.example` for full list):
 
 ```bash
 # Django
@@ -333,7 +333,7 @@ pip install -r requirements/production.txt
 
 4. **Configure environment:**
 ```bash
-cp .env.example .env
+cp backend/.env.example backend/.env
 # Edit .env with production values:
 # - Set SECRET_KEY to a secure random string
 # - Set DEBUG=False

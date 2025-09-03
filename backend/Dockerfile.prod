@@ -1,0 +1,50 @@
+FROM python:3.12-slim
+
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    DJANGO_SETTINGS_MODULE=config.settings.production
+
+# Set work directory
+WORKDIR /app
+
+# Install system dependencies (same as dev plus gunicorn requirements)
+RUN apt-get update && apt-get install -y \
+    gcc \
+    g++ \
+    default-libmysqlclient-dev \
+    pkg-config \
+    postgresql-client \
+    libpq-dev \
+    unixodbc-dev \
+    xmlsec1 \
+    libxml2-dev \
+    libxmlsec1-dev \
+    libxmlsec1-openssl \
+    netcat-traditional \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Python dependencies
+COPY requirements/ /app/requirements/
+RUN pip install --upgrade pip && \
+    pip install -r requirements/production.txt
+
+# Copy project
+COPY . /app/
+
+# Create directories for static, media files and socket
+RUN mkdir -p /app/staticfiles /app/media /run
+
+# Create a non-root user (nginx user for consistency with production)
+RUN useradd -m -u 1000 nginx && \
+    chown -R nginx:nginx /app /run
+
+# Don't switch user here - let gunicorn handle it with --user flag
+# USER nginx
+
+# Expose the socket directory as a volume
+VOLUME ["/run"]
+
+# Health check endpoint
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+  CMD python -c "import socket; s = socket.socket(socket.AF_UNIX); s.connect('/run/gunicorn.sock')" || exit 1

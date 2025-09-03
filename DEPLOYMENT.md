@@ -31,27 +31,40 @@ This Django-React template now includes a comprehensive deployment system that s
 
 ## File Structure
 
+All deployment files are organized in the `deployment/` directory:
+
 ### Core Deployment Scripts
 ```
-deploy.sh                    # Main deployment script
-generate-config.sh           # Generates configs from templates
-setup-environments.sh        # Sets up multiple environments (dev/qa/prod)
+deployment/
+├── deploy.sh                    # Main deployment script
+├── generate-config.sh           # Generates configs from templates
+├── setup-environments.sh        # Sets up multiple environments (dev/qa/prod)
+└── ssl-params.conf             # SSL configuration parameters
 ```
 
 ### Configuration Files
 ```
-deploy.conf                  # Standard deployment (full domain)
-deploy-pathbased.conf       # Path-based routing (/dev/, /staging/)
-deploy-subdomain.conf       # Subdomain-based environments
+deployment/configs/
+├── deploy.conf                  # Standard deployment (full domain)
+├── deploy-pathbased.conf       # Path-based routing (/dev/, /staging/)
+└── deploy-subdomain.conf       # Subdomain-based environments
 ```
 
 ### Template Files
 ```
-nginx.conf.template         # Standard nginx (full domain)
-nginx-pathbased.conf.template  # Path-based nginx (location blocks)
-gunicorn.conf.template      # Gunicorn configuration
-systemd-socket.template     # Systemd socket unit
-systemd-service-socket.template  # Systemd service (socket activation)
+deployment/templates/
+├── nginx.conf.template              # Standard nginx (full domain)
+├── nginx-pathbased.conf.template    # Path-based nginx (location blocks)
+├── gunicorn.conf.template           # Gunicorn configuration
+├── systemd-socket.template          # Systemd socket unit template
+└── systemd-service-socket.template  # Systemd service template (socket activation)
+```
+
+### Systemd Files
+```
+deployment/systemd/
+├── template.service            # Ready-to-use systemd service file
+└── template.socket             # Ready-to-use systemd socket file
 ssl-params.conf             # Reusable SSL parameters
 ```
 
