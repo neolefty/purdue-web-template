@@ -147,10 +147,16 @@ elif DATABASE_ENGINE == "oracle":
     }
 elif DATABASE_ENGINE == "sqlite":
     # SQLite for lightweight development
+    db_name = env("DB_NAME", default="db.sqlite3")
+    # Handle both absolute and relative paths
+    if os.path.isabs(db_name):
+        db_path = Path(db_name)
+    else:
+        db_path = BASE_DIR / db_name
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
-            "NAME": BASE_DIR / "db.sqlite3",
+            "NAME": db_path,
         }
     }
 else:
