@@ -183,7 +183,26 @@ export default function LoginPage() {
 
             {(login.error || register.error) && (
               <div className="bg-red-50 text-red-700 p-3 rounded-md text-sm">
-                {login.error?.message || register.error?.message || 'An error occurred'}
+                {(() => {
+                  const error = login.error || register.error
+                  if (!error) return 'An error occurred'
+
+                  // Check if we have field-specific errors in the response
+                  const errorData = (error as { response?: { data?: Record<string, unknown> } })?.response?.data
+                  if (errorData && typeof errorData === 'object') {
+                    // Format field-specific errors
+                    const messages = Object.entries(errorData)
+                      .map(([field, value]) => {
+                        const fieldName = field.charAt(0).toUpperCase() + field.slice(1).replace('_', ' ')
+                        const message = Array.isArray(value) ? value.join(', ') : value
+                        return `${fieldName}: ${message}`
+                      })
+                      .join('. ')
+                    return messages || error.message || 'An error occurred'
+                  }
+
+                  return error.message || 'An error occurred'
+                })()}
               </div>
             )}
 
