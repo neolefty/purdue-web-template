@@ -46,10 +46,12 @@ class LoginSerializer(serializers.Serializer):
                     pass
 
             if not user:
-                raise serializers.ValidationError("Invalid credentials")
+                raise serializers.ValidationError("Invalid email or password. Please try again.")
 
             if not user.is_active:
-                raise serializers.ValidationError("User account is disabled")
+                raise serializers.ValidationError(
+                    "Your account has been disabled. Please contact support."
+                )
 
             attrs["user"] = user
             return attrs
@@ -68,10 +70,26 @@ class RegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ("username", "email", "password", "password_confirm", "first_name", "last_name")
+        extra_kwargs = {
+            "username": {
+                "error_messages": {
+                    "unique": "This username is already taken. Please choose a different one."
+                }
+            },
+            "email": {
+                "error_messages": {"unique": "An account with this email address already exists."}
+            },
+        }
 
     def validate(self, attrs):
         if attrs["password"] != attrs["password_confirm"]:
-            raise serializers.ValidationError({"password": "Passwords do not match"})
+            raise serializers.ValidationError(
+                {
+                    "password_confirm": (
+                        "Passwords do not match. " "Please make sure both passwords are the same."
+                    )
+                }
+            )
         return attrs
 
     def create(self, validated_data):

@@ -193,7 +193,12 @@ export default function LoginPage() {
                     // Format field-specific errors
                     const messages = Object.entries(errorData)
                       .map(([field, value]) => {
-                        const fieldName = field.charAt(0).toUpperCase() + field.slice(1).replace('_', ' ')
+                        // Handle non_field_errors specially
+                        if (field === 'non_field_errors') {
+                          return Array.isArray(value) ? value.join(', ') : value
+                        }
+                        // For field-specific errors, make the field name user-friendly
+                        const fieldName = field.charAt(0).toUpperCase() + field.slice(1).replace(/_/g, ' ')
                         const message = Array.isArray(value) ? value.join(', ') : value
                         return `${fieldName}: ${message}`
                       })
