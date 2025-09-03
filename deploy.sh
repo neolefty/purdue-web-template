@@ -6,7 +6,7 @@
 set -e  # Exit on error
 
 # Load configuration (required)
-CONFIG_FILE="${1:-./deploy.conf}"
+CONFIG_FILE="${1:-./deployment/configs/deploy.conf}"
 if [[ ! -f "$CONFIG_FILE" ]]; then
     echo -e "${RED}Error: Configuration file not found at $CONFIG_FILE${NC}"
     echo "Usage: $0 [config_file]"
