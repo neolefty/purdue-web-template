@@ -151,14 +151,19 @@ else
     echo -e "${YELLOW}Skipping permission changes (not running as root)${NC}"
 fi
 
-# Generate configurations from templates
-echo -e "${YELLOW}Generating configurations from templates...${NC}"
-if [[ ! -f "${APP_DIR}/generate-config.sh" ]]; then
-    echo -e "${RED}Error: generate-config.sh not found in ${APP_DIR}${NC}"
-    exit 1
+# Generate configurations from templates (optional)
+if [[ -f "${APP_DIR}/generate-config.sh" ]]; then
+    echo -e "${YELLOW}Generating configurations from templates...${NC}"
+    # Get absolute path of config file
+    CONFIG_FILE_ABS=$(readlink -f "$CONFIG_FILE")
+    if [[ -f "$CONFIG_FILE_ABS" ]]; then
+        "${APP_DIR}/generate-config.sh" "$CONFIG_FILE_ABS" "${APP_DIR}/config"
+    else
+        echo -e "${YELLOW}⚠ Config file not found at ${CONFIG_FILE_ABS}, skipping config generation${NC}"
+    fi
+else
+    echo -e "${YELLOW}⚠ generate-config.sh not found, skipping config generation${NC}"
 fi
-
-"${APP_DIR}/generate-config.sh" "$CONFIG_FILE" "${APP_DIR}/config"
 
 # Copy generated configurations
 if [[ -f "${APP_DIR}/config/.env" ]]; then
@@ -171,35 +176,36 @@ if [[ -f "${APP_DIR}/config/gunicorn_config.py" ]]; then
     echo -e "${GREEN}✓ Gunicorn configured${NC}"
 fi
 
-# Install systemd service file if generated
+# Install systemd service file if generated and running as root
 if [[ -f "${APP_DIR}/config/${APP_NAME}.service" ]]; then
-    echo -e "${YELLOW}Installing systemd service...${NC}"
-    cp "${APP_DIR}/config/${APP_NAME}.service" "/etc/systemd/system/${APP_NAME}.service"
-    echo -e "${GREEN}✓ Systemd service installed${NC}"
-else
-    echo -e "${RED}Error: Systemd service file not generated${NC}"
-    exit 1
+    if [[ $EUID -eq 0 ]]; then
+        echo -e "${YELLOW}Installing systemd service...${NC}"
+        cp "${APP_DIR}/config/${APP_NAME}.service" "/etc/systemd/system/${APP_NAME}.service"
+        echo -e "${GREEN}✓ Systemd service installed${NC}"
+
+        # Reload systemd and start service
+        echo -e "${YELLOW}Starting service...${NC}"
+        systemctl daemon-reload
+        systemctl enable "${APP_NAME}.service"
+        systemctl restart "${APP_NAME}.service"
+
+        # Check service status
+        sleep 2
+        if systemctl is-active --quiet "${APP_NAME}.service"; then
+            echo -e "${GREEN}✓ Service started successfully${NC}"
+        else
+            echo -e "${RED}✗ Service failed to start. Check logs:${NC}"
+            echo -e "${RED}  journalctl -u ${APP_NAME}.service -n 50${NC}"
+        fi
+    else
+        echo -e "${YELLOW}⚠ Systemd service file generated but requires root to install${NC}"
+        echo -e "${YELLOW}  Service file: ${APP_DIR}/config/${APP_NAME}.service${NC}"
+    fi
 fi
 
 # Note about nginx configuration
 if [[ -f "${APP_DIR}/config/nginx-${APP_NAME}.conf" ]]; then
     echo -e "${GREEN}✓ Nginx configuration ready at: ${APP_DIR}/config/nginx-${APP_NAME}.conf${NC}"
-fi
-
-# Reload systemd and start service
-echo -e "${YELLOW}Starting service...${NC}"
-systemctl daemon-reload
-systemctl enable "${APP_NAME}.service"
-systemctl restart "${APP_NAME}.service"
-
-# Check service status
-sleep 2
-if systemctl is-active --quiet "${APP_NAME}.service"; then
-    echo -e "${GREEN}✓ Service started successfully${NC}"
-else
-    echo -e "${RED}✗ Service failed to start. Check logs:${NC}"
-    echo -e "${RED}  journalctl -u ${APP_NAME}.service -n 50${NC}"
-    exit 1
 fi
 
 echo -e "${GREEN}========================================${NC}"
