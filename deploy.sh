@@ -60,7 +60,7 @@ fi
 
 # Copy application files
 echo -e "${YELLOW}Copying application files...${NC}"
-rsync -av --exclude='node_modules' \
+rsync -rlv --exclude='node_modules' \
           --exclude='__pycache__' \
           --exclude='*.pyc' \
           --exclude='.git' \
