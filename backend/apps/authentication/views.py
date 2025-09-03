@@ -2,6 +2,8 @@
 Views for authentication app
 """
 
+import logging
+
 from django.conf import settings
 from django.contrib.auth import login, logout
 from django.shortcuts import redirect
@@ -18,6 +20,8 @@ from .serializers import (
     RegisterSerializer,
     UserSerializer,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class CurrentUserView(generics.RetrieveUpdateAPIView):
@@ -59,6 +63,15 @@ def register_view(request):
     """
     Registration endpoint for email/password authentication
     """
+    # Debug logging
+    logger.info(f"Register request from {request.META.get('REMOTE_ADDR')}")
+    logger.info(
+        f"Request headers: Host={request.META.get('HTTP_HOST')}, "
+        f"Origin={request.META.get('HTTP_ORIGIN')}"
+    )
+    logger.info(f"Request data: {request.data}")
+    logger.info(f"AUTH_METHOD: {settings.AUTH_METHOD}")
+
     if settings.AUTH_METHOD == "saml":
         return Response(
             {"error": "Registration is disabled. Please use SAML SSO."},
@@ -74,6 +87,7 @@ def register_view(request):
             {"user": user_serializer.data, "message": "Registration successful"},
             status=status.HTTP_201_CREATED,
         )
+    logger.error(f"Registration validation failed: {serializer.errors}")
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 

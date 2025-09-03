@@ -165,5 +165,10 @@ LOGGING = {
             "level": "INFO",
             "propagate": False,
         },
+        "apps.authentication": {
+            "handlers": ["console"],
+            "level": "DEBUG",
+            "propagate": False,
+        },
     },
 }
