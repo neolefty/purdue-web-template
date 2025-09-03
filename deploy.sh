@@ -108,15 +108,18 @@ cp -r "${FRONTEND_DIR}/dist/"* "${STATIC_DIR}/"
 echo -e "${YELLOW}Setting up Django...${NC}"
 cd "${BACKEND_DIR}"
 
+# Ensure virtual environment is active
+source "${VENV_DIR}/bin/activate"
+
 # Set Django to use production settings
 export DJANGO_SETTINGS_MODULE=config.settings.production
 
 # Run Django management commands
 echo -e "${YELLOW}Running Django migrations...${NC}"
-${PYTHON} manage.py migrate --noinput
+python manage.py migrate --noinput
 
 echo -e "${YELLOW}Collecting static files...${NC}"
-${PYTHON} manage.py collectstatic --noinput --clear
+python manage.py collectstatic --noinput --clear
 
 # Set proper permissions (if running as root)
 if [[ $EUID -eq 0 ]]; then
