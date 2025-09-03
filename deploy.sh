@@ -6,7 +6,7 @@
 set -e  # Exit on error
 
 # Load configuration (required)
-CONFIG_FILE="${1:-/etc/template/deploy.conf}"
+CONFIG_FILE="${1:-./deploy.conf}"
 if [[ ! -f "$CONFIG_FILE" ]]; then
     echo -e "${RED}Error: Configuration file not found at $CONFIG_FILE${NC}"
     echo "Usage: $0 [config_file]"
@@ -34,11 +34,12 @@ NC='\033[0m' # No Color
 
 echo -e "${GREEN}Starting deployment to ${APP_DIR}${NC}"
 
-# Check if running as root (needed for system directories)
-if [[ $EUID -ne 0 ]]; then
-   echo -e "${RED}This script must be run as root${NC}"
-   exit 1
-fi
+# Check if running as root (optional - depends on deployment environment)
+# Uncomment if root access is required for your setup
+# if [[ $EUID -ne 0 ]]; then
+#    echo -e "${RED}This script must be run as root${NC}"
+#    exit 1
+# fi
 
 # Create app directory structure
 echo -e "${YELLOW}Creating directory structure...${NC}"
@@ -62,13 +63,25 @@ rsync -av --exclude='node_modules' \
 
 # Setup Python virtual environment
 echo -e "${YELLOW}Setting up Python virtual environment...${NC}"
-python3 -m venv "${VENV_DIR}"
+# Use PYTHON variable from config, default to python3
+PYTHON=${PYTHON:-python3}
+${PYTHON} -m venv "${VENV_DIR}"
 source "${VENV_DIR}/bin/activate"
 
 # Install Python dependencies
 echo -e "${YELLOW}Installing Python dependencies...${NC}"
 pip install --upgrade pip
-pip install -r "${BACKEND_DIR}/requirements.txt"
+# Install from requirements/production.txt directly
+if [[ -f "${BACKEND_DIR}/requirements/production.txt" ]]; then
+    pip install -r "${BACKEND_DIR}/requirements/production.txt"
+elif [[ -f "${BACKEND_DIR}/requirements.txt" ]]; then
+    # Fallback for legacy structure
+    pip install -r "${BACKEND_DIR}/requirements.txt"
+else
+    echo -e "${RED}Error: No requirements file found${NC}"
+    exit 1
+fi
+# Gunicorn may already be in production.txt, but ensure it's installed
 pip install gunicorn
 
 # Build frontend
@@ -85,20 +98,27 @@ cp -r "${FRONTEND_DIR}/dist/"* "${STATIC_DIR}/"
 echo -e "${YELLOW}Setting up Django...${NC}"
 cd "${BACKEND_DIR}"
 
+# Set Django to use production settings
+export DJANGO_SETTINGS_MODULE=config.settings.production
+
 # Run Django management commands
 echo -e "${YELLOW}Running Django migrations...${NC}"
-python manage.py migrate --noinput
+${PYTHON} manage.py migrate --noinput
 
 echo -e "${YELLOW}Collecting static files...${NC}"
-python manage.py collectstatic --noinput --clear
+${PYTHON} manage.py collectstatic --noinput --clear
 
-# Set proper permissions
-echo -e "${YELLOW}Setting permissions...${NC}"
-chown -R "${APP_USER}:${APP_GROUP}" "${APP_DIR}"
-chown -R "${APP_USER}:${APP_GROUP}" "${LOG_DIR}"
-chmod 755 "${APP_DIR}"
-chmod 755 "${STATIC_DIR}"
-chmod 755 "${MEDIA_DIR}"
+# Set proper permissions (if running as root)
+if [[ $EUID -eq 0 ]]; then
+    echo -e "${YELLOW}Setting permissions...${NC}"
+    chown -R "${APP_USER}:${APP_GROUP}" "${APP_DIR}"
+    chown -R "${APP_USER}:${APP_GROUP}" "${LOG_DIR}"
+    chmod 755 "${APP_DIR}"
+    chmod 755 "${STATIC_DIR}"
+    chmod 755 "${MEDIA_DIR}"
+else
+    echo -e "${YELLOW}Skipping permission changes (not running as root)${NC}"
+fi
 
 # Generate configurations from templates
 echo -e "${YELLOW}Generating configurations from templates...${NC}"
