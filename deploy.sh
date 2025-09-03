@@ -46,7 +46,17 @@ echo -e "${YELLOW}Creating directory structure...${NC}"
 mkdir -p "${APP_DIR}"
 mkdir -p "${STATIC_DIR}"
 mkdir -p "${MEDIA_DIR}"
-mkdir -p "${LOG_DIR}"
+
+# Try to create log directory, but don't fail if we can't
+if mkdir -p "${LOG_DIR}" 2>/dev/null; then
+    echo -e "${GREEN}✓ Log directory created: ${LOG_DIR}${NC}"
+else
+    echo -e "${YELLOW}⚠ Could not create ${LOG_DIR} (needs root/sudo)${NC}"
+    # Use local log directory as fallback
+    LOG_DIR="${APP_DIR}/logs"
+    mkdir -p "${LOG_DIR}"
+    echo -e "${GREEN}✓ Using local log directory: ${LOG_DIR}${NC}"
+fi
 
 # Copy application files
 echo -e "${YELLOW}Copying application files...${NC}"
@@ -112,7 +122,9 @@ ${PYTHON} manage.py collectstatic --noinput --clear
 if [[ $EUID -eq 0 ]]; then
     echo -e "${YELLOW}Setting permissions...${NC}"
     chown -R "${APP_USER}:${APP_GROUP}" "${APP_DIR}"
-    chown -R "${APP_USER}:${APP_GROUP}" "${LOG_DIR}"
+    if [[ -w "${LOG_DIR}" ]]; then
+        chown -R "${APP_USER}:${APP_GROUP}" "${LOG_DIR}"
+    fi
     chmod 755 "${APP_DIR}"
     chmod 755 "${STATIC_DIR}"
     chmod 755 "${MEDIA_DIR}"
