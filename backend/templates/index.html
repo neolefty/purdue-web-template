@@ -30,10 +30,10 @@
         <script type="module" src="http://localhost:5173/@vite/client"></script>
         <script type="module" src="http://localhost:5173/src/main.tsx"></script>
     {% else %}
-        <!-- Production mode: Built files -->
+        <!-- Production mode: Built files with hashed names -->
         {% load static %}
-        <script type="module" src="{% static 'assets/index.js' %}"></script>
-        <link rel="stylesheet" href="{% static 'assets/index.css' %}">
+        {% load vite_assets %}
+        {% vite_assets %}
     {% endif %}
 </body>
 </html>
