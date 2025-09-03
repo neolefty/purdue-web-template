@@ -1,0 +1,27 @@
+[Unit]
+Description=Django Template Application (Development with Auto-Reload)
+After=network.target
+Requires=template.socket
+
+[Service]
+Type=notify
+User=wbbaker
+Group=wbbaker
+WorkingDirectory=/opt/apps/template/backend
+Environment="PATH=/opt/apps/template/venv/bin"
+Environment="PYTHONPATH=/opt/apps/template/backend"
+Environment="SECURE_SSL_REDIRECT=False"
+
+# Use config file with --reload enabled
+ExecStart=/opt/apps/template/venv/bin/gunicorn \
+    --config /opt/apps/template/gunicorn_config.py \
+    --reload \
+    config.wsgi:application
+
+Restart=on-failure
+RestartSec=5s
+KillMode=mixed
+KillSignal=SIGQUIT
+
+[Install]
+WantedBy=multi-user.target
