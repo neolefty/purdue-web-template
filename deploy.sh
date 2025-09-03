@@ -75,6 +75,17 @@ rsync -rlv --exclude='node_modules' \
 echo -e "${YELLOW}Setting up Python virtual environment...${NC}"
 # Use PYTHON variable from config, default to python3
 PYTHON=${PYTHON:-python3}
+
+# Remove old venv if it exists with wrong Python version
+if [[ -f "${VENV_DIR}/bin/python" ]]; then
+    VENV_PYTHON_VERSION=$(${VENV_DIR}/bin/python --version 2>&1 | cut -d' ' -f2)
+    EXPECTED_PYTHON_VERSION=$(${PYTHON} --version 2>&1 | cut -d' ' -f2)
+    if [[ "${VENV_PYTHON_VERSION}" != "${EXPECTED_PYTHON_VERSION}" ]]; then
+        echo -e "${YELLOW}Removing old venv (Python ${VENV_PYTHON_VERSION}) to use Python ${EXPECTED_PYTHON_VERSION}${NC}"
+        rm -rf "${VENV_DIR}"
+    fi
+fi
+
 ${PYTHON} -m venv "${VENV_DIR}"
 source "${VENV_DIR}/bin/activate"
 
