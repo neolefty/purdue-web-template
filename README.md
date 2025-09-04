@@ -298,6 +298,42 @@ TODO: Document the process for:
 3. Setting up Purdue authentication
 4. Basic customization steps
 
+## Development Server Deployment (Current)
+
+### Quick Deploy to Dev Server
+
+The development server has continuous deployment set up:
+
+1. **Automatic deployment** (via GitOps Lite):
+   - Push to `main` branch
+   - Wait ~1 minute
+   - Changes are live! (hot-reload handles restart)
+
+2. **Manual deployment**:
+   ```bash
+   ssh django
+   cd ~/source/django-react-template
+   git pull
+   ~/gitops-lite.sh  # Run deployment script
+   ```
+
+### How It Works
+
+- **GitOps Lite**: Cron job checks for changes every minute
+- **Hot Reload**: Gunicorn with `--reload` flag auto-restarts on file changes
+- **No sudo needed**: Service restarts automatically
+- **Safe**: Only deploys if Python syntax checks pass
+
+### Monitoring Deployments
+
+```bash
+# Watch deployment logs
+ssh django "tail -f /tmp/gitops-lite.log"
+
+# Check service status
+ssh django "systemctl status template"
+```
+
 ## Production Deployment
 
 ### Prerequisites

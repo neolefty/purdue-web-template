@@ -4,13 +4,31 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Deployment System
 
-The deployment system is complete and tested. Key features:
+### Current Dev Server Setup
+- **Continuous Deployment**: GitOps Lite runs every minute via cron
+- **Hot Reload**: Gunicorn with `--reload` flag (auto-restarts on changes)
+- **No sudo needed**: Developers can deploy without system access
+- **Push to deploy**: Just `git push` to main branch, wait ~1 minute
+
+### Deployment Commands
+```bash
+# Manual deploy (if needed)
+ssh django "cd ~/source/django-react-template && git pull && ~/gitops-lite.sh"
+
+# Check deployment logs
+ssh django "tail -f /tmp/gitops-lite.log"
+
+# Service status
+ssh django "systemctl status template"
+```
+
+### Production Features
 - **Non-root deployment**: Works without sudo/root access
 - **Socket activation**: Systemd socket files included for production
 - **Flexible configuration**: Environment-based settings with `.env` files
 - **SQLite support**: Can run without external database for demos/testing
 - **Automatic asset handling**: Template tags handle Vite's hashed filenames
-- **Documentation**: See DEPLOYMENT.md for complete guide
+- **Documentation**: See deployment/README.md for complete guide
 
 ## Architecture Overview
 
