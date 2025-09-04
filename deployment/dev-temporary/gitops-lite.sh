@@ -56,8 +56,10 @@ fi
 # Basic Python syntax check (optional - comment out if causing issues)
 log "Checking Python syntax..."
 set +e
+export DJANGO_SETTINGS_MODULE=config.settings.production
 find backend -name "*.py" -type f -exec "$DEPLOY_DIR/venv/bin/python" -m py_compile {} \; 2>/tmp/py_compile_error.log
 SYNTAX_CHECK=$?
+unset DJANGO_SETTINGS_MODULE
 set -e
 if [ $SYNTAX_CHECK -ne 0 ]; then
     log "⚠️ Python syntax warnings detected (see /tmp/py_compile_error.log)"
@@ -99,7 +101,7 @@ fi
 log "Running migrations..."
 cd "$DEPLOY_DIR/backend"
 set +e
-"$DEPLOY_DIR/venv/bin/python" manage.py migrate --noinput >/tmp/migrate.log 2>&1
+DJANGO_SETTINGS_MODULE=config.settings.production "$DEPLOY_DIR/venv/bin/python" manage.py migrate --noinput >/tmp/migrate.log 2>&1
 MIGRATE_EXIT=$?
 set -e
 if [ $MIGRATE_EXIT -ne 0 ]; then
