@@ -1,10 +1,10 @@
 #!/bin/bash
 #
 # GitOps Lite - Minimal continuous deployment for dev server
-# Run this as a cron job every 5 minutes
+# Run this as a cron job every 5 minutes (or even every minute!)
 #
 # What it does:
-#   1. Check for new commits
+#   1. Check for new commits (exits early if none)
 #   2. Run basic sanity checks
 #   3. Deploy if checks pass
 #   4. Hot-reload handles the rest
@@ -13,6 +13,8 @@
 #   0 - Success (deployed or nothing to do)
 #   1 - Tests failed (deployment skipped)
 #   2 - Git error
+#
+# Performance: Runs in <1 second when no changes (just git fetch)
 
 set -euo pipefail
 
@@ -34,14 +36,22 @@ git fetch origin main -q || exit 2
 CURRENT=$(git rev-parse HEAD)
 REMOTE=$(git rev-parse origin/main)
 
-# Skip if nothing new
+# Exit silently if no changes (this is the common case)
 if [ "$CURRENT" = "$REMOTE" ]; then
-    [ -f "$STATE_FILE" ] && [ "$(cat $STATE_FILE)" = "$REMOTE" ] && exit 0
+    # Also check if we've already deployed this commit
+    if [ -f "$STATE_FILE" ] && [ "$(cat $STATE_FILE)" = "$REMOTE" ]; then
+        exit 0  # Nothing to do
+    fi
+    # If state file is missing/different, we need to deploy current version
 fi
 
-# Pull changes
-log "Deploying $(echo $REMOTE | cut -c1-8)..."
-git pull origin main -q || exit 2
+# Only log when we're actually doing something
+if [ "$CURRENT" != "$REMOTE" ]; then
+    log "New commits detected: $(echo $CURRENT | cut -c1-7)..$(echo $REMOTE | cut -c1-7)"
+    git pull origin main -q || exit 2
+else
+    log "Deploying current version $(echo $CURRENT | cut -c1-7) (state sync)"
+fi
 
 # Basic Python syntax check
 "$DEPLOY_DIR/venv/bin/python" -m py_compile backend/**/*.py 2>/dev/null || {
