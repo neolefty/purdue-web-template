@@ -38,22 +38,31 @@ STATICFILES_DIRS = STATICFILES_DIRS + [
 DATABASES["default"]["CONN_MAX_AGE"] = 600
 DATABASES["default"]["CONN_HEALTH_CHECKS"] = True
 
-# Cache configuration
-CACHES = {
-    "default": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": env("REDIS_URL", default="redis://127.0.0.1:6379/1"),
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
-            "CONNECTION_POOL_KWARGS": {
-                "max_connections": 50,
-                "retry_on_timeout": True,
+# Cache configuration - use Redis if available, otherwise use local memory
+if env("REDIS_URL", default=None):
+    CACHES = {
+        "default": {
+            "BACKEND": "django_redis.cache.RedisCache",
+            "LOCATION": env("REDIS_URL"),
+            "OPTIONS": {
+                "CLIENT_CLASS": "django_redis.client.DefaultClient",
+                "CONNECTION_POOL_KWARGS": {
+                    "max_connections": 50,
+                    "retry_on_timeout": True,
+                },
             },
-        },
-        "KEY_PREFIX": "purdue_app",
-        "TIMEOUT": 300,
+            "KEY_PREFIX": "purdue_app",
+            "TIMEOUT": 300,
+        }
     }
-}
+else:
+    # Fallback to local memory cache if Redis is not configured
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+            "LOCATION": "unique-snowflake",
+        }
+    }
 
 # Session configuration
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
