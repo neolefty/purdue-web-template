@@ -19,22 +19,10 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    command: >
-      sh -c "
-        python manage.py migrate --noinput &&
-        python manage.py collectstatic --noinput &&
-        gunicorn
-          --reload
-          --bind 0.0.0.0:8000
-          --workers 1
-          --timeout 120
-          --access-logfile -
-          --error-logfile -
-          --log-level info
-          config.wsgi:application
-      "
+    command: sh -c "python manage.py migrate --noinput && python manage.py collectstatic --noinput && gunicorn --reload --bind 0.0.0.0:8000 --workers 1 --timeout 120 --access-logfile - --error-logfile - --log-level info config.wsgi:application"
     volumes:
       - ./backend:/app
+      - ./frontend/dist:/frontend/dist:ro  # Mount frontend dist if it exists
       - static_volume:/app/staticfiles
       - media_volume:/app/media
     ports:
