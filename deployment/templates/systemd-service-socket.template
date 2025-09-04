@@ -13,6 +13,7 @@ Environment="DJANGO_SETTINGS_MODULE=config.settings.production"
 
 # Using socket activation - systemd provides the socket
 ExecStart=${APP_DIR}/venv/bin/gunicorn \
+    --config ${APP_DIR}/gunicorn_config.py \
     --access-logfile ${LOG_DIR}/access.log \
     --error-logfile ${LOG_DIR}/error.log \
     --log-level ${GUNICORN_LOG_LEVEL} \
