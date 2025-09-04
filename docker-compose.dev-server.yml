@@ -20,14 +20,19 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     command: >
-      gunicorn
-        --reload
-        --bind 0.0.0.0:8000
-        --workers 1
-        --access-logfile -
-        --error-logfile -
-        --log-level info
-        config.wsgi:application
+      sh -c "
+        python manage.py migrate --noinput &&
+        python manage.py collectstatic --noinput &&
+        gunicorn
+          --reload
+          --bind 0.0.0.0:8000
+          --workers 1
+          --timeout 120
+          --access-logfile -
+          --error-logfile -
+          --log-level info
+          config.wsgi:application
+      "
     volumes:
       - ./backend:/app
       - static_volume:/app/staticfiles
@@ -51,6 +56,12 @@ services:
     depends_on:
       db-dev:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health/').read()"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 60s
 
   # Frontend with Vite dev server
   frontend-dev:
