@@ -30,7 +30,7 @@ services:
     environment:
       DEBUG: "False"  # Use production settings but with reload
       SECRET_KEY: "django-insecure-dev-server-testing-key-change-in-production"
-      ALLOWED_HOSTS: "localhost,127.0.0.1,host.docker.internal"
+      ALLOWED_HOSTS: "localhost,127.0.0.1,host.docker.internal,backend-dev"
       DATABASE_ENGINE: postgresql
       DB_NAME: purdue_app
       DB_USER: postgres
