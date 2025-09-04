@@ -255,6 +255,42 @@ SPECTACULAR_SETTINGS = {
     "SERVE_INCLUDE_SCHEMA": False,
 }
 
+# Email configuration
+# Supports multiple email backends:
+# - smtp: Standard SMTP (default, works with Purdue's smtp.purdue.edu)
+# - console: Prints to console (useful for development)
+# - file: Saves to file (useful for testing)
+# - dummy: Does nothing (disables email)
+EMAIL_BACKEND = env("EMAIL_BACKEND", default="django.core.mail.backends.smtp.EmailBackend")
+
+# SMTP Configuration (when using SMTP backend)
+if EMAIL_BACKEND == "django.core.mail.backends.smtp.EmailBackend":
+    EMAIL_HOST = env("EMAIL_HOST", default="smtp.purdue.edu")
+    EMAIL_PORT = env.int("EMAIL_PORT", default=587)
+    EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS", default=True)
+    EMAIL_USE_SSL = env.bool("EMAIL_USE_SSL", default=False)
+    # Authentication (leave empty for Purdue internal servers)
+    EMAIL_HOST_USER = env("EMAIL_HOST_USER", default="")
+    EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="")
+    # Timeout for email operations (in seconds)
+    EMAIL_TIMEOUT = env.int("EMAIL_TIMEOUT", default=10)
+elif EMAIL_BACKEND == "django.core.mail.backends.console.EmailBackend":
+    # Console backend - prints emails to stdout
+    pass
+elif EMAIL_BACKEND == "django.core.mail.backends.filebased.EmailBackend":
+    # File backend - saves emails to files
+    EMAIL_FILE_PATH = env("EMAIL_FILE_PATH", default=str(BASE_DIR / "sent_emails"))
+elif EMAIL_BACKEND == "django.core.mail.backends.dummy.EmailBackend":
+    # Dummy backend - does nothing
+    pass
+
+# Default email addresses
+DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="noreply@purdue.edu")
+SERVER_EMAIL = env("SERVER_EMAIL", default="noreply@purdue.edu")
+
+# Optional: Email subject prefix for admin emails
+EMAIL_SUBJECT_PREFIX = env("EMAIL_SUBJECT_PREFIX", default="[Django] ")
+
 # Logging
 LOGGING = {
     "version": 1,

@@ -25,6 +25,8 @@ INTERNAL_IPS = [
 CORS_ALLOW_ALL_ORIGINS = True
 
 # Email backend for development
+# Override base.py to use console backend (prints emails to stdout)
+# To test actual SMTP in development, comment this out or set EMAIL_BACKEND in .env
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 # Disable password validators in development for easier testing

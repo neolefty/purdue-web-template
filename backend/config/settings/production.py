@@ -71,14 +71,10 @@ SESSION_COOKIE_AGE = 86400  # 24 hours
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = "Lax"
 
-# Email configuration
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST = env("EMAIL_HOST", default="smtp.purdue.edu")
-EMAIL_PORT = env.int("EMAIL_PORT", default=587)
-EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS", default=True)
-EMAIL_HOST_USER = env("EMAIL_HOST_USER", default="")
-EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="")
-DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="noreply@purdue.edu")
+# Email configuration is inherited from base.py
+# Production should use SMTP backend (already set in base.py as default)
+# Override here only if production needs different settings:
+# SERVER_EMAIL = env("SERVER_EMAIL", default="server-errors@purdue.edu")
 
 # Sentry error tracking
 if env("SENTRY_DSN", default=None):
