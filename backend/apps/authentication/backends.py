@@ -21,6 +21,9 @@ class PurdueSAMLBackend(BaseBackend):
         """
         Authenticate user via SAML response
         """
+        # debug to detect code changes
+        print("------ authenticate called ------")
+
         if not saml_response:
             return None
 
