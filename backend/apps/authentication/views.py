@@ -53,9 +53,7 @@ def login_view(request):
         user = serializer.validated_data["user"]
         login(request, user)
         user_serializer = UserSerializer(user)
-        return Response(
-            {"user": user_serializer.data, "message": "Login successful! (Auto-reload test)"}
-        )
+        return Response({"user": user_serializer.data, "message": "Login successful"})
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
