@@ -77,6 +77,11 @@ rsync -aq --delete \
     backend/ "$DEPLOY_DIR/backend/"
 log "Backend files synced"
 
+# Ensure required directories exist
+mkdir -p "$DEPLOY_DIR/backend/static"
+mkdir -p "$DEPLOY_DIR/backend/media"
+mkdir -p "$DEPLOY_DIR/backend/logs"
+
 # Build and deploy frontend (optional - comment out if not needed)
 if [ -f frontend/package.json ]; then
     log "Building frontend..."
