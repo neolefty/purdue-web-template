@@ -125,11 +125,33 @@ django-react-template/
 
 Set the `DATABASE_ENGINE` environment variable in `.env`:
 
-- `postgresql` (default)
-- `mysql`
-- `mssql`
+- `postgresql` (recommended for production)
+- `mysql` / `mariadb`
+- `mssql` (MS SQL Server)
 - `oracle`
-- `sqlite` (development only)
+- `sqlite` (template/development only)
+
+#### Production Database Setup
+
+When creating a real application from this template:
+
+1. **Contact your database team** for database credentials
+2. **Update `.env`** with the provided credentials:
+   ```
+   DATABASE_ENGINE=postgresql
+   DB_NAME=your_app_db
+   DB_HOST=db.server.edu
+   DB_USER=your_app_user
+   DB_PASSWORD=<provided_by_db_team>
+   ```
+3. **Run migrations**: `python manage.py migrate`
+
+#### Migrating from SQLite to Production
+
+1. Export data if needed: `python manage.py dumpdata > data.json`
+2. Update `.env` with new database settings
+3. Run migrations: `python manage.py migrate`
+4. Import data if needed: `python manage.py loaddata data.json`
 
 ### Authentication Mode
 

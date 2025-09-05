@@ -36,7 +36,7 @@ All deployment files are organized in the `deployment/` directory:
 ### Core Deployment Scripts
 ```
 deployment/
-├── deploy.sh                    # Main deployment script
+├── deployment/legacy/deploy.sh  # Legacy deployment script (replaced by gitops-lite)
 ├── generate-config.sh           # Generates configs from templates
 ├── setup-environments.sh        # Sets up multiple environments (dev/qa/prod)
 └── ssl-params.conf             # SSL configuration parameters
@@ -112,13 +112,13 @@ sudo vim /etc/django-template-dev/deploy.conf
 ### 3. Deploy Each Environment
 ```bash
 # Deploy dev environment
-sudo ./deploy.sh /etc/django-template-dev/deploy.conf
+sudo deployment/legacy/deploy.sh /etc/django-template-dev/deploy.conf
 
 # Deploy qa environment
-sudo ./deploy.sh /etc/django-template-qa/deploy.conf
+sudo deployment/legacy/deploy.sh /etc/django-template-qa/deploy.conf
 
 # Deploy prod environment
-sudo ./deploy.sh /etc/django-template-prod/deploy.conf
+sudo deployment/legacy/deploy.sh /etc/django-template-prod/deploy.conf
 ```
 
 ### 4. Configure nginx
