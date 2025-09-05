@@ -2,6 +2,8 @@
 
 A starter template for web applications that can be easily hosted and maintained at Purdue, with Purdue authentication and branding. This template combines [Django](https://www.djangoproject.com/) (Python backend) with [React](https://react.dev/) (JavaScript frontend), aiming to balance modern development practices with a standardized approach that many developers are familiar with.
 
+![Template Screenshot](docs/images/template-screenshot.png)
+
 **Note**: This is an early-stage template that will evolve based on feedback and real-world use.
 
 ## Overview
