@@ -6,7 +6,7 @@ Minimal continuous deployment that works with hot-reload.
 
 ```bash
 # 1. Copy script to home directory
-cp deployment/dev-temporary/gitops-lite.sh ~/
+cp deployment/gitops-lite.sh ~/
 chmod +x ~/gitops-lite.sh
 
 # 2. Add to crontab

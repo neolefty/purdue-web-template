@@ -21,7 +21,7 @@ ExecStart=/opt/apps/template/venv/bin/gunicorn --reload --bind unix:/run/templat
 **Note:** Also changed `--workers 3` to `--workers 1` (reload only works with 1 worker)
 
 ### Option 2: Create Separate Development Service (Recommended)
-Create a new file `/etc/systemd/system/template-dev.service` with the following content:
+Create a new file `/etc/systemd/system/template-dev.service` (or use the provided `deployment/systemd/template-dev-reload.service`) with the following content:
 
 ```ini
 [Unit]

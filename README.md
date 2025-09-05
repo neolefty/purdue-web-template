@@ -72,11 +72,17 @@ cp backend/.env.example backend/.env
 docker compose up
 ```
 
+For hot-reload testing with Gunicorn:
+```bash
+docker compose -f docker-compose.hot-reload.yml up
+```
+
 4. Access the application:
 - Frontend: http://localhost:5173
 - Backend API: http://localhost:8000/api
 - API Documentation: http://localhost:8000/api/swagger/
 - Django Admin: http://localhost:8000/admin/
+- Redis: localhost:6379 (now included for caching/sessions)
 
 ### First-Time Setup
 
@@ -109,7 +115,8 @@ django-react-template/
 │   │   ├── pages/        # Page components
 │   │   └── styles/       # CSS files
 │   └── package.json      # Node dependencies
-└── compose.yml          # Development environment
+├── compose.yml          # Development environment
+└── docker-compose.hot-reload.yml  # Gunicorn hot-reload testing
 ```
 
 ## Configuration
@@ -314,7 +321,7 @@ The development server has continuous deployment set up:
    ssh django
    cd ~/source/django-react-template
    git pull
-   ~/gitops-lite.sh  # Run deployment script
+   deployment/gitops-lite.sh  # Run deployment script
    ```
 
 ### How It Works

@@ -77,7 +77,7 @@ services:
   nginx-dev:
     image: nginx:alpine
     volumes:
-      - ./deployment/nginx-dev-reload.conf:/etc/nginx/conf.d/default.conf
+      - ./deployment/templates/nginx-dev-reload.conf:/etc/nginx/conf.d/default.conf
       - static_volume:/static
       - media_volume:/media
     ports:

@@ -13,7 +13,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ### Deployment Commands
 ```bash
 # Manual deploy (if needed)
-ssh django "cd ~/source/django-react-template && git pull && ~/gitops-lite.sh"
+ssh django "cd ~/source/django-react-template && git pull && deployment/gitops-lite.sh"
 
 # Check deployment logs
 ssh django "tail -f /tmp/gitops-lite.log"
