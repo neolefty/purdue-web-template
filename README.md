@@ -331,22 +331,24 @@ TODO: Document the process for:
 
 ## Development Server Deployment (Current)
 
-### Quick Deploy to Dev Server
+### Quick Deploy to Dev Server (No Sudo Required!)
 
-The development server has continuous deployment set up:
+The development server uses **group permissions** - developers in the `template` group can deploy without sudo:
 
-1. **Automatic deployment** (via GitOps Lite):
+1. **Automatic deployment** (via GitOps Lite cron job):
    - Push to `main` branch
-   - Wait ~1 minute
+   - Wait ~1 minute (cron runs every minute)
    - Changes are live! (hot-reload handles restart)
 
-2. **Manual deployment**:
+2. **Manual deployment** (if needed):
    ```bash
    ssh django
    cd ~/source/django-react-template
    git pull
-   deployment/gitops-lite.sh  # Run deployment script
+   deployment/gitops-lite.sh  # No sudo needed - uses group permissions!
    ```
+
+**Note:** The deployment uses `/opt/apps/template` which is group-writable by the `template` group.
 
 ### How It Works
 

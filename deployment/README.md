@@ -6,25 +6,30 @@ This directory contains deployment configurations for different environments and
 
 ```
 deployment/
-├── dev-temporary/      # Temporary dev server tools (will be deprecated)
-├── future-k8s/         # Future Kubernetes/GitOps configurations (coming soon)
+├── gitops-lite.sh      # Main deployment script (no sudo needed!)
 ├── configs/            # Environment configuration files
-├── systemd/            # Current systemd service files
-└── templates/          # Configuration templates
+├── systemd/            # Systemd service files
+├── templates/          # Configuration templates
+├── scripts/            # Utility scripts
+├── legacy/             # Old deployment methods (for reference)
+└── future-k8s/         # Future Kubernetes configurations
 ```
 
-## Current State (Short-term)
+## Current Deployment Method (No Sudo Required!)
 
-We're using a traditional VM-based deployment with:
-- **Systemd** services on Rocky Linux
-- **Gunicorn** with `--reload` for dev environments
-- **Manual/script-based** deployments
-- **No sudo access** for developers
+We use **group permissions** for deployment - developers in the `template` group can deploy without sudo:
 
-### Active on Dev Server
-- Gunicorn with `--reload` flag enabled
-- Auto-deployment scripts available but not automated
-- Files in `dev-temporary/` folder
+### How It Works
+1. **Source code** lives in `~/source/django-react-template` (your home directory)
+2. **Deployment target** is `/opt/apps/template` (group-writable by `template` group)
+3. **GitOps Lite** script handles deployment via cron (every minute)
+4. **Gunicorn hot-reload** automatically picks up changes
+
+### Key Features
+- **No sudo needed** - Uses group permissions
+- **Automatic deployment** - Cron runs gitops-lite.sh every minute
+- **Hot reload in dev** - Gunicorn `--reload` flag means no service restarts
+- **Safe and simple** - Won't deploy if tests fail
 
 ## Future State (Long-term)
 
@@ -37,33 +42,41 @@ Moving towards modern cloud-native deployment:
 
 ## For Developers
 
-### Quick Deploy to Dev Server
+### Automatic Deployment (Already Set Up!)
 ```bash
-# Pull latest code
-ssh django "cd ~/source/django-react-template && git pull"
+# Just push to main branch
+git push origin main
 
-# Copy files
-ssh django "rsync -av --exclude='.env' ~/source/django-react-template/backend/ /opt/apps/template/backend/"
+# Wait ~1 minute for cron to run gitops-lite.sh
+# Check deployment status:
+ssh django "tail -f /tmp/gitops-lite.log"
+```
 
-# Auto-reload handles the rest!
+### Manual Deployment (If Needed)
+```bash
+ssh django
+cd ~/source/django-react-template
+git pull
+./deployment/gitops-lite.sh  # No sudo needed!
 ```
 
 ### Local Development with Hot Reload
 ```bash
 # Use the Docker compose setup
-docker compose -f docker-compose.dev-server.yml up
+docker compose -f docker-compose.hot-reload.yml up
 ```
 
 ## Files by Purpose
 
 ### Production-Ready
-- `systemd/` - Service definitions
+- `gitops-lite.sh` - Main deployment script (no sudo!)
+- `systemd/` - Service definitions (sysadmin manages these)
 - `configs/` - Environment configurations
 - `templates/` - Nginx, service templates
 
-### Development Tools (Temporary)
-- `dev-temporary/` - All hot-reload and auto-deploy scripts
-- Will be replaced by K8s/GitOps solutions
+### Legacy (For Reference)
+- `legacy/deploy.sh` - Old deployment method (required sudo)
+- `DEPLOYMENT-DETAILED.md` - Documentation for the old method
 
 ### Future (In Progress)
 - `future-k8s/` - Kubernetes manifests (coming soon)
