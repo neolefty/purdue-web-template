@@ -60,13 +60,28 @@ chmod g+s /opt/apps/template-qa  # Ensure new files inherit group
 
 ### 4. Python Environment Setup
 
+#### Choosing Python Version
+If multiple Python versions are installed, you can specify which to use:
 ```bash
+# Check available Python versions
+ls -la /usr/bin/python3*
+
+# Use specific version for venv (e.g., Python 3.13 if available)
 cd /opt/apps/template-qa
+python3.13 -m venv venv  # Or python3.11, python3.9, etc.
+
+# Or use system default
 python3 -m venv venv
+```
+
+#### Install Dependencies
+```bash
 source venv/bin/activate
 pip install --upgrade pip
 pip install -r backend/requirements/production.txt
 ```
+
+Note: The dev server uses Python 3.13 for better performance, but 3.9+ works fine.
 
 ## Service Configuration (Examples)
 

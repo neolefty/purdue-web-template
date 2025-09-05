@@ -24,7 +24,7 @@ APP_GROUP="${APP_NAME}"
 APP_USER="deployer"
 REPO_URL="https://github.com/yourorg/django-react-template.git"
 BRANCH="${ENV_NAME}"  # qa branch for QA, prod branch for Production
-PYTHON_VERSION="python3"  # Uses system Python (3.9+ required)
+PYTHON_VERSION="python3.13"  # Or python3, python3.11, etc. (3.9+ required)
 
 echo "=== Setting up $ENV_NAME environment ==="
 echo "App directory: $APP_DIR"
@@ -61,7 +61,7 @@ git checkout qa  # or production
 # 4. Initial deployment
 cd /opt/apps/template-qa
 cp -r ~/django-react-template/backend .
-python3 -m venv venv
+python3.13 -m venv venv  # Or python3, depending on your preference
 source venv/bin/activate
 pip install -r backend/requirements/production.txt
 
