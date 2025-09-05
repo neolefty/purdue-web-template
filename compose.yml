@@ -31,8 +31,7 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ./backend:/app
-    ports:
-      - "8000:8000"
+    # Port not exposed - access via frontend proxy at localhost:5173
     depends_on:
       db:
         condition: service_healthy
