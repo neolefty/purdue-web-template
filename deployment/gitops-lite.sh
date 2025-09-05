@@ -117,6 +117,6 @@ fi
 
 # Mark as deployed
 echo "$REMOTE" > "$STATE_FILE"
-log "✅ Deployed successfully (hot-reload will handle restart)"
+log "✅ [$BRANCH → $APP_NAME] Deployed successfully (hot-reload will handle restart)"
 
 exit 0

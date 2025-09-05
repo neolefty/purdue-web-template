@@ -7,10 +7,12 @@ This directory contains deployment configurations for different environments and
 ```
 deployment/
 ├── gitops-lite.sh      # Main deployment script (no sudo needed!)
+├── NEW-SERVER-SETUP.md # Complete guide for setting up QA/Prod servers
 ├── configs/            # Environment configuration files
 ├── systemd/            # Systemd service files
 ├── templates/          # Configuration templates
 ├── scripts/            # Utility scripts
+│   └── setup-environment-example.sh  # Example setup script
 ├── legacy/             # Old deployment methods (for reference)
 └── future-k8s/         # Future Kubernetes configurations
 ```
@@ -42,15 +44,22 @@ Moving towards modern cloud-native deployment:
 
 ## For Developers
 
-### Automatic Deployment (Already Set Up!)
+### Automatic Deployment (Branch-Based)
 ```bash
-# Just push to main branch
-git push origin main
+# For QA deployment:
+git push origin qa
+
+# For Production deployment:
+git push origin production
 
 # Wait ~1 minute for cron to run gitops-lite.sh
 # Check deployment status:
-ssh django "tail -f /tmp/gitops-lite.log"
+ssh server "tail -f /tmp/gitops-lite-<app-name>.log"
 ```
+
+The enhanced `gitops-lite.sh` now supports environment variables:
+- `GITOPS_BRANCH` - Which branch to deploy (main, qa, production)
+- `GITOPS_APP_NAME` - Target directory name (template, template-qa, template-prod)
 
 ### Manual Deployment (If Needed)
 ```bash
