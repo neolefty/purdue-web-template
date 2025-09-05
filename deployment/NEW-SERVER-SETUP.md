@@ -2,25 +2,28 @@
 
 This guide provides recommendations for setting up a new server to host this Django-React application. Feel free to adapt these suggestions to match your organization's standards and preferences.
 
+This application was designed with containers in mind, runs well under `docker compose` especially for local development, and anticipates deployment using Kubernetes.  See [README.md](../README.md) for more details.
+
 ## Overview
 
 The application consists of:
 - A Python backend (Django) that serves both the API and static files
 - Pre-compiled React frontend files (no Node.js needed in production)
-- Optional PostgreSQL database (or SQLite for simpler setups)
+- Optional connection to external database (or SQLite for simpler setups)
 
 ## Suggested Server Setup
 
 ### 1. System Requirements
-- Rocky Linux 8+ or RHEL 8+ (or any Linux you prefer)
-- Python 3.11+
+- Rocky Linux 9+ or RHEL 9+ (or any Linux you prefer)
+- Python 3.9+ (3.12 recommended for new deployments)
 - nginx (for reverse proxy)
 - systemd (for service management)
 - Git (for pulling code)
 
 ### 2. User and Group Setup
 
-Consider creating a dedicated user/group structure that allows developers to deploy without sudo:
+This guide assumes that code can be deployed without `sudo`,
+for example using group permissions in the deployment directory.
 
 ```bash
 # Example approach (adapt as needed):
@@ -59,7 +62,7 @@ chmod g+s /opt/apps/template-qa  # Ensure new files inherit group
 
 ```bash
 cd /opt/apps/template-qa
-python3.11 -m venv venv
+python3 -m venv venv
 source venv/bin/activate
 pip install --upgrade pip
 pip install -r backend/requirements/production.txt
@@ -154,50 +157,3 @@ git checkout qa  # or production
 git pull
 GITOPS_BRANCH=qa GITOPS_APP_NAME=template-qa ./deployment/gitops-lite.sh
 ```
-
-## Security Considerations
-
-1. **Firewall**: Only allow necessary ports (80, 443, SSH)
-2. **SELinux**: If enabled, configure contexts for /opt/apps/
-3. **Secrets**: Never commit .env files or certificates
-4. **Updates**: Keep Python packages updated
-5. **Monitoring**: Set up log rotation and monitoring
-
-## Testing the Setup
-
-1. **Check service status:**
-   ```bash
-   systemctl status your-service-name
-   journalctl -u your-service-name -f
-   ```
-
-2. **Test the application:**
-   ```bash
-   curl http://localhost:8000/api/health/
-   ```
-
-3. **Check nginx:**
-   ```bash
-   nginx -t
-   curl https://your-domain.edu
-   ```
-
-## Customization Encouraged
-
-This guide provides examples based on common patterns, but please:
-- Adapt paths, names, and configurations to your standards
-- Use your organization's preferred monitoring tools
-- Apply your security policies
-- Integrate with your existing CI/CD if applicable
-
-The goal is to give you working examples that you can modify rather than prescriptive rules you must follow.
-
-## Support
-
-If you encounter issues or have questions about the application itself (not server setup), the development team can help with:
-- Application configuration questions
-- Database schema and migrations
-- API endpoints and authentication
-- Frontend build process
-
-For server administration and infrastructure decisions, we trust your expertise to choose the best approach for your environment.

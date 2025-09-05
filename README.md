@@ -371,7 +371,7 @@ ssh django "systemctl status template"
 
 ### Prerequisites
 
-- Python 3.12+
+- Python 3.9+ (we use 3.12 in Docker, 3.9 on servers)
 - Node.js 20+
 - PostgreSQL (or your chosen database)
 - Nginx or Apache (for reverse proxy)
