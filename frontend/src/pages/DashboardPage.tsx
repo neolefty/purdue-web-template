@@ -88,7 +88,7 @@ export default function DashboardPage() {
                   <dd className="text-lg">{health.django_version}</dd>
                 </div>
                 <div>
-                  <dt className="text-sm font-medium text-purdue-gray-500">Auth'n Method</dt>
+                  <dt className="text-sm font-medium text-purdue-gray-500">Auth Method</dt>
                   <dd className="text-lg uppercase">{health.auth_method}</dd>
                 </div>
                 <div>
