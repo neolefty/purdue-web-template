@@ -30,7 +30,6 @@ class HealthCheckView(APIView):
             "python_version": sys.version,
             "auth_method": settings.AUTH_METHOD,
             "debug_mode": settings.DEBUG,
-            "foo": "bar",
         }
 
         # Determine overall health
