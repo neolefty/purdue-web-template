@@ -191,11 +191,13 @@ class PermissionTestCase(APITestCase):
         User.objects.create_user(
             username="authtest", email="authtest@purdue.edu", password="TestPass123!"
         )
-        self.client.post(
+        login_response = self.client.post(
             "/api/auth/login/",
             {"email": "authtest@purdue.edu", "password": "TestPass123!"},
             format="json",
         )
+        # Verify login was successful
+        self.assertEqual(login_response.status_code, status.HTTP_200_OK)
 
         # Access protected endpoint with session auth
         response = self.client.get("/api/auth/user/")
