@@ -1,0 +1,13 @@
+services:
+  gitops-test:
+    build: .
+    volumes:
+      # Mount the entire project as source
+      - ../..:/source:ro
+      # Mount test results directory for inspection
+      - ./test-results:/test-results
+    environment:
+      # Can override test parameters here
+      - GITOPS_PYTHON=python3
+    # Run test and exit
+    command: /home/deployer/test-in-container.sh

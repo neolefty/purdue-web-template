@@ -329,183 +329,27 @@ TODO: Document the process for:
 3. Setting up Purdue authentication
 4. Basic customization steps
 
-## Development Server Deployment (Current)
+## Deployment
 
-### Quick Deploy to Dev Server (No Sudo Required!)
+For complete deployment instructions, see [`deployment/README.md`](deployment/README.md).
 
-The development server uses **group permissions** - developers in the `template` group can deploy without sudo:
+### Quick Start
 
-1. **Automatic deployment** (via GitOps Lite cron job):
-   - Push to `main` branch
-   - Wait ~1 minute (cron runs every minute)
-   - Changes are live! (hot-reload handles restart)
-
-2. **Manual deployment** (if needed):
-   ```bash
-   ssh django
-   cd ~/source/django-react-template
-   git pull
-   deployment/gitops-lite.sh  # No sudo needed - uses group permissions!
-   ```
-
-**Note:** The deployment uses `/opt/apps/template` which is group-writable by the `template` group.
-
-### How It Works
-
-- **GitOps Lite**: Cron job checks for changes every minute
-- **Hot Reload**: Gunicorn with `--reload` flag auto-restarts on file changes
-- **No sudo needed**: Service restarts automatically
-- **Safe**: Only deploys if Python syntax checks pass
-
-### Monitoring Deployments
-
+**Development/QA deployment:**
 ```bash
-# Watch deployment logs
-ssh django "tail -f /tmp/gitops-lite.log"
+# Push to branch and auto-deploy (if GitOps is configured):
+git push origin main  # or qa, production branches
 
-# Check service status
-ssh django "systemctl status template"
+# Manual deployment:
+ssh server "cd ~/source/django-react-template && ./deployment/gitops-lite.sh"
 ```
 
-## Production Deployment
-
-### Prerequisites
-
-- Python 3.9+ (we use 3.12 in Docker, 3.9 on servers)
-- Node.js 20+
-- PostgreSQL (or your chosen database)
-- Nginx or Apache (for reverse proxy)
-
-### Deployment Steps
-
-1. **Clone and setup environment:**
+**Local testing with production-like setup:**
 ```bash
-git clone https://github.itap.purdue.edu/wbbaker/django-react-template
-cd django-react-template
+docker compose -f docker-compose.hot-reload.yml up
 ```
 
-2. **Build the frontend:**
-```bash
-cd frontend
-npm ci --production
-npm run build
-cd ..
-```
-
-3. **Setup Python environment:**
-```bash
-cd backend
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-pip install -r requirements/production.txt
-```
-
-4. **Configure environment:**
-```bash
-cp backend/.env.example backend/.env
-# Edit .env with production values:
-# - Set SECRET_KEY to a secure random string
-# - Set DEBUG=False
-# - Configure database credentials
-# - Set ALLOWED_HOSTS to your domain
-# - Configure AUTH_METHOD (saml or email)
-```
-
-5. **Run migrations:**
-```bash
-export DJANGO_SETTINGS_MODULE=config.settings.production
-python manage.py migrate
-python manage.py createsuperuser
-python manage.py collectstatic --noinput
-```
-
-6. **Start with Gunicorn:**
-```bash
-gunicorn config.wsgi:application \
-  --bind 0.0.0.0:8000 \
-  --workers 4 \
-  --worker-class sync \
-  --worker-connections 1000 \
-  --max-requests 1000 \
-  --timeout 30 \
-  --keepalive 2 \
-  --log-level info
-```
-
-### Systemd Service Example
-
-Create `/etc/systemd/system/purdue-app.service`:
-```ini
-[Unit]
-Description=Purdue Web Application
-After=network.target
-
-[Service]
-Type=notify
-User=www-data
-Group=www-data
-WorkingDirectory=/var/www/purdue-app/backend
-Environment="DJANGO_SETTINGS_MODULE=config.settings.production"
-EnvironmentFile=/var/www/purdue-app/backend/.env
-ExecStart=/var/www/purdue-app/backend/venv/bin/gunicorn \
-          config.wsgi:application \
-          --bind unix:/var/www/purdue-app/backend/app.sock \
-          --workers 4
-ExecReload=/bin/kill -s HUP $MAINPID
-KillMode=mixed
-TimeoutStopSec=5
-PrivateTmp=true
-
-[Install]
-WantedBy=multi-user.target
-```
-
-### Nginx Configuration Example
-
-```nginx
-server {
-    listen 80;
-    server_name yourapp.purdue.edu;
-
-    location /static/ {
-        alias /var/www/purdue-app/backend/staticfiles/;
-    }
-
-    location /media/ {
-        alias /var/www/purdue-app/backend/media/;
-    }
-
-    location / {
-        proxy_set_header Host $http_host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_pass http://unix:/var/www/purdue-app/backend/app.sock;
-    }
-}
-```
-
-### Database Migrations in Production
-
-Always test migrations in a staging environment first:
-
-```bash
-# Backup database first!
-pg_dump purdue_app > backup_$(date +%Y%m%d).sql
-
-# Check migration plan
-python manage.py showmigrations
-
-# Apply migrations
-python manage.py migrate --plan  # Review the plan
-python manage.py migrate         # Apply migrations
-```
-
-### Environment-Specific Settings
-
-- Development: `backend/config/settings/development.py`
-- Production: `backend/config/settings/production.py`
-- Base (shared): `backend/config/settings/base.py`
+See [`deployment/NEW-SERVER-SETUP.md`](deployment/NEW-SERVER-SETUP.md) for detailed server setup and production deployment instructions.
 
 ## API Documentation
 

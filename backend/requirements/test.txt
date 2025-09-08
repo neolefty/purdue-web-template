@@ -1,0 +1,9 @@
+# Minimal requirements for testing gitops-lite.sh locally
+# Uses SQLite instead of MySQL/PostgreSQL to avoid system dependencies
+
+Django==5.1.1
+djangorestframework==3.15.2
+django-cors-headers==4.4.0
+python-decouple==3.8
+gunicorn==23.0.0
+python-dateutil==2.9.0

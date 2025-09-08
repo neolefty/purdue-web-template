@@ -1,72 +1,153 @@
 #!/bin/bash
 #
-# GitOps Lite - Minimal continuous deployment for dev server
+# GitOps Lite - Smart continuous deployment with auto-initialization
 # Run this as a cron job every 5 minutes (or even every minute!)
 #
 # What it does:
 #   1. Check for new commits (exits early if none)
-#   2. Run basic sanity checks
-#   3. Deploy if checks pass
-#   4. Hot-reload handles the rest
+#   2. Auto-detect and handle first-time setup
+#   3. Update dependencies when needed
+#   4. Deploy changes and notify via email
 #
 # Exit codes:
 #   0 - Success (deployed or nothing to do)
-#   1 - Tests failed (deployment skipped)
+#   1 - Tests/deployment failed
 #   2 - Git error
+#   3 - Initial setup failed
 #
 # Performance: Runs in <1 second when no changes (just git fetch)
 
 set -euo pipefail
 
-# Configuration
-SOURCE_DIR="$HOME/source/django-react-template"
-DEPLOY_DIR="/opt/apps/template"
-STATE_FILE="/tmp/gitops-lite-state"
-LOG_FILE="/tmp/gitops-lite.log"
+# Configuration with environment variable support
+BRANCH="${GITOPS_BRANCH:-main}"
+APP_NAME="${GITOPS_APP_NAME:-template}"
+SOURCE_DIR="${GITOPS_SOURCE_DIR:-$HOME/source/django-react-template}"
+DEPLOY_DIR="${GITOPS_DEPLOY_DIR:-/opt/apps/$APP_NAME}"
+STATE_FILE="/tmp/gitops-lite-state-$APP_NAME"
+LOG_FILE="/tmp/gitops-lite-$APP_NAME.log"
+BUILD_FRONTEND="${GITOPS_BUILD_FRONTEND:-true}"
+
+# Email configuration (optional)
+EMAIL_TO="${GITOPS_EMAIL_TO:-}"  # Set to enable email notifications
+EMAIL_FROM="${GITOPS_EMAIL_FROM:-gitops@$(hostname -f)}"
+EMAIL_ON_SUCCESS="${GITOPS_EMAIL_ON_SUCCESS:-true}"  # Email on successful deployments
+EMAIL_ON_FAILURE="${GITOPS_EMAIL_ON_FAILURE:-true}"  # Email on failures
+
+# Python configuration
+PYTHON="${GITOPS_PYTHON:-python3}"  # Allow specifying Python version
+
+# Deployment flags
+DEPLOYMENT_OCCURRED=false
+FIRST_TIME_SETUP=false
+ERRORS_OCCURRED=false
+
+# Start fresh log for this deployment
+> "$LOG_FILE"
 
 # Simple logging
 log() {
-    echo "[$(date '+%H:%M:%S')] $1" | tee -a "$LOG_FILE"
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_FILE"
 }
+
+# Send email notification (only if configured and changes occurred)
+send_email() {
+    local subject="$1"
+    local status="$2"  # success or failure
+
+    # Skip if no email configured or if we shouldn't email this status
+    if [[ -z "$EMAIL_TO" ]]; then
+        return
+    fi
+
+    if [[ "$status" == "success" && "$EMAIL_ON_SUCCESS" != "true" ]]; then
+        return
+    fi
+
+    if [[ "$status" == "failure" && "$EMAIL_ON_FAILURE" != "true" ]]; then
+        return
+    fi
+
+    # Only email if deployment actually occurred
+    if [[ "$DEPLOYMENT_OCCURRED" != "true" ]]; then
+        return
+    fi
+
+    # Try to send email (don't fail deployment if email fails)
+    {
+        echo "Subject: $subject"
+        echo "From: $EMAIL_FROM"
+        echo "To: $EMAIL_TO"
+        echo ""
+        echo "Deployment Report for $APP_NAME"
+        echo "================================"
+        echo "Branch: $BRANCH"
+        echo "Status: $status"
+        echo "Time: $(date)"
+        echo "Server: $(hostname -f)"
+        echo ""
+        echo "Deployment Log:"
+        echo "---------------"
+        cat "$LOG_FILE"
+    } | sendmail -t 2>/dev/null || log "⚠️ Email notification failed"
+}
+
+# Error handler
+on_error() {
+    ERRORS_OCCURRED=true
+    log "❌ Deployment failed!"
+    send_email "[$APP_NAME] Deployment Failed on $(hostname -s)" "failure"
+    exit 1
+}
+
+trap on_error ERR
 
 # Check for changes
 cd "$SOURCE_DIR" || exit 2
-git fetch origin main -q || exit 2
+git fetch origin $BRANCH -q || exit 2
 
 CURRENT=$(git rev-parse HEAD)
-REMOTE=$(git rev-parse origin/main)
+REMOTE=$(git rev-parse origin/$BRANCH)
 
 # Exit silently if no changes (this is the common case)
 if [ "$CURRENT" = "$REMOTE" ]; then
     # Also check if we've already deployed this commit
     if [ -f "$STATE_FILE" ] && [ "$(cat $STATE_FILE)" = "$REMOTE" ]; then
-        exit 0  # Nothing to do
+        exit 0  # Nothing to do - NO EMAIL
     fi
     # If state file is missing/different, we need to deploy current version
 fi
 
+# === DEPLOYMENT STARTS HERE - We will send email ===
+DEPLOYMENT_OCCURRED=true
+
 # Only log when we're actually doing something
 if [ "$CURRENT" != "$REMOTE" ]; then
-    log "New commits detected: $(echo $CURRENT | cut -c1-7)..$(echo $REMOTE | cut -c1-7)"
-    git pull origin main -q || exit 2
+    log "[$BRANCH → $APP_NAME] New commits detected: $(echo $CURRENT | cut -c1-7)..$(echo $REMOTE | cut -c1-7)"
+    git pull origin $BRANCH -q || exit 2
+    CURRENT=$REMOTE  # Update current to the new version
 else
-    log "Deploying current version $(echo $CURRENT | cut -c1-7) (state sync)"
+    log "[$BRANCH → $APP_NAME] Deploying current version $(echo $CURRENT | cut -c1-7) (state sync)"
 fi
 
-# Basic Python syntax check (optional - comment out if causing issues)
-log "Checking Python syntax..."
-set +e
-export DJANGO_SETTINGS_MODULE=config.settings.production
-find backend -name "*.py" -type f -exec "$DEPLOY_DIR/venv/bin/python" -m py_compile {} \; 2>/tmp/py_compile_error.log
-SYNTAX_CHECK=$?
-unset DJANGO_SETTINGS_MODULE
-set -e
-if [ $SYNTAX_CHECK -ne 0 ]; then
-    log "⚠️ Python syntax warnings detected (see /tmp/py_compile_error.log)"
-    # Don't exit - just warn
+# Check if this is first-time setup
+if [[ ! -d "$DEPLOY_DIR/venv" ]]; then
+    FIRST_TIME_SETUP=true
+    log "🔧 First-time setup detected - initializing environment..."
+
+    # Create deployment directory structure
+    mkdir -p "$DEPLOY_DIR"/{backend,frontend,logs}
+
+    # Create Python virtual environment
+    log "Creating Python virtual environment..."
+    $PYTHON -m venv "$DEPLOY_DIR/venv"
+
+    # Upgrade pip
+    "$DEPLOY_DIR/venv/bin/pip" install --upgrade pip -q
+    log "✓ Virtual environment created"
 fi
 
-# Deploy backend
+# Deploy backend files first (so requirements.txt is available)
 log "Syncing backend files..."
 rsync -aq --delete \
     --exclude='__pycache__' \
@@ -74,49 +155,116 @@ rsync -aq --delete \
     --exclude='.env' \
     --exclude='media/' \
     --exclude='logs/' \
+    --exclude='db.sqlite3' \
     backend/ "$DEPLOY_DIR/backend/"
-log "Backend files synced"
+
+# Check if pip install needed (first time or requirements changed)
+REQUIREMENTS_FILE="$DEPLOY_DIR/backend/requirements/production.txt"
+if [[ ! -f "$REQUIREMENTS_FILE" ]]; then
+    REQUIREMENTS_FILE="$DEPLOY_DIR/backend/requirements.txt"
+fi
+
+if [[ "$FIRST_TIME_SETUP" == "true" ]] || [[ ! -f "$STATE_FILE" ]] || \
+   [[ "$SOURCE_DIR/backend/requirements/production.txt" -nt "$STATE_FILE" ]]; then
+    log "Installing/updating Python packages..."
+    "$DEPLOY_DIR/venv/bin/pip" install -r "$REQUIREMENTS_FILE" -q --progress-bar off
+    # Ensure gunicorn is installed
+    "$DEPLOY_DIR/venv/bin/pip" install gunicorn -q
+    log "✓ Python packages updated"
+fi
 
 # Ensure required directories exist
 mkdir -p "$DEPLOY_DIR/backend/static"
 mkdir -p "$DEPLOY_DIR/backend/media"
 mkdir -p "$DEPLOY_DIR/backend/logs"
 
-# Build and deploy frontend (optional - comment out if not needed)
-if [ -f frontend/package.json ]; then
+# Frontend deployment
+if [ "$BUILD_FRONTEND" = "true" ] && [ -f frontend/package.json ]; then
+    # Sync frontend files
+    rsync -aq --delete \
+        --exclude='node_modules' \
+        --exclude='dist' \
+        frontend/ "$DEPLOY_DIR/frontend/"
+
+    cd "$DEPLOY_DIR/frontend"
+
+    # Check if npm install needed (first time or package.json changed)
+    if [[ "$FIRST_TIME_SETUP" == "true" ]] || [[ ! -d "node_modules" ]] || \
+       [[ "$SOURCE_DIR/frontend/package.json" -nt "$STATE_FILE" ]]; then
+        log "Installing/updating npm packages..."
+        npm ci --silent > /tmp/npm-install-$APP_NAME.log 2>&1 || {
+            log "⚠️ npm install failed (see /tmp/npm-install-$APP_NAME.log)"
+        }
+    fi
+
+    # Build frontend
     log "Building frontend..."
-    cd frontend
-    # Temporarily disable strict error checking for npm
     set +e
-    npm run build --silent > /tmp/npm-build.log 2>&1
+    npm run build --silent > /tmp/npm-build-$APP_NAME.log 2>&1
     BUILD_EXIT=$?
     set -e
 
     if [ $BUILD_EXIT -eq 0 ]; then
-        log "Frontend build successful, syncing dist..."
-        rsync -aq --delete dist/ "$DEPLOY_DIR/frontend/dist/"
-        log "Frontend deployed"
+        log "✓ Frontend built successfully"
     else
-        log "⚠️ Frontend build skipped (exit code: $BUILD_EXIT, see /tmp/npm-build.log)"
+        log "⚠️ Frontend build failed (exit code: $BUILD_EXIT, see /tmp/npm-build-$APP_NAME.log)"
     fi
-    cd ..
+
+    cd "$SOURCE_DIR"
+elif [ "$BUILD_FRONTEND" = "false" ]; then
+    log "Frontend build disabled (GITOPS_BUILD_FRONTEND=false)"
 fi
 
-# Run migrations (safe to run even if no changes)
-log "Running migrations..."
+# Django management commands
 cd "$DEPLOY_DIR/backend"
+export DJANGO_SETTINGS_MODULE=config.settings.production
+
+# Run migrations
+log "Running database migrations..."
 set +e
-DJANGO_SETTINGS_MODULE=config.settings.production "$DEPLOY_DIR/venv/bin/python" manage.py migrate --noinput >/tmp/migrate.log 2>&1
+"$DEPLOY_DIR/venv/bin/python" manage.py migrate --noinput > /tmp/migrate-$APP_NAME.log 2>&1
 MIGRATE_EXIT=$?
 set -e
-if [ $MIGRATE_EXIT -ne 0 ]; then
-    log "⚠️ Migrations skipped (exit code: $MIGRATE_EXIT, may already be applied, see /tmp/migrate.log)"
+if [ $MIGRATE_EXIT -eq 0 ]; then
+    log "✓ Migrations completed"
 else
-    log "Migrations completed"
+    log "⚠️ Migrations skipped (may already be applied, see /tmp/migrate-$APP_NAME.log)"
+fi
+
+# Collect static files (first time or if static files changed)
+if [[ "$FIRST_TIME_SETUP" == "true" ]] || \
+   [[ $(find "$SOURCE_DIR/backend" -name "*.css" -o -name "*.js" -o -name "*.html" -newer "$STATE_FILE" 2>/dev/null | head -1) ]]; then
+    log "Collecting static files..."
+    set +e
+    "$DEPLOY_DIR/venv/bin/python" manage.py collectstatic --noinput > /tmp/collectstatic-$APP_NAME.log 2>&1
+    COLLECT_EXIT=$?
+    set -e
+    if [ $COLLECT_EXIT -eq 0 ]; then
+        log "✓ Static files collected"
+    else
+        log "⚠️ Collectstatic skipped (see /tmp/collectstatic-$APP_NAME.log)"
+    fi
+fi
+
+# Basic Python syntax check
+set +e
+find "$DEPLOY_DIR/backend" -name "*.py" -type f -exec "$DEPLOY_DIR/venv/bin/python" -m py_compile {} \; 2>/tmp/py_compile_error.log
+SYNTAX_CHECK=$?
+set -e
+if [ $SYNTAX_CHECK -ne 0 ]; then
+    log "⚠️ Python syntax warnings detected (see /tmp/py_compile_error.log)"
 fi
 
 # Mark as deployed
-echo "$REMOTE" > "$STATE_FILE"
-log "✅ [$BRANCH → $APP_NAME] Deployed successfully (hot-reload will handle restart)"
+echo "$CURRENT" > "$STATE_FILE"
+
+# Final status
+if [[ "$FIRST_TIME_SETUP" == "true" ]]; then
+    log "🎉 [$BRANCH → $APP_NAME] Initial deployment completed successfully!"
+    send_email "[$APP_NAME] Initial Deployment Successful on $(hostname -s)" "success"
+else
+    log "✅ [$BRANCH → $APP_NAME] Deployed successfully (hot-reload will handle restart)"
+    send_email "[$APP_NAME] Deployment Successful on $(hostname -s)" "success"
+fi
 
 exit 0
