@@ -74,22 +74,40 @@ send_email() {
     fi
 
     # Try to send email (don't fail deployment if email fails)
-    {
-        echo "Subject: $subject"
-        echo "From: $EMAIL_FROM"
-        echo "To: $EMAIL_TO"
-        echo ""
-        echo "Deployment Report for $APP_NAME"
-        echo "================================"
-        echo "Branch: $BRANCH"
-        echo "Status: $status"
-        echo "Time: $(date)"
-        echo "Server: $(hostname -f)"
-        echo ""
-        echo "Deployment Log:"
-        echo "---------------"
-        cat "$LOG_FILE"
-    } | sendmail -t 2>/dev/null || log "⚠️ Email notification failed"
+    # Use mail command if available, fall back to sendmail
+    if command -v mail >/dev/null 2>&1; then
+        {
+            echo "Deployment Report for $APP_NAME"
+            echo "================================"
+            echo "Branch: $BRANCH"
+            echo "Status: $status"
+            echo "Time: $(date)"
+            echo "Server: $(hostname -f)"
+            echo ""
+            echo "Deployment Log:"
+            echo "---------------"
+            cat "$LOG_FILE"
+        } | mail -s "$subject" "$EMAIL_TO" 2>/dev/null || log "⚠️ Email notification failed"
+    elif command -v sendmail >/dev/null 2>&1; then
+        {
+            echo "Subject: $subject"
+            echo "From: $EMAIL_FROM"
+            echo "To: $EMAIL_TO"
+            echo ""
+            echo "Deployment Report for $APP_NAME"
+            echo "================================"
+            echo "Branch: $BRANCH"
+            echo "Status: $status"
+            echo "Time: $(date)"
+            echo "Server: $(hostname -f)"
+            echo ""
+            echo "Deployment Log:"
+            echo "---------------"
+            cat "$LOG_FILE"
+        } | sendmail -t 2>/dev/null || log "⚠️ Email notification failed"
+    else
+        log "⚠️ No mail command available for notifications"
+    fi
 }
 
 # Error handler
