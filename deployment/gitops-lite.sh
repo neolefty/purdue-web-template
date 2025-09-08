@@ -74,37 +74,37 @@ send_email() {
     fi
 
     # Try to send email (don't fail deployment if email fails)
-    # Use mail command if available, fall back to sendmail
-    if command -v mail >/dev/null 2>&1; then
-        {
-            echo "Deployment Report for $APP_NAME"
-            echo "================================"
-            echo "Branch: $BRANCH"
-            echo "Status: $status"
-            echo "Time: $(date)"
-            echo "Server: $(hostname -f)"
-            echo ""
-            echo "Deployment Log:"
-            echo "---------------"
-            cat "$LOG_FILE"
-        } | mail -s "$subject" "$EMAIL_TO" 2>/dev/null || log "⚠️ Email notification failed"
+    # Try Python script first (works with SMTP), then mail command, then sendmail
+    local email_body
+    email_body=$(cat <<EOF
+Deployment Report for $APP_NAME
+================================
+Branch: $BRANCH
+Status: $status
+Time: $(date)
+Server: $(hostname -f)
+
+Deployment Log:
+---------------
+$(cat "$LOG_FILE")
+EOF
+)
+
+    # Try Python email script first (most reliable with SMTP)
+    if [[ -f "$SOURCE_DIR/deployment/send_email.py" ]] && command -v python3 >/dev/null 2>&1; then
+        echo "$email_body" | python3 "$SOURCE_DIR/deployment/send_email.py" "$EMAIL_TO" "$subject" 2>/dev/null || log "⚠️ Email notification failed (Python)"
+    # Fall back to mail command
+    elif command -v mail >/dev/null 2>&1; then
+        echo "$email_body" | mail -s "$subject" "$EMAIL_TO" 2>/dev/null || log "⚠️ Email notification failed (mail)"
+    # Fall back to sendmail
     elif command -v sendmail >/dev/null 2>&1; then
         {
             echo "Subject: $subject"
             echo "From: $EMAIL_FROM"
             echo "To: $EMAIL_TO"
             echo ""
-            echo "Deployment Report for $APP_NAME"
-            echo "================================"
-            echo "Branch: $BRANCH"
-            echo "Status: $status"
-            echo "Time: $(date)"
-            echo "Server: $(hostname -f)"
-            echo ""
-            echo "Deployment Log:"
-            echo "---------------"
-            cat "$LOG_FILE"
-        } | sendmail -t 2>/dev/null || log "⚠️ Email notification failed"
+            echo "$email_body"
+        } | sendmail -t 2>/dev/null || log "⚠️ Email notification failed (sendmail)"
     else
         log "⚠️ No mail command available for notifications"
     fi
