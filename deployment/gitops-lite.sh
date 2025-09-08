@@ -112,7 +112,7 @@ REMOTE=$(git rev-parse origin/$BRANCH)
 # Exit silently if no changes (this is the common case)
 if [ "$CURRENT" = "$REMOTE" ]; then
     # Also check if we've already deployed this commit
-    if [ -f "$STATE_FILE" ] && [ "$(cat $STATE_FILE)" = "$REMOTE" ]; then
+    if [ -f "$STATE_FILE" ] && [ "$(cat $STATE_FILE 2>/dev/null)" = "$REMOTE" ]; then
         exit 0  # Nothing to do - NO EMAIL
     fi
     # If state file is missing/different, we need to deploy current version
@@ -206,6 +206,9 @@ if [ "$BUILD_FRONTEND" = "true" ] && [ -f frontend/package.json ]; then
 
     if [ $BUILD_EXIT -eq 0 ]; then
         log "✓ Frontend built successfully"
+        log "Syncing frontend dist..."
+        rsync -aq --delete dist/ "$DEPLOY_DIR/frontend/dist/"
+        log "✓ Frontend deployed"
     else
         log "⚠️ Frontend build failed (exit code: $BUILD_EXIT, see /tmp/npm-build-$APP_NAME.log)"
     fi
@@ -263,7 +266,7 @@ if [[ "$FIRST_TIME_SETUP" == "true" ]]; then
     log "🎉 [$BRANCH → $APP_NAME] Initial deployment completed successfully!"
     send_email "[$APP_NAME] Initial Deployment Successful on $(hostname -s)" "success"
 else
-    log "✅ [$BRANCH → $APP_NAME] Deployed successfully (hot-reload will handle restart)"
+    log "✓ [$BRANCH → $APP_NAME] Deployed successfully (hot-reload will handle restart)"
     send_email "[$APP_NAME] Deployment Successful on $(hostname -s)" "success"
 fi
 
