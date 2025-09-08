@@ -55,10 +55,18 @@ tasks:
       - task: lint:frontend:fix
 
   # Test tasks
+  # Note: After adding new test dependencies to package.json, rebuild the container:
+  #   docker compose build frontend
+  #   docker compose up -d frontend
   test:frontend:
     desc: Run frontend tests with Vitest
     cmds:
       - docker compose exec frontend npm test
+
+  test:frontend:watch:
+    desc: Run frontend tests in watch mode
+    cmds:
+      - docker compose exec frontend npm run test:watch
 
   test:frontend:ui:
     desc: Run frontend tests with Vitest UI
