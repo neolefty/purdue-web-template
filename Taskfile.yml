@@ -56,9 +56,19 @@ tasks:
 
   # Test tasks
   test:frontend:
-    desc: Run frontend tests (when added)
+    desc: Run frontend tests with Vitest
     cmds:
-      - echo "ℹ️  No frontend tests configured yet"
+      - docker compose exec frontend npm test
+
+  test:frontend:ui:
+    desc: Run frontend tests with Vitest UI
+    cmds:
+      - docker compose exec frontend npm run test:ui
+
+  test:frontend:coverage:
+    desc: Run frontend tests with coverage report
+    cmds:
+      - docker compose exec frontend npm run test:coverage
 
   test:backend:
     desc: Run backend tests with pytest
@@ -71,7 +81,7 @@ tasks:
       - docker compose exec backend pytest --cov=apps --cov-report=term-missing
 
   test:
-    desc: Run all tests
+    desc: Run all tests (frontend and backend)
     cmds:
       - task: test:frontend
       - task: test:backend
