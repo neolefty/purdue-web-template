@@ -14,12 +14,12 @@ from datetime import datetime
 def send_email(to_addr, subject, body):
     """Send email via SMTP relay."""
 
-    # Configuration (can be overridden by environment variables)
-    smtp_host = os.environ.get('SMTP_HOST', 'smtp.purdue.edu')
-    smtp_port = int(os.environ.get('SMTP_PORT', '587'))  # 587 for TLS, 25 for plain
-    smtp_user = os.environ.get('SMTP_USER', '')  # Leave empty if no auth needed
-    smtp_pass = os.environ.get('SMTP_PASS', '')
-    from_addr = os.environ.get('EMAIL_FROM', f'gitops@{os.uname().nodename}')
+    # Configuration - try to read from Django settings if available, else use env vars
+    smtp_host = os.environ.get('SMTP_HOST', os.environ.get('EMAIL_HOST', 'smtp.purdue.edu'))
+    smtp_port = int(os.environ.get('SMTP_PORT', os.environ.get('EMAIL_PORT', '587')))
+    smtp_user = os.environ.get('SMTP_USER', os.environ.get('EMAIL_HOST_USER', ''))
+    smtp_pass = os.environ.get('SMTP_PASS', os.environ.get('EMAIL_HOST_PASSWORD', ''))
+    from_addr = os.environ.get('EMAIL_FROM', os.environ.get('DEFAULT_FROM_EMAIL', f'gitops@{os.uname().nodename}'))
 
     # Create message
     msg = MIMEMultipart()
