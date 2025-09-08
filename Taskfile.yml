@@ -55,6 +55,9 @@ tasks:
       - task: lint:frontend:fix
 
   # Test tasks
+  # Note: Docker and host have separate node_modules:
+  #   - For Docker: docker compose exec frontend npm install
+  #   - For host (pre-commit hooks): npm install
   test:frontend:
     desc: Run frontend tests with Vitest
     cmds:
