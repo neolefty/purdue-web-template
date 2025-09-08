@@ -206,9 +206,10 @@ if [ "$BUILD_FRONTEND" = "true" ] && [ -f frontend/package.json ]; then
 
     if [ $BUILD_EXIT -eq 0 ]; then
         log "✓ Frontend built successfully"
-        log "Syncing frontend dist..."
-        rsync -aq --delete dist/ "$DEPLOY_DIR/frontend/dist/"
-        log "✓ Frontend deployed"
+        log "Syncing frontend dist to Django static directory..."
+        # Copy frontend build to Django's STATICFILES_DIRS for collectstatic to process
+        rsync -aq --delete dist/ "$DEPLOY_DIR/backend/static/"
+        log "✓ Frontend deployed to Django static directory"
     else
         log "⚠️ Frontend build failed (exit code: $BUILD_EXIT, see /tmp/npm-build-$APP_NAME.log)"
     fi
