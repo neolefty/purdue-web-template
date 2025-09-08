@@ -150,11 +150,19 @@ The `deployment/gitops-lite.sh` script enables automatic deployments without sud
 
 2. **Configure cron for automatic deployment:**
    ```bash
+   # Edit crontab
+   crontab -e
+
+   # Add deployment jobs with email notifications:
+
    # For QA (deploy from 'qa' branch)
-   */5 * * * * GITOPS_BRANCH=qa GITOPS_APP_NAME=template-qa /home/deployer/django-react-template/deployment/gitops-lite.sh
+   */5 * * * * GITOPS_BRANCH=qa GITOPS_APP_NAME=template-qa GITOPS_EMAIL_TO=admin@purdue.edu /home/deployer/django-react-template/deployment/gitops-lite.sh
 
    # For Production (deploy from 'production' branch)
-   */5 * * * * GITOPS_BRANCH=production GITOPS_APP_NAME=template-prod /home/deployer/django-react-template/deployment/gitops-lite.sh
+   */5 * * * * GITOPS_BRANCH=production GITOPS_APP_NAME=template-prod GITOPS_EMAIL_TO=admin@purdue.edu /home/deployer/django-react-template/deployment/gitops-lite.sh
+
+   # Optional: Disable success emails (only send on failure)
+   # Add GITOPS_EMAIL_ON_SUCCESS=false to only get error notifications
    ```
 
 3. **How it works:**
@@ -162,6 +170,13 @@ The `deployment/gitops-lite.sh` script enables automatic deployments without sud
    - Developers merge to 'production' branch → Auto-deploys to Production
    - No sudo required - uses group permissions
    - Hot-reload in development, service restart in production
+   - Email notifications on deployment (configurable)
+
+4. **Email notification options:**
+   - `GITOPS_EMAIL_TO` - Email address for notifications (required for emails)
+   - `GITOPS_EMAIL_FROM` - From address (default: gitops@hostname)
+   - `GITOPS_EMAIL_ON_SUCCESS` - Send on successful deploy (default: true)
+   - `GITOPS_EMAIL_ON_FAILURE` - Send on failed deploy (default: true)
 
 ### Manual Deployment Option
 
