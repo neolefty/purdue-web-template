@@ -117,7 +117,7 @@ docker compose -f docker-compose.hot-reload.yml up
 - `templates/` - Nginx, service templates
 
 ### Legacy (For Reference)
-- `legacy/deploy.sh` - Old deployment method (required sudo)
+- `legacy/deploy.sh` - Old deployment method (kept for reference)
 - `DEPLOYMENT-DETAILED.md` - Documentation for the old method
 
 ### Future (In Progress)
@@ -158,15 +158,6 @@ This test validates:
 
 ### Local Testing (Quick Check)
 
-For a quick syntax and logic check without Docker:
-
-```bash
-# Test locally (uses SQLite to avoid system dependencies)
-./deployment/test-gitops-locally.sh
-
-# Clean up test files
-rm -rf /tmp/gitops-test
-```
 
 ## Migration Timeline
 

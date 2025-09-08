@@ -129,19 +129,3 @@ tasks:
       - docker compose exec backend python manage.py createsuperuser
 
   # Deployment tasks
-  test-gitops:
-    desc: Test GitOps Lite deployment script in Docker
-    dir: deployment/test-gitops-docker
-    cmds:
-      - docker compose -f docker-compose.test.yml up --build
-
-  test-gitops-local:
-    desc: Test GitOps Lite locally (quick check)
-    cmds:
-      - ./deployment/test-gitops-locally.sh
-
-  test-gitops-clean:
-    desc: Clean up GitOps test files
-    cmds:
-      - rm -rf /tmp/gitops-test
-      - docker compose -f deployment/test-gitops-docker/docker-compose.test.yml down 2>/dev/null || true
