@@ -55,8 +55,6 @@ tasks:
       - task: lint:frontend:fix
 
   # Test tasks
-  # Note: After adding new dependencies to package.json, install them in the container:
-  #   docker compose exec frontend npm install
   test:frontend:
     desc: Run frontend tests with Vitest
     cmds:
