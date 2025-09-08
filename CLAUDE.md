@@ -114,6 +114,18 @@ Configuration is handled via environment variables. Key settings in `.env`:
 2. Frontend: Add TypeScript types in `src/api/`, create React Query hooks
 3. Both frontend and backend auto-reload in development
 
+## Typography & Branding
+
+### Purdue Brand Fonts
+The template includes three font families configured in TailwindCSS:
+- **Acumin Pro** (default): Headlines, body text, UI elements
+- **United Sans** (`font-united`): Statistics, data, uppercase labels
+- **Source Serif Pro** (`font-source`): Long-form reading, articles
+
+Use semantic classes like `text-headline`, `text-stat`, `text-article` instead of raw font classes.
+
+For complete Purdue brand guidelines, see: https://marcom.purdue.edu/
+
 ## Important Patterns
 
 ### Authentication Flow
