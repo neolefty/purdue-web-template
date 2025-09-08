@@ -28,6 +28,7 @@ class AuthenticationTestCase(APITestCase):
             "last_name": "User",
         }
         self.user = User.objects.create_user(
+            username="testuser",
             email=self.user_data["email"],
             password=self.user_data["password"],
             first_name=self.user_data["first_name"],
@@ -41,9 +42,8 @@ class AuthenticationTestCase(APITestCase):
         response = self.client.post(url, data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertIn("access", response.data)
-        self.assertIn("refresh", response.data)
         self.assertIn("user", response.data)
+        self.assertIn("message", response.data)
         self.assertEqual(response.data["user"]["email"], self.user_data["email"])
 
     def test_login_with_invalid_credentials(self):
@@ -52,33 +52,34 @@ class AuthenticationTestCase(APITestCase):
         data = {"email": self.user_data["email"], "password": "WrongPassword"}
         response = self.client.post(url, data, format="json")
 
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_register_new_user(self):
         """Test user registration."""
         url = "/api/auth/register/"
         data = {
+            "username": "newuser",
             "email": "newuser@purdue.edu",
             "password": "NewPass123!",
-            "password2": "NewPass123!",
+            "password_confirm": "NewPass123!",
             "first_name": "New",
             "last_name": "User",
         }
         response = self.client.post(url, data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertTrue(User.objects.filter(email="newuser@purdue.edu").exists())
+        self.assertTrue(User.objects.filter(username="newuser").exists())
 
     def test_get_current_user_authenticated(self):
         """Test getting current user info when authenticated."""
-        # First login
+        # First login (session-based auth)
         login_url = "/api/auth/login/"
         login_data = {"email": self.user_data["email"], "password": self.user_data["password"]}
         login_response = self.client.post(login_url, login_data, format="json")
-        token = login_response.data["access"]
 
-        # Then get user info with token
-        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
+        self.assertEqual(login_response.status_code, status.HTTP_200_OK)
+
+        # Then get user info (session should be active)
         url = "/api/auth/user/"
         response = self.client.get(url)
 
@@ -90,7 +91,10 @@ class AuthenticationTestCase(APITestCase):
         url = "/api/auth/user/"
         response = self.client.get(url)
 
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        # Should return 403 Forbidden for session auth
+        self.assertIn(
+            response.status_code, [status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN]
+        )
 
 
 class ExampleModelTestCase(APITestCase):
@@ -103,14 +107,16 @@ class ExampleModelTestCase(APITestCase):
 
     def setUp(self):
         """Set up test user and authenticate."""
-        self.user = User.objects.create_user(email="testuser@purdue.edu", password="TestPass123!")
-        # Login and set auth header
+        self.user = User.objects.create_user(
+            username="testuser", email="testuser@purdue.edu", password="TestPass123!"
+        )
+        # Login with session auth
         login_url = "/api/auth/login/"
         login_response = self.client.post(
             login_url, {"email": "testuser@purdue.edu", "password": "TestPass123!"}, format="json"
         )
-        self.token = login_response.data["access"]
-        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.token}")
+        # Session should be active after login
+        self.assertEqual(login_response.status_code, status.HTTP_200_OK)
 
     def test_create_item(self):
         """Test creating a new item (example)."""
@@ -174,20 +180,24 @@ class PermissionTestCase(APITestCase):
         url = "/api/auth/user/"
         response = self.client.get(url)
 
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        # Should return 403 Forbidden for session auth
+        self.assertIn(
+            response.status_code, [status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN]
+        )
 
     def test_authenticated_can_access_protected_endpoint(self):
         """Test that authenticated users can access protected endpoints."""
         # Create and login user
-        User.objects.create_user(email="authtest@purdue.edu", password="TestPass123!")
-        login_response = self.client.post(
+        User.objects.create_user(
+            username="authtest", email="authtest@purdue.edu", password="TestPass123!"
+        )
+        self.client.post(
             "/api/auth/login/",
             {"email": "authtest@purdue.edu", "password": "TestPass123!"},
             format="json",
         )
 
-        # Access protected endpoint with token
-        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {login_response.data["access"]}')
+        # Access protected endpoint with session auth
         response = self.client.get("/api/auth/user/")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
