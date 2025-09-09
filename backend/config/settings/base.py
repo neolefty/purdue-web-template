@@ -18,9 +18,15 @@ env = environ.Env(
 )
 
 # Read .env file if it exists
+# Look for .env in the backend directory first, then parent directory
 env_file = BASE_DIR / ".env"
 if os.path.exists(env_file):
     env.read_env(env_file)
+else:
+    # Also check parent directory (repository root)
+    parent_env_file = BASE_DIR.parent / ".env"
+    if os.path.exists(parent_env_file):
+        env.read_env(parent_env_file)
 
 # Security
 SECRET_KEY = env("SECRET_KEY", default="django-insecure-change-this-in-production")
