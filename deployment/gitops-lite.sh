@@ -30,7 +30,7 @@ BUILD_FRONTEND="${GITOPS_BUILD_FRONTEND:-true}"
 
 # Email configuration (optional)
 EMAIL_TO="${GITOPS_EMAIL_TO:-}"  # Set to enable email notifications
-EMAIL_FROM="${GITOPS_EMAIL_FROM:-gitops@$(hostname -f)}"
+EMAIL_FROM="${GITOPS_EMAIL_FROM:-noreply@purdue.edu}"
 EMAIL_ON_SUCCESS="${GITOPS_EMAIL_ON_SUCCESS:-true}"  # Email on successful deployments
 EMAIL_ON_FAILURE="${GITOPS_EMAIL_ON_FAILURE:-true}"  # Email on failures
 
@@ -77,16 +77,27 @@ send_email() {
     # Try Python script first (works with SMTP), then mail command, then sendmail
     local email_body
     email_body=$(cat <<EOF
-Deployment Report for $APP_NAME
-================================
-Branch: $BRANCH
-Status: $status
-Time: $(date)
-Server: $(hostname -f)
+Automated Deployment Notification
 
-Deployment Log:
----------------
-$(cat "$LOG_FILE")
+This is an automated notification from the GitOps deployment system for the $APP_NAME application.
+
+Deployment Details:
+-------------------
+• Application: $APP_NAME
+• Branch: $BRANCH
+• Status: ${status^^}
+• Date/Time: $(date '+%B %d, %Y at %I:%M %p %Z')
+• Server: $(hostname -s).ag.purdue.edu
+• Deployment Path: $DEPLOY_DIR
+
+Deployment Summary:
+-------------------
+$(grep -E '^\[.*\] (✓|❌|⚠️|Building|Installing|Running|Reloading)' "$LOG_FILE" | tail -20)
+
+This is an automated message from the Purdue GitOps deployment system.
+No action is required unless the deployment failed.
+
+For more details, check the full log at: $LOG_FILE
 EOF
 )
 
@@ -114,7 +125,7 @@ EOF
 on_error() {
     ERRORS_OCCURRED=true
     log "❌ Deployment failed!"
-    send_email "[$APP_NAME] Deployment Failed on $(hostname -s)" "failure"
+    send_email "Deployment Failed: $APP_NAME on $(hostname -s)" "failure"
     exit 1
 }
 
@@ -286,10 +297,10 @@ echo "$CURRENT" > "$STATE_FILE"
 # Final status
 if [[ "$FIRST_TIME_SETUP" == "true" ]]; then
     log "🎉 [$BRANCH → $APP_NAME] Initial deployment completed successfully!"
-    send_email "[$APP_NAME] Initial Deployment Successful on $(hostname -s)" "success"
+    send_email "Initial Deployment Complete: $APP_NAME" "success"
 else
     log "✓ [$BRANCH → $APP_NAME] Deployed successfully (hot-reload will handle restart)"
-    send_email "[$APP_NAME] Deployment Successful on $(hostname -s)" "success"
+    send_email "Deployment Update Complete: $APP_NAME" "success"
 fi
 
 exit 0

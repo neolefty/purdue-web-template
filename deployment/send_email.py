@@ -19,7 +19,7 @@ def send_email(to_addr, subject, body):
     smtp_port = int(os.environ.get('SMTP_PORT', os.environ.get('EMAIL_PORT', '587')))
     smtp_user = os.environ.get('SMTP_USER', os.environ.get('EMAIL_HOST_USER', ''))
     smtp_pass = os.environ.get('SMTP_PASS', os.environ.get('EMAIL_HOST_PASSWORD', ''))
-    from_addr = os.environ.get('EMAIL_FROM', os.environ.get('DEFAULT_FROM_EMAIL', f'gitops@{os.uname().nodename}'))
+    from_addr = os.environ.get('EMAIL_FROM', os.environ.get('DEFAULT_FROM_EMAIL', 'noreply@purdue.edu'))
 
     # Create message
     msg = MIMEMultipart()
@@ -27,6 +27,10 @@ def send_email(to_addr, subject, body):
     msg['To'] = to_addr
     msg['Subject'] = subject
     msg['Date'] = datetime.now().strftime('%a, %d %b %Y %H:%M:%S %z')
+    msg['X-Mailer'] = 'GitOps Deployment System'
+    msg['Reply-To'] = 'no-reply@purdue.edu'
+    msg['X-Priority'] = '3'  # Normal priority
+    msg['Importance'] = 'Normal'
 
     # Add body
     msg.attach(MIMEText(body, 'plain'))
