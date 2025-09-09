@@ -25,14 +25,16 @@ APP_NAME="${GITOPS_APP_NAME:-template}"
 SOURCE_DIR="${GITOPS_SOURCE_DIR:-$HOME/source/django-react-template}"
 DEPLOY_DIR="${GITOPS_DEPLOY_DIR:-/opt/apps/$APP_NAME}"
 STATE_FILE="/tmp/gitops-lite-state-$APP_NAME"
+EMAIL_STATE_FILE="/tmp/gitops-lite-email-state-$APP_NAME"
 LOG_FILE="/tmp/gitops-lite-$APP_NAME.log"
 BUILD_FRONTEND="${GITOPS_BUILD_FRONTEND:-true}"
 
 # Email configuration (optional)
-EMAIL_TO="${GITOPS_EMAIL_TO:-}"  # Set to enable email notifications
+EMAIL_ADMIN="${GITOPS_EMAIL_TO:-}"  # Admin email (always notified)
 EMAIL_FROM="${GITOPS_EMAIL_FROM:-noreply@purdue.edu}"
 EMAIL_ON_SUCCESS="${GITOPS_EMAIL_ON_SUCCESS:-true}"  # Email on successful deployments
 EMAIL_ON_FAILURE="${GITOPS_EMAIL_ON_FAILURE:-true}"  # Email on failures
+EMAIL_COMMITTER="${GITOPS_EMAIL_COMMITTER:-true}"  # Also email the last committer
 
 # Python configuration
 PYTHON="${GITOPS_PYTHON:-python3}"  # Allow specifying Python version
@@ -55,8 +57,8 @@ send_email() {
     local subject="$1"
     local status="$2"  # success or failure
 
-    # Skip if no email configured or if we shouldn't email this status
-    if [[ -z "$EMAIL_TO" ]]; then
+    # Skip if no admin email configured
+    if [[ -z "$EMAIL_ADMIN" ]]; then
         return
     fi
 
@@ -71,6 +73,39 @@ send_email() {
     # Only email if deployment actually occurred
     if [[ "$DEPLOYMENT_OCCURRED" != "true" ]]; then
         return
+    fi
+
+    # Check if we should send email based on state change
+    local last_email_state=""
+    local last_commit=""
+    if [[ -f "$EMAIL_STATE_FILE" ]]; then
+        last_email_state=$(head -1 "$EMAIL_STATE_FILE" 2>/dev/null || echo "")
+        last_commit=$(tail -1 "$EMAIL_STATE_FILE" 2>/dev/null || echo "")
+    fi
+
+    # Get current commit
+    local current_commit
+    current_commit=$(cd "$SOURCE_DIR" && git rev-parse HEAD 2>/dev/null || echo "unknown")
+
+    # Only send email if:
+    # 1. State changed (success->failure or failure->success)
+    # 2. New commit on failure
+    # 3. First time (no previous state)
+    if [[ "$last_email_state" == "failure" && "$status" == "failure" && "$last_commit" == "$current_commit" ]]; then
+        # Same failure, same commit - skip email to prevent spam
+        return
+    fi
+
+    # Build recipient list
+    local recipients="$EMAIL_ADMIN"
+
+    # Add last committer if enabled
+    if [[ "$EMAIL_COMMITTER" == "true" ]]; then
+        local committer_email
+        committer_email=$(cd "$SOURCE_DIR" && git log -1 --format='%ae' 2>/dev/null || echo "")
+        if [[ -n "$committer_email" && "$committer_email" != "$EMAIL_ADMIN" ]]; then
+            recipients="$recipients,$committer_email"
+        fi
     fi
 
     # Try to send email (don't fail deployment if email fails)
@@ -89,6 +124,7 @@ Deployment Details:
 • Date/Time: $(date '+%B %d, %Y at %I:%M %p %Z')
 • Server: $(hostname -s).ag.purdue.edu
 • Deployment Path: $DEPLOY_DIR
+• Recipients: ${recipients/,/, }
 
 Deployment Summary:
 -------------------
@@ -97,27 +133,38 @@ $(grep -E '^\[.*\] (✓|❌|⚠️|Building|Installing|Running|Reloading)' "$LOG
 This is an automated message from the Purdue GitOps deployment system.
 No action is required unless the deployment failed.
 
+Note: Email notifications are sent only when deployment status changes
+or when a new commit is deployed to prevent inbox spam.
+
 For more details, check the full log at: $LOG_FILE
 EOF
 )
 
-    # Try Python email script first (most reliable with SMTP)
-    if [[ -f "$SOURCE_DIR/deployment/send_email.py" ]] && command -v python3 >/dev/null 2>&1; then
-        echo "$email_body" | python3 "$SOURCE_DIR/deployment/send_email.py" "$EMAIL_TO" "$subject" 2>/dev/null || log "⚠️ Email notification failed (Python)"
-    # Fall back to mail command
-    elif command -v mail >/dev/null 2>&1; then
-        echo "$email_body" | mail -s "$subject" "$EMAIL_TO" 2>/dev/null || log "⚠️ Email notification failed (mail)"
-    # Fall back to sendmail
-    elif command -v sendmail >/dev/null 2>&1; then
-        {
-            echo "Subject: $subject"
-            echo "From: $EMAIL_FROM"
-            echo "To: $EMAIL_TO"
-            echo ""
-            echo "$email_body"
-        } | sendmail -t 2>/dev/null || log "⚠️ Email notification failed (sendmail)"
-    else
-        log "⚠️ No mail command available for notifications"
+    # Send email to all recipients
+    local email_sent=false
+    for recipient in ${recipients//,/ }; do
+        # Try Python email script first (most reliable with SMTP)
+        if [[ -f "$SOURCE_DIR/deployment/send_email.py" ]] && command -v python3 >/dev/null 2>&1; then
+            echo "$email_body" | python3 "$SOURCE_DIR/deployment/send_email.py" "$recipient" "$subject" 2>/dev/null && email_sent=true
+        # Fall back to mail command
+        elif command -v mail >/dev/null 2>&1; then
+            echo "$email_body" | mail -s "$subject" "$recipient" 2>/dev/null && email_sent=true
+        # Fall back to sendmail
+        elif command -v sendmail >/dev/null 2>&1; then
+            {
+                echo "Subject: $subject"
+                echo "From: $EMAIL_FROM"
+                echo "To: $recipient"
+                echo ""
+                echo "$email_body"
+            } | sendmail -t 2>/dev/null && email_sent=true
+        fi
+    done
+
+    # Save email state to prevent spam
+    if [[ "$email_sent" == "true" ]]; then
+        echo "$status" > "$EMAIL_STATE_FILE"
+        echo "$current_commit" >> "$EMAIL_STATE_FILE"
     fi
 }
 
