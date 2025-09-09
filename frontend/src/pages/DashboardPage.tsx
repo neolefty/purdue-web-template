@@ -71,7 +71,7 @@ export default function DashboardPage() {
                     )
                   },
                   { label: 'Django Version', value: health.django_version },
-                  { label: 'Authentication', value: health.auth_method.toUpperCase() },
+                  { label: 'Auth Method', value: health.auth_method.toUpperCase() },
                   { label: 'Debug Mode', value: health.debug_mode ? 'Enabled' : 'Disabled' }
                 ]}
               />
