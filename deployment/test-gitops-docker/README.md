@@ -79,4 +79,32 @@ While the gitops-lite.sh script is designed to be robust, deployment scripts are
 - The test creates a fake git repository to simulate the source code
 - Frontend building is disabled to speed up tests (set GITOPS_BUILD_FRONTEND=false)
 - Email notifications are disabled during testing
-- The container includes multiple Python versions to test version selection
+- Uses Python 3.11 from the base Docker image
+
+## Future Enhancements (TODO)
+
+### Multi-Python Version Testing
+Currently the test runs with Python 3.11 only. To test deployment with multiple Python versions:
+
+**Option 1: Multiple Dockerfiles** (Recommended)
+- Create `Dockerfile.py39`, `Dockerfile.py312`, etc. with different base images
+- Create corresponding `docker-compose.py39.yml` override files
+- Run: `docker-compose -f docker-compose.test.yml -f docker-compose.py312.yml up --build`
+
+**Option 2: pyenv in Container**
+- Install pyenv in the container to manage multiple Python versions
+- Modify test script to iterate through versions
+- Longer build time but tests all versions in one run
+
+**Option 3: Matrix Testing in CI/CD**
+- Use GitHub Actions matrix strategy to test multiple Python versions in parallel
+- Each job uses a different Python Docker image
+- Provides fastest feedback in CI environment
+
+### Other Potential Improvements
+- Add test for frontend building (currently disabled for speed)
+- Test with different database engines (PostgreSQL, MySQL)
+- Add performance benchmarks for deployment operations
+- Test rollback scenarios
+- Validate systemd service restart behavior
+- Test with actual remote git repositories (not just local bare repos)
