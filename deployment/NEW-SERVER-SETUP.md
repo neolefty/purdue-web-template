@@ -158,8 +158,8 @@ The `deployment/gitops-lite.sh` script enables automatic deployments without sud
    # For QA (deploy from 'qa' branch)
    */5 * * * * GITOPS_BRANCH=qa GITOPS_APP_NAME=template-qa GITOPS_EMAIL_TO=admin@purdue.edu /home/deployer/django-react-template/deployment/gitops-lite.sh
 
-   # For Production (deploy from 'production' branch)
-   */5 * * * * GITOPS_BRANCH=production GITOPS_APP_NAME=template-prod GITOPS_EMAIL_TO=admin@purdue.edu /home/deployer/django-react-template/deployment/gitops-lite.sh
+   # For Production (deploy from 'prod' branch)
+   */5 * * * * GITOPS_BRANCH=prod GITOPS_APP_NAME=template-prod GITOPS_EMAIL_TO=admin@purdue.edu /home/deployer/django-react-template/deployment/gitops-lite.sh
 
    # Optional: Disable success emails (only send on failure)
    # Add GITOPS_EMAIL_ON_SUCCESS=false to only get error notifications
@@ -167,7 +167,7 @@ The `deployment/gitops-lite.sh` script enables automatic deployments without sud
 
 3. **How it works:**
    - Developers merge to 'qa' branch → Auto-deploys to QA server
-   - Developers merge to 'production' branch → Auto-deploys to Production
+   - Developers merge to 'prod' branch → Auto-deploys to Production
    - No sudo required - uses group permissions
    - Hot-reload in development, service restart in production
    - Email notifications on deployment (configurable)

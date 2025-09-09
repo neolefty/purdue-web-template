@@ -341,7 +341,7 @@ For complete deployment instructions, see [`deployment/README.md`](deployment/RE
 **Development/QA deployment:**
 ```bash
 # Push to branch and auto-deploy (if GitOps is configured):
-git push origin main  # or qa, production branches
+git push origin main  # or qa, prod branches
 
 # Manual deployment:
 ssh server "cd ~/source/django-react-template && ./deployment/gitops-lite.sh"

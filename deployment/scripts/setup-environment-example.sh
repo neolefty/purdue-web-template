@@ -23,7 +23,7 @@ APP_DIR="/opt/apps/${APP_NAME}"
 APP_GROUP="${APP_NAME}"
 APP_USER="deployer"
 REPO_URL="https://github.com/yourorg/django-react-template.git"
-BRANCH="${ENV_NAME}"  # qa branch for QA, prod branch for Production
+BRANCH="${ENV_NAME}"  # qa branch for QA, prod branch for Prod
 PYTHON_VERSION="python3.13"  # Or python3, python3.11, etc. (3.9+ required)
 
 echo "=== Setting up $ENV_NAME environment ==="
@@ -102,7 +102,7 @@ crontab -e
 */5 * * * * GITOPS_BRANCH=qa GITOPS_APP_NAME=template-qa /home/deployer/django-react-template/deployment/gitops-lite.sh
 
 # For production:
-*/5 * * * * GITOPS_BRANCH=production GITOPS_APP_NAME=template-prod /home/deployer/django-react-template/deployment/gitops-lite.sh
+*/5 * * * * GITOPS_BRANCH=prod GITOPS_APP_NAME=template-prod /home/deployer/django-react-template/deployment/gitops-lite.sh
 
 EOF
 
