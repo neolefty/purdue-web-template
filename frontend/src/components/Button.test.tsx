@@ -1,76 +1,36 @@
 /**
- * Example test file for a Button component
- * Shows basic component testing patterns
- *
- * Note: Install testing dependencies first:
- * npm install --save-dev @testing-library/react @testing-library/user-event vitest
+ * Test file for Button component
+ * Example of testing a versatile button that can render as button, Link, or anchor
  */
 
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, test, expect } from 'vitest';
+import { BrowserRouter } from 'react-router-dom';
+import Button from './Button';
 
-// Simple Button component for testing
-interface ButtonProps {
-  children: React.ReactNode;
-  onClick?: () => void;
-  variant?: 'primary' | 'secondary';
-  disabled?: boolean;
-}
-
-const Button: React.FC<ButtonProps> = ({
-  children,
-  onClick,
-  variant = 'primary',
-  disabled = false
-}) => {
-  const variantClasses = {
-    primary: 'bg-purdue-gold text-purdue-black',
-    secondary: 'bg-gray-200 text-gray-800',
-  };
-
-  return (
-    <button
-      onClick={onClick}
-      disabled={disabled}
-      className={`px-4 py-2 rounded ${variantClasses[variant]} ${
-        disabled ? 'opacity-50' : ''
-      }`}
-    >
-      {children}
-    </button>
-  );
-};
-
-describe('Button', () => {
-  test('renders button with text', () => {
-    render(<Button>Click me</Button>);
-    expect(screen.getByRole('button', { name: /click me/i })).toBeInTheDocument();
-  });
-
-  test('handles click events', async () => {
+describe('Button Component', () => {
+  test('renders as a button and handles clicks', async () => {
     const handleClick = vi.fn();
     const user = userEvent.setup();
 
     render(<Button onClick={handleClick}>Click me</Button>);
-    await user.click(screen.getByRole('button'));
+
+    const button = screen.getByRole('button', { name: /click me/i });
+    await user.click(button);
 
     expect(handleClick).toHaveBeenCalledTimes(1);
   });
 
-  test('applies variant styles', () => {
-    render(<Button variant="secondary">Secondary</Button>);
+  test('renders as a Link when "to" prop is provided', () => {
+    render(
+      <BrowserRouter>
+        <Button to="/dashboard" variant="primary">Go to Dashboard</Button>
+      </BrowserRouter>
+    );
 
-    const button = screen.getByRole('button');
-    expect(button).toHaveClass('bg-gray-200');
-  });
-
-  test('disables button when disabled prop is true', () => {
-    render(<Button disabled>Disabled</Button>);
-
-    const button = screen.getByRole('button');
-    expect(button).toBeDisabled();
-    expect(button).toHaveClass('opacity-50');
+    const link = screen.getByRole('link', { name: /go to dashboard/i });
+    expect(link).toHaveAttribute('href', '/dashboard');
+    expect(link).toHaveClass('btn-primary');
   });
 });
