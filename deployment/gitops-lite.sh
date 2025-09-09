@@ -225,14 +225,22 @@ fi
 
 # Deploy backend files first (so requirements.txt is available)
 log "Syncing backend files..."
+# IMPORTANT: Never overwrite .env files in production!
 rsync -aq --delete \
     --exclude='__pycache__' \
     --exclude='*.pyc' \
-    --exclude='.env' \
+    --exclude='.env*' \
     --exclude='media/' \
     --exclude='logs/' \
+    --exclude='*.sqlite3' \
     --exclude='db.sqlite3' \
     backend/ "$DEPLOY_DIR/backend/"
+
+# Check if production .env exists, warn if missing
+if [[ ! -f "$DEPLOY_DIR/.env" ]]; then
+    log "⚠️ WARNING: No .env file found at $DEPLOY_DIR/.env"
+    log "⚠️ Create one from .env.production template or deployment will fail!"
+fi
 
 # Check if pip install needed (first time or requirements changed)
 REQUIREMENTS_FILE="$DEPLOY_DIR/backend/requirements/production.txt"
