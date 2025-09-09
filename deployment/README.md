@@ -79,7 +79,7 @@ crontab -e
 
 # For branch-based deployment:
 */5 * * * * GITOPS_PYTHON=python3.13 GITOPS_BRANCH=qa GITOPS_APP_NAME=template-qa GITOPS_EMAIL_TO=admin@purdue.edu /home/deployer/source/django-react-template/deployment/gitops-lite.sh
-*/5 * * * * GITOPS_PYTHON=python3.13 GITOPS_BRANCH=production GITOPS_APP_NAME=template-prod GITOPS_EMAIL_TO=admin@purdue.edu /home/deployer/source/django-react-template/deployment/gitops-lite.sh
+*/5 * * * * GITOPS_PYTHON=python3.13 GITOPS_BRANCH=prod GITOPS_APP_NAME=template-prod GITOPS_EMAIL_TO=admin@purdue.edu /home/deployer/source/django-react-template/deployment/gitops-lite.sh
 
 # Note: GITOPS_PYTHON should match your app's Python version (check with: python3 --version)
 ```
@@ -110,14 +110,27 @@ The `gitops-lite.sh` script supports these environment variables:
 - `GITOPS_EMAIL_ON_FAILURE` - Send email on failed deployments (default: true)
 - `GITOPS_EMAIL_COMMITTER` - Also email the last committer (default: true)
 
+### Branch Management Strategy
+
+This template uses a three-branch deployment strategy:
+
+| Branch | Environment | Deploy Directory | Update Frequency | Purpose |
+|--------|------------|------------------|------------------|---------|
+| `main` | Development | `/opt/apps/template` | Every minute | Active development, hot-reload enabled |
+| `qa` | QA/Staging | `/opt/apps/template-qa` | Every 5 minutes | Testing before production |
+| `prod` | Production | `/opt/apps/template-prod` | Every 5 minutes | Live production environment |
+
 ### Automatic Deployment (Branch-Based)
 ```bash
 # Just push to the appropriate branch:
-git push origin qa         # Deploys to QA environment
-git push origin production  # Deploys to Production
+git push origin main   # Deploys to Development
+git push origin qa     # Deploys to QA/Staging
+git push origin prod   # Deploys to Production
 
 # Monitor deployment (logs include app name now):
-ssh server "tail -f /tmp/gitops-lite-template-qa.log"
+ssh server "tail -f /tmp/gitops-lite-template.log"      # Dev
+ssh server "tail -f /tmp/gitops-lite-template-qa.log"   # QA
+ssh server "tail -f /tmp/gitops-lite-template-prod.log" # Prod
 ```
 
 ### Manual Deployment (If Needed)
@@ -130,6 +143,7 @@ git pull
 
 # Or with specific environment:
 GITOPS_BRANCH=qa GITOPS_APP_NAME=template-qa ./deployment/gitops-lite.sh
+GITOPS_BRANCH=prod GITOPS_APP_NAME=template-prod ./deployment/gitops-lite.sh
 ```
 
 ### Local Development with Hot Reload
