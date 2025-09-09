@@ -264,39 +264,56 @@ mkdir -p "$DEPLOY_DIR/backend/logs"
 
 # Frontend deployment
 if [ "$BUILD_FRONTEND" = "true" ] && [ -f frontend/package.json ]; then
-    # Sync frontend files
-    rsync -aq --delete \
+    # Clean up old frontend build directories (older than 7 days)
+    find /tmp -maxdepth 1 -type d -name "frontend-build-$APP_NAME-*" -mtime +7 -exec rm -rf {} + 2>/dev/null || true
+
+    # Create temp build directory with timestamp
+    BUILD_TEMP="/tmp/frontend-build-$APP_NAME-$(date +%Y%m%d-%H%M%S)-$$"
+    log "Building frontend in temp directory: $BUILD_TEMP"
+
+    # Copy frontend source to temp directory (excluding node_modules if it exists)
+    rsync -aq \
         --exclude='node_modules' \
         --exclude='dist' \
-        frontend/ "$DEPLOY_DIR/frontend/"
+        --exclude='.git' \
+        frontend/ "$BUILD_TEMP/"
 
-    cd "$DEPLOY_DIR/frontend"
+    cd "$BUILD_TEMP"
 
-    # Check if npm install needed (first time or package.json changed)
-    if [[ "$FIRST_TIME_SETUP" == "true" ]] || [[ ! -d "node_modules" ]] || \
-       [[ "$SOURCE_DIR/frontend/package.json" -nt "$STATE_FILE" ]]; then
-        log "Installing/updating npm packages..."
-        npm ci --silent > /tmp/npm-install-$APP_NAME.log 2>&1 || {
-            log "⚠️ npm install failed (see /tmp/npm-install-$APP_NAME.log)"
-        }
-    fi
-
-    # Build frontend
-    log "Building frontend..."
+    # Install dependencies
+    log "Installing npm packages..."
     set +e
-    npm run build --silent > /tmp/npm-build-$APP_NAME.log 2>&1
-    BUILD_EXIT=$?
+    npm ci --silent > /tmp/npm-install-$APP_NAME.log 2>&1
+    INSTALL_EXIT=$?
     set -e
 
-    if [ $BUILD_EXIT -eq 0 ]; then
-        log "✓ Frontend built successfully"
-        # Frontend dist will be collected by Django's collectstatic command
-        # No need to manually copy - Django handles this via STATICFILES_DIRS
+    if [ $INSTALL_EXIT -ne 0 ]; then
+        log "⚠️ npm install failed (see /tmp/npm-install-$APP_NAME.log)"
+        rm -rf "$BUILD_TEMP"
+        cd "$SOURCE_DIR"
     else
-        log "⚠️ Frontend build failed (exit code: $BUILD_EXIT, see /tmp/npm-build-$APP_NAME.log)"
-    fi
+        # Build frontend
+        log "Building frontend..."
+        set +e
+        npm run build --silent > /tmp/npm-build-$APP_NAME.log 2>&1
+        BUILD_EXIT=$?
+        set -e
 
-    cd "$SOURCE_DIR"
+        if [ $BUILD_EXIT -eq 0 ]; then
+            log "✓ Frontend built successfully"
+            # Deploy only the dist directory to the deployment location
+            mkdir -p "$DEPLOY_DIR/frontend"
+            rsync -aq --delete "$BUILD_TEMP/dist/" "$DEPLOY_DIR/frontend/dist/"
+            log "✓ Frontend artifacts deployed"
+        else
+            log "⚠️ Frontend build failed (exit code: $BUILD_EXIT, see /tmp/npm-build-$APP_NAME.log)"
+        fi
+
+        # Clean up temp build directory
+        cd "$SOURCE_DIR"
+        rm -rf "$BUILD_TEMP"
+        log "✓ Cleaned up temp build directory"
+    fi
 elif [ "$BUILD_FRONTEND" = "false" ]; then
     log "Frontend build disabled (GITOPS_BUILD_FRONTEND=false)"
 fi
