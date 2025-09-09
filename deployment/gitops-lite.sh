@@ -258,7 +258,7 @@ if [[ "$FIRST_TIME_SETUP" == "true" ]] || [[ ! -f "$STATE_FILE" ]] || \
 fi
 
 # Ensure required directories exist
-mkdir -p "$DEPLOY_DIR/backend/static"
+# Note: Django's collectstatic will create the static directory
 mkdir -p "$DEPLOY_DIR/backend/media"
 mkdir -p "$DEPLOY_DIR/backend/logs"
 
@@ -290,13 +290,8 @@ if [ "$BUILD_FRONTEND" = "true" ] && [ -f frontend/package.json ]; then
 
     if [ $BUILD_EXIT -eq 0 ]; then
         log "✓ Frontend built successfully"
-        log "Syncing frontend dist..."
-        # Copy to both locations to ensure it works regardless of Django config
-        # 1. To backend/static for Django's STATICFILES_DIRS
-        rsync -aq --delete dist/ "$DEPLOY_DIR/backend/static/"
-        # 2. Directly to the served static directory (where nginx looks)
-        rsync -aq --delete dist/ "$DEPLOY_DIR/static/"
-        log "✓ Frontend deployed to static directories"
+        # Frontend dist will be collected by Django's collectstatic command
+        # No need to manually copy - Django handles this via STATICFILES_DIRS
     else
         log "⚠️ Frontend build failed (exit code: $BUILD_EXIT, see /tmp/npm-build-$APP_NAME.log)"
     fi
@@ -322,19 +317,17 @@ else
     log "⚠️ Migrations skipped (may already be applied, see /tmp/migrate-$APP_NAME.log)"
 fi
 
-# Collect static files (first time or if static files changed)
-if [[ "$FIRST_TIME_SETUP" == "true" ]] || \
-   [[ $(find "$SOURCE_DIR/backend" -name "*.css" -o -name "*.js" -o -name "*.html" -newer "$STATE_FILE" 2>/dev/null | head -1) ]]; then
-    log "Collecting static files..."
-    set +e
-    "$DEPLOY_DIR/venv/bin/python" manage.py collectstatic --noinput > /tmp/collectstatic-$APP_NAME.log 2>&1
-    COLLECT_EXIT=$?
-    set -e
-    if [ $COLLECT_EXIT -eq 0 ]; then
-        log "✓ Static files collected"
-    else
-        log "⚠️ Collectstatic skipped (see /tmp/collectstatic-$APP_NAME.log)"
-    fi
+# Collect static files (always run to ensure frontend build is collected)
+log "Collecting static files..."
+set +e
+"$DEPLOY_DIR/venv/bin/python" manage.py collectstatic --noinput --clear > /tmp/collectstatic-$APP_NAME.log 2>&1
+COLLECT_EXIT=$?
+set -e
+if [ $COLLECT_EXIT -eq 0 ]; then
+    log "✓ Static files collected to $DEPLOY_DIR/backend/static"
+else
+    log "⚠️ Collectstatic failed (see /tmp/collectstatic-$APP_NAME.log)"
+    cat /tmp/collectstatic-$APP_NAME.log | tail -10
 fi
 
 # Basic Python syntax check

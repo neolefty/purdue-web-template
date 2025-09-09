@@ -20,7 +20,6 @@ htmlcov/
 *.log
 db.sqlite3
 media/
-staticfiles/
 backend/static/
 backend/media/
 
