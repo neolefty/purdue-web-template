@@ -44,6 +44,29 @@ Moving towards modern cloud-native deployment:
 
 ## For Developers
 
+### Initial Server Setup
+
+1. **Configure Production Environment**
+   ```bash
+   # Copy the production template to deployment directory
+   cp .env.production /opt/apps/template/.env
+
+   # Edit with your specific settings:
+   vim /opt/apps/template/.env
+   # - Update SECRET_KEY with a secure random value
+   # - Set ALLOWED_HOSTS to your domain
+   # - Configure DATABASE_ENGINE (sqlite for simple setups)
+   # - Update CORS_ALLOWED_ORIGINS and CSRF_TRUSTED_ORIGINS
+   ```
+
+   **⚠️ Important**: The deployment script will NOT overwrite .env files to prevent configuration loss.
+
+2. **Ensure Correct Python Version**
+   ```bash
+   # Check your app's required Python version
+   python3.13 --version  # Should match your development version
+   ```
+
 ### Quick Setup (2 minutes)
 
 ```bash
@@ -51,12 +74,14 @@ Moving towards modern cloud-native deployment:
 crontab -e
 
 # 2. Add one of these lines:
-# For main branch (default):
-* * * * * /home/deployer/source/django-react-template/deployment/gitops-lite.sh
+# For main branch with email notifications (recommended):
+* * * * * GITOPS_PYTHON=python3.13 GITOPS_EMAIL_TO=admin@purdue.edu GITOPS_EMAIL_ON_SUCCESS=true /home/deployer/source/django-react-template/deployment/gitops-lite.sh
 
 # For branch-based deployment:
-*/5 * * * * GITOPS_BRANCH=qa GITOPS_APP_NAME=template-qa /home/deployer/source/django-react-template/deployment/gitops-lite.sh
-*/5 * * * * GITOPS_BRANCH=production GITOPS_APP_NAME=template-prod /home/deployer/source/django-react-template/deployment/gitops-lite.sh
+*/5 * * * * GITOPS_PYTHON=python3.13 GITOPS_BRANCH=qa GITOPS_APP_NAME=template-qa GITOPS_EMAIL_TO=admin@purdue.edu /home/deployer/source/django-react-template/deployment/gitops-lite.sh
+*/5 * * * * GITOPS_PYTHON=python3.13 GITOPS_BRANCH=production GITOPS_APP_NAME=template-prod GITOPS_EMAIL_TO=admin@purdue.edu /home/deployer/source/django-react-template/deployment/gitops-lite.sh
+
+# Note: GITOPS_PYTHON should match your app's Python version (check with: python3 --version)
 ```
 
 ### How GitOps Lite Works
@@ -79,6 +104,11 @@ The `gitops-lite.sh` script supports these environment variables:
 - `GITOPS_SOURCE_DIR` - Source repository path (default: $HOME/source/django-react-template)
 - `GITOPS_DEPLOY_DIR` - Deployment target directory (default: /opt/apps/$APP_NAME)
 - `GITOPS_BUILD_FRONTEND` - Whether to build frontend (default: true, set to false to skip)
+- `GITOPS_PYTHON` - Python version to use (default: python3, set to python3.13 for specific version)
+- `GITOPS_EMAIL_TO` - Admin email for deployment notifications (optional)
+- `GITOPS_EMAIL_ON_SUCCESS` - Send email on successful deployments (default: true)
+- `GITOPS_EMAIL_ON_FAILURE` - Send email on failed deployments (default: true)
+- `GITOPS_EMAIL_COMMITTER` - Also email the last committer (default: true)
 
 ### Automatic Deployment (Branch-Based)
 ```bash
