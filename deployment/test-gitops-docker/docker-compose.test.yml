@@ -1,0 +1,27 @@
+# Docker Compose configuration for testing gitops-lite.sh
+#
+# This creates an isolated test environment that simulates a production server
+# without affecting your local system or requiring actual server access.
+#
+# Usage:
+#   cd deployment/test-gitops-docker
+#   docker-compose -f docker-compose.test.yml up --build
+#
+# The test will run automatically and show results in the console.
+
+services:
+  gitops-test:
+    build: .
+    volumes:
+      # Mount the entire project as source (read-only to prevent test from modifying it)
+      - ../..:/source:ro
+      # Mount test results directory for inspection if needed
+      - ./test-results:/test-results
+    environment:
+      # Can override test parameters here
+      - GITOPS_PYTHON=python3
+      # Test different Python versions by changing this:
+      # - GITOPS_PYTHON=python3.11
+      # - GITOPS_PYTHON=python3.12
+    # Run test and exit
+    command: /home/deployer/test-in-container.sh
