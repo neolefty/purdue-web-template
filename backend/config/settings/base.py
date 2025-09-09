@@ -193,7 +193,7 @@ USE_TZ = True
 
 # Static files
 STATIC_URL = "/static/"
-STATIC_ROOT = BASE_DIR / "static"
+STATIC_ROOT = BASE_DIR.parent / "static"  # Serve from /opt/apps/template/static
 STATICFILES_DIRS = []
 
 # Media files

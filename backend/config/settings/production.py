@@ -30,7 +30,7 @@ WHITENOISE_COMPRESS_OFFLINE = True
 WHITENOISE_COMPRESSION_QUALITY = 90
 
 # Add frontend dist to static files in production
-STATICFILES_DIRS = [
+STATICFILES_DIRS = STATICFILES_DIRS + [
     BASE_DIR.parent / "frontend" / "dist",  # React build output
 ]
 
