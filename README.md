@@ -1,3 +1,7 @@
+# This Repo is Obsolete
+
+Moved to AgIT org: https://github.itap.purdue.edu/wbbaker/django-react-template
+
 # Django React Template for Purdue Web Applications
 
 A starter template for web applications that can be easily hosted and maintained at Purdue, with Purdue authentication and branding. This template combines [Django](https://www.djangoproject.com/) (Python backend) with [React](https://react.dev/) (JavaScript frontend), aiming to balance modern development practices with a standardized approach that many developers are familiar with.
