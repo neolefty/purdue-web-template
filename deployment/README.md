@@ -61,11 +61,22 @@ Moving towards modern cloud-native deployment:
 
    **⚠️ Important**: The deployment script will NOT overwrite .env files to prevent configuration loss.
 
-2. **Ensure Correct Python Version**
+2. **Configure Python Version**
+
+   **Option A: Via deploy.conf (Recommended for production)**
    ```bash
-   # Check your app's required Python version
-   python3.13 --version  # Should match your development version
+   # Edit /opt/apps/template/deploy.conf
+   vim /opt/apps/template/deploy.conf
+   # Uncomment and set: PYTHON="python3.13"
    ```
+
+   **Option B: Via environment variable (for GitOps)**
+   ```bash
+   # Set GITOPS_PYTHON in cron or manual runs
+   GITOPS_PYTHON=python3.13 ./deployment/gitops-lite.sh
+   ```
+
+   **Note**: GITOPS_PYTHON overrides deploy.conf if both are set
 
 ### Quick Setup (2 minutes)
 
@@ -75,13 +86,14 @@ crontab -e
 
 # 2. Add one of these lines:
 # For main branch with email notifications (recommended):
-* * * * * GITOPS_PYTHON=python3.13 GITOPS_EMAIL_TO=admin@purdue.edu GITOPS_EMAIL_ON_SUCCESS=true /home/deployer/source/django-react-template/deployment/gitops-lite.sh
+* * * * * GITOPS_EMAIL_TO=admin@purdue.edu GITOPS_EMAIL_ON_SUCCESS=true /home/deployer/source/django-react-template/deployment/gitops-lite.sh
+# To explicitly set Python version, add GITOPS_PYTHON=python3.13
 
 # For branch-based deployment:
-*/5 * * * * GITOPS_PYTHON=python3.13 GITOPS_BRANCH=qa GITOPS_APP_NAME=template-qa GITOPS_EMAIL_TO=admin@purdue.edu /home/deployer/source/django-react-template/deployment/gitops-lite.sh
-*/5 * * * * GITOPS_PYTHON=python3.13 GITOPS_BRANCH=prod GITOPS_APP_NAME=template-prod GITOPS_EMAIL_TO=admin@purdue.edu /home/deployer/source/django-react-template/deployment/gitops-lite.sh
+*/5 * * * * GITOPS_BRANCH=qa GITOPS_APP_NAME=template-qa GITOPS_EMAIL_TO=admin@purdue.edu /home/deployer/source/django-react-template/deployment/gitops-lite.sh
+*/5 * * * * GITOPS_BRANCH=prod GITOPS_APP_NAME=template-prod GITOPS_EMAIL_TO=admin@purdue.edu /home/deployer/source/django-react-template/deployment/gitops-lite.sh
 
-# Note: GITOPS_PYTHON should match your app's Python version (check with: python3 --version)
+# Note: Python version is read from deploy.conf if configured there, or use GITOPS_PYTHON=python3.13 to override
 ```
 
 ### How GitOps Lite Works
@@ -104,7 +116,7 @@ The `gitops-lite.sh` script supports these environment variables:
 - `GITOPS_SOURCE_DIR` - Source repository path (default: $HOME/source/django-react-template)
 - `GITOPS_DEPLOY_DIR` - Deployment target directory (default: /opt/apps/$APP_NAME)
 - `GITOPS_BUILD_FRONTEND` - Whether to build frontend (default: true, set to false to skip)
-- `GITOPS_PYTHON` - Python version to use (default: python3, set to python3.13 for specific version)
+- `GITOPS_PYTHON` - Python version to use (overrides deploy.conf, default: python3)
 - `GITOPS_EMAIL_TO` - Admin email for deployment notifications (optional)
 - `GITOPS_EMAIL_ON_SUCCESS` - Send email on successful deployments (default: true)
 - `GITOPS_EMAIL_ON_FAILURE` - Send email on failed deployments (default: true)
