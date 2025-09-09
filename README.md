@@ -1,6 +1,6 @@
 # This Repo is Obsolete
 
-Moved to AgIT org: https://github.itap.purdue.edu/wbbaker/django-react-template
+Moved to AgIT org: https://github.itap.purdue.edu/AgIT/django-react-template
 
 # Django React Template for Purdue Web Applications
 
