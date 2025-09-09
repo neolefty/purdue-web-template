@@ -271,6 +271,9 @@ docker compose exec frontend npm run type-check
 
 # Run linting
 docker compose exec frontend npm run lint
+
+# Run tests
+docker compose exec frontend npm test
 ```
 
 ### Working Without Docker
@@ -350,6 +353,49 @@ docker compose -f docker-compose.hot-reload.yml up
 ```
 
 See [`deployment/NEW-SERVER-SETUP.md`](deployment/NEW-SERVER-SETUP.md) for detailed server setup and production deployment instructions.
+
+## Testing
+
+The template includes example tests for both backend and frontend to help you get started.
+
+### Running Tests
+
+Using Task (recommended):
+```bash
+# Run all tests
+task test
+
+# Run backend tests only
+task test:backend
+
+# Run frontend tests only
+task test:frontend
+
+# Run with coverage
+task test:backend:coverage
+task test:frontend:coverage
+```
+
+Or using Docker directly:
+```bash
+# Backend tests (Django/pytest)
+docker compose exec backend pytest -v
+
+# Frontend tests (React/Vitest)
+docker compose exec frontend npm test
+```
+
+### Test Examples
+
+- **Backend**: See `backend/apps/api/test_example.py` for Django REST API testing patterns
+- **Frontend**: See `frontend/src/components/*.test.tsx` for React component testing patterns
+
+Both include examples of:
+- Unit tests
+- Authentication testing
+- API endpoint testing
+- Component rendering tests
+- User interaction tests
 
 ## API Documentation
 

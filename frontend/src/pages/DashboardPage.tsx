@@ -40,8 +40,8 @@ export default function DashboardPage() {
                 { label: 'Name', value: `${user?.first_name} ${user?.last_name}` },
                 { label: 'Username', value: user?.username || '' },
                 { label: 'Email', value: user?.email || '' },
-                { 
-                  label: 'Member Since', 
+                {
+                  label: 'Member Since',
                   value: user?.date_joined ? new Date(user.date_joined).toLocaleDateString() : ''
                 }
               ]}
@@ -52,15 +52,15 @@ export default function DashboardPage() {
             {health ? (
               <InfoList
                 items={[
-                  { 
-                    label: 'Status', 
-                    value: <StatusBadge 
-                      status={health.status} 
-                      variant={health.status === 'healthy' ? 'success' : 'error'} 
+                  {
+                    label: 'Status',
+                    value: <StatusBadge
+                      status={health.status}
+                      variant={health.status === 'healthy' ? 'success' : 'error'}
                     />
                   },
-                  { 
-                    label: 'Database', 
+                  {
+                    label: 'Database',
                     value: (
                       <>
                         {health.database.connected ? '✅ Connected' : '❌ Disconnected'}

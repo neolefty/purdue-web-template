@@ -4,10 +4,10 @@ interface CodeBlockProps {
   className?: string
 }
 
-export default function CodeBlock({ 
-  code, 
+export default function CodeBlock({
+  code,
   language = 'bash',
-  className = '' 
+  className = ''
 }: CodeBlockProps) {
   return (
     <pre className={`bg-purdue-black text-white p-4 rounded-md overflow-x-auto font-mono ${className}`.trim()}>

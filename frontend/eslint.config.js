@@ -24,6 +24,7 @@ export default [
         RequestInit: 'readonly',
         console: 'readonly',
         process: 'readonly',
+        HTMLButtonElement: 'readonly',
       },
     },
     plugins: {

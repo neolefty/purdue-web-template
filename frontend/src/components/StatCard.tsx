@@ -4,10 +4,10 @@ interface StatCardProps {
   color?: 'gold' | 'gray' | 'default'
 }
 
-export default function StatCard({ 
-  value, 
-  label, 
-  color = 'gold' 
+export default function StatCard({
+  value,
+  label,
+  color = 'gold'
 }: StatCardProps) {
   const colorClasses = {
     gold: 'text-purdue-gold',

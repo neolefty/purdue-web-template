@@ -3,9 +3,9 @@ interface StatusBadgeProps {
   variant?: 'success' | 'error' | 'warning' | 'info'
 }
 
-export default function StatusBadge({ 
-  status, 
-  variant = 'info' 
+export default function StatusBadge({
+  status,
+  variant = 'info'
 }: StatusBadgeProps) {
   const variantClasses = {
     success: 'bg-green-100 text-green-800',

@@ -87,7 +87,7 @@ export default function HomePage() {
           <h2 className="text-2xl text-headline mb-4">
             Quick Start
           </h2>
-          <CodeBlock 
+          <CodeBlock
             code={`git clone [repository-url]
 cd django-react-template
 docker-compose up`}
