@@ -84,10 +84,10 @@ export default function DashboardPage() {
         <div className="mt-8">
           <Card subtitle="Quick Actions">
             <div className="grid md:grid-cols-3 gap-4">
-              <Button variant="outline">
+              <Button href="/profile/edit" variant="outline">
                 Edit Profile
               </Button>
-              <Button variant="outline">
+              <Button href="/profile/change-password" variant="outline">
                 Change Password
               </Button>
               <Button href="/api/swagger/" external variant="outline">
