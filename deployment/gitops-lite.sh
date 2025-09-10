@@ -246,7 +246,7 @@ rsync -aq --delete \
 # Check if production .env exists, warn if missing
 if [[ ! -f "$DEPLOY_DIR/.env" ]]; then
     log "⚠️ WARNING: No .env file found at $DEPLOY_DIR/.env"
-    log "⚠️ Create one from .env.production template or deployment will fail!"
+    log "⚠️ Create one from .env.production.example template or deployment will fail!"
 fi
 
 # Check if pip install needed (first time or requirements changed)

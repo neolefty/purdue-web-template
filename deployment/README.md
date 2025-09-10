@@ -49,7 +49,7 @@ Moving towards modern cloud-native deployment:
 1. **Configure Production Environment**
    ```bash
    # Copy the production template to deployment directory
-   cp .env.production /opt/apps/template/.env
+   cp .env.production.example /opt/apps/template/.env
 
    # Edit with your specific settings:
    vim /opt/apps/template/.env
