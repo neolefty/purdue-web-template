@@ -5,13 +5,13 @@ Views for authentication app
 import logging
 
 from django.conf import settings
-from django.contrib.auth import login, logout
+from django.contrib.auth import get_user_model, login, logout
 from django.shortcuts import redirect
 from django.views.decorators.csrf import csrf_exempt
 
 from rest_framework import generics, status
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 
 from .serializers import (
@@ -188,3 +188,26 @@ def saml_metadata_view(request):
     from django.http import HttpResponse
 
     return HttpResponse("<EntityDescriptor>...</EntityDescriptor>", content_type="text/xml")
+
+
+User = get_user_model()
+
+
+class UserListView(generics.ListAPIView):
+    """
+    List all users (admin only)
+    """
+
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [IsAdminUser]
+
+
+class UserDetailView(generics.RetrieveUpdateAPIView):
+    """
+    Retrieve or update a specific user (admin only)
+    """
+
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [IsAdminUser]
