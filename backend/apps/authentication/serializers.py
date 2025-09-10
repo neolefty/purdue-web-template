@@ -121,3 +121,73 @@ class PasswordChangeSerializer(serializers.Serializer):
         if not user.check_password(value):
             raise serializers.ValidationError("Old password is incorrect")
         return value
+
+
+class AdminUserCreateSerializer(serializers.ModelSerializer):
+    """
+    Serializer for admin to create users with role assignments.
+    Users are created without passwords and must set them via email reset.
+    """
+
+    class Meta:
+        model = User
+        fields = (
+            "username",
+            "email",
+            "first_name",
+            "last_name",
+            "is_active",
+            "is_staff",
+            "is_superuser",
+        )
+
+    def create(self, validated_data):
+        # Create user without password
+        user = User.objects.create(**validated_data)
+        user.set_unusable_password()
+        user.save()
+
+        # Send password reset email
+        from django.conf import settings
+        from django.contrib.auth.tokens import default_token_generator
+        from django.core.mail import send_mail
+        from django.utils.encoding import force_bytes
+        from django.utils.http import urlsafe_base64_encode
+
+        # Generate password reset token
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+        token = default_token_generator.make_token(user)
+
+        # Build reset URL - adjust domain as needed
+        reset_url = f"{settings.FRONTEND_URL}/reset-password/{uid}/{token}/"
+
+        # Send email
+        subject = "Welcome - Set Your Password"
+        message = f"""
+        Hello {user.first_name or user.username},
+
+        An account has been created for you. Please set your password by clicking the link below:
+
+        {reset_url}
+
+        This link will expire in 24 hours.
+
+        If you did not expect this email, please ignore it.
+        """
+
+        try:
+            send_mail(
+                subject,
+                message,
+                settings.DEFAULT_FROM_EMAIL,
+                [user.email],
+                fail_silently=False,
+            )
+        except Exception as e:
+            # Log the error but don't fail user creation
+            import logging
+
+            logger = logging.getLogger(__name__)
+            logger.error(f"Failed to send password reset email to {user.email}: {e}")
+
+        return user

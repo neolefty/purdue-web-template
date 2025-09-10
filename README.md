@@ -73,7 +73,13 @@ cd django-react-template
 cp backend/.env.example backend/.env
 ```
 
-3. Start the development environment:
+3. (Optional) To run multiple instances simultaneously, create a `.env` file in the root directory:
+```bash
+# For a second instance on port 5174:
+echo "FRONTEND_PORT=5174" > .env
+```
+
+4. Start the development environment:
 ```bash
 docker compose up
 ```
@@ -83,8 +89,8 @@ For hot-reload testing with Gunicorn:
 docker compose -f docker-compose.hot-reload.yml up
 ```
 
-4. Access the application:
-- Frontend: http://localhost:5173
+5. Access the application:
+- Frontend: http://localhost:5173 (or your configured FRONTEND_PORT)
 - Backend API: http://localhost:8000/api
 - API Documentation: http://localhost:8000/api/swagger/
 - Django Admin: http://localhost:8000/admin/

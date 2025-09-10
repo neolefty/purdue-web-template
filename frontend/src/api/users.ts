@@ -14,6 +14,16 @@ export interface PaginatedResponse<T> {
   results: T[]
 }
 
+export interface CreateUserData {
+  username: string
+  email: string
+  first_name: string
+  last_name: string
+  is_active?: boolean
+  is_staff?: boolean
+  is_superuser?: boolean
+}
+
 // API functions
 const usersApi = {
   getUsers: async () => {
@@ -22,6 +32,9 @@ const usersApi = {
     // Return just the results array for simpler component usage
     return response.results || []
   },
+
+  createUser: (data: CreateUserData) =>
+    apiClient.post<UserListItem>('/auth/users/', data),
 
   updateUser: (id: number, data: Partial<UserListItem>) =>
     apiClient.patch<UserListItem>(`/auth/users/${id}/`, data),
@@ -44,6 +57,17 @@ export const useUpdateUser = () => {
   return useMutation({
     mutationFn: ({ id, data }: { id: number; data: Partial<UserListItem> }) =>
       usersApi.updateUser(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users'] })
+    },
+  })
+}
+
+export const useCreateUser = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: usersApi.createUser,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] })
     },

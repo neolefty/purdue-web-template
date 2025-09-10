@@ -16,6 +16,9 @@ urlpatterns = [
     path("logout/", views.logout_view, name="logout"),
     path("user/", views.CurrentUserView.as_view(), name="current-user"),
     path("change-password/", views.change_password_view, name="change-password"),
+    path(
+        "password-reset-confirm/", views.password_reset_confirm_view, name="password-reset-confirm"
+    ),
     # User management endpoints (admin only)
     path("users/", views.UserListView.as_view(), name="user-list"),
     path("users/<int:pk>/", views.UserDetailView.as_view(), name="user-detail"),

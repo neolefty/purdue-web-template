@@ -231,6 +231,9 @@ CORS_ALLOWED_ORIGINS = env.list(
 )
 CORS_ALLOW_CREDENTIALS = True
 
+# Frontend URL for password reset links
+FRONTEND_URL = env.str("FRONTEND_URL", default="http://localhost:5173")
+
 # CSRF trusted origins (required for Django 4.0+)
 CSRF_TRUSTED_ORIGINS = env.list(
     "CSRF_TRUSTED_ORIGINS",

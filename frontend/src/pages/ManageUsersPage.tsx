@@ -1,14 +1,21 @@
 import { useState } from 'react'
-import { useUsers, useUpdateUser, type UserListItem } from '@/api/users'
+import { useUsers, useUpdateUser, useDeleteUser, type UserListItem } from '@/api/users'
 import { useAuth } from '@/hooks/useAuth'
 import Card from '@/components/Card'
 import StatusBadge from '@/components/StatusBadge'
+import Button from '@/components/Button'
+import UserModal from '@/components/UserModal'
 
 export default function ManageUsersPage() {
   const { user: currentUser } = useAuth()
   const { data: usersResponse, isLoading, error } = useUsers()
   const updateUser = useUpdateUser()
+  const deleteUser = useDeleteUser()
   const [searchTerm, setSearchTerm] = useState('')
+  const [modalOpen, setModalOpen] = useState(false)
+  const [modalMode, setModalMode] = useState<'create' | 'edit'>('create')
+  const [selectedUser, setSelectedUser] = useState<UserListItem | null>(null)
+  const [successMessage, setSuccessMessage] = useState('')
 
   // Ensure users is always an array
   const users = Array.isArray(usersResponse) ? usersResponse : []
@@ -50,6 +57,25 @@ export default function ManageUsersPage() {
     })
   }
 
+  const handleCreateUser = () => {
+    setSelectedUser(null)
+    setModalMode('create')
+    setModalOpen(true)
+    setSuccessMessage('')
+  }
+
+  const handleEditUser = (user: UserListItem) => {
+    setSelectedUser(user)
+    setModalMode('edit')
+    setModalOpen(true)
+  }
+
+  const handleDeleteUser = async (user: UserListItem) => {
+    if (window.confirm(`Are you sure you want to delete ${user.username}?`)) {
+      deleteUser.mutate(user.id)
+    }
+  }
+
   if (error) {
     return (
       <div className="container-app py-12">
@@ -67,6 +93,12 @@ export default function ManageUsersPage() {
       <div className="max-w-6xl mx-auto">
         <h1 className="text-3xl text-headline mb-8">Manage Users</h1>
 
+        {successMessage && (
+          <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-md">
+            <p className="text-green-800">{successMessage}</p>
+          </div>
+        )}
+
         <Card className="mb-6">
           <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
             <div className="flex-1 w-full md:w-auto">
@@ -78,8 +110,13 @@ export default function ManageUsersPage() {
                 className="w-full px-4 py-2 border border-purdue-gray-300 rounded-md focus:ring-2 focus:ring-purdue-gold focus:border-transparent"
               />
             </div>
-            <div className="text-sm text-purdue-gray-600">
-              Total users: {users.length}
+            <div className="flex items-center gap-4">
+              <Button onClick={handleCreateUser} size="sm">
+                Add New User
+              </Button>
+              <div className="text-sm text-purdue-gray-600">
+                Total users: {users.length}
+              </div>
             </div>
           </div>
         </Card>
@@ -154,9 +191,15 @@ export default function ManageUsersPage() {
                     <td className="px-6 py-4 whitespace-nowrap text-sm">
                       <div className="flex gap-2">
                         <button
+                          onClick={() => handleEditUser(user)}
+                          className="text-purdue-blue-600 hover:text-purdue-blue-800"
+                        >
+                          Edit
+                        </button>
+                        <button
                           onClick={() => handleToggleActive(user)}
                           disabled={user.id === currentUser?.id}
-                          className="text-purdue-blue-600 hover:text-purdue-blue-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="text-purdue-green-600 hover:text-purdue-green-800 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           {user.is_active ? 'Deactivate' : 'Activate'}
                         </button>
@@ -167,6 +210,14 @@ export default function ManageUsersPage() {
                             className="text-purdue-gold-600 hover:text-purdue-gold-800 disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             {user.is_staff ? 'Remove Staff' : 'Make Staff'}
+                          </button>
+                        )}
+                        {user.id !== currentUser?.id && !user.is_superuser && (
+                          <button
+                            onClick={() => handleDeleteUser(user)}
+                            className="text-red-600 hover:text-red-800"
+                          >
+                            Delete
                           </button>
                         )}
                       </div>
@@ -184,6 +235,19 @@ export default function ManageUsersPage() {
           </div>
         )}
       </div>
+
+      <UserModal
+        isOpen={modalOpen}
+        onClose={() => {
+          setModalOpen(false)
+          if (modalMode === 'create') {
+            setSuccessMessage('User created successfully. A password reset email has been sent.')
+            window.setTimeout(() => setSuccessMessage(''), 5000)
+          }
+        }}
+        user={selectedUser}
+        mode={modalMode}
+      />
     </div>
   )
 }

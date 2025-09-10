@@ -15,6 +15,7 @@ from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 
 from .serializers import (
+    AdminUserCreateSerializer,
     LoginSerializer,
     PasswordChangeSerializer,
     RegisterSerializer,
@@ -139,6 +140,42 @@ def change_password_view(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def password_reset_confirm_view(request):
+    """
+    Confirm password reset with token
+    """
+    from django.contrib.auth.tokens import default_token_generator
+    from django.utils.http import urlsafe_base64_decode
+
+    uid = request.data.get("uid")
+    token = request.data.get("token")
+    new_password = request.data.get("new_password")
+
+    if not all([uid, token, new_password]):
+        return Response({"error": "Missing required fields"}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        # Decode the user ID
+        uid = urlsafe_base64_decode(uid).decode()
+        user = User.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        return Response({"error": "Invalid reset link"}, status=status.HTTP_400_BAD_REQUEST)
+
+    # Check if token is valid
+    if not default_token_generator.check_token(user, token):
+        return Response(
+            {"error": "Invalid or expired reset link"}, status=status.HTTP_400_BAD_REQUEST
+        )
+
+    # Set the new password
+    user.set_password(new_password)
+    user.save()
+
+    return Response({"message": "Password reset successful"})
+
+
 @api_view(["GET"])
 @permission_classes([AllowAny])
 def auth_config_view(request):
@@ -193,21 +230,46 @@ def saml_metadata_view(request):
 User = get_user_model()
 
 
-class UserListView(generics.ListAPIView):
+class UserListView(generics.ListCreateAPIView):
     """
-    List all users (admin only)
+    List all users or create a new user (admin only)
+    """
+
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [IsAdminUser]
+
+    def get_serializer_class(self):
+        if self.request.method == "POST":
+            return AdminUserCreateSerializer
+        return UserSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        user_serializer = UserSerializer(user)
+        headers = self.get_success_headers(user_serializer.data)
+        return Response(user_serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+
+class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    Retrieve, update or delete a specific user (admin only)
     """
 
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [IsAdminUser]
 
-
-class UserDetailView(generics.RetrieveUpdateAPIView):
-    """
-    Retrieve or update a specific user (admin only)
-    """
-
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = [IsAdminUser]
+    def destroy(self, request, *args, **kwargs):
+        user = self.get_object()
+        if user == request.user:
+            return Response(
+                {"error": "You cannot delete your own account"}, status=status.HTTP_400_BAD_REQUEST
+            )
+        if user.is_superuser:
+            return Response(
+                {"error": "Cannot delete superuser accounts"}, status=status.HTTP_400_BAD_REQUEST
+            )
+        return super().destroy(request, *args, **kwargs)

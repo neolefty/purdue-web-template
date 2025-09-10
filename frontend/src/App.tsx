@@ -7,6 +7,7 @@ import DashboardPage from './pages/DashboardPage'
 import EditProfilePage from './pages/EditProfilePage'
 import ChangePasswordPage from './pages/ChangePasswordPage'
 import ManageUsersPage from './pages/ManageUsersPage'
+import PasswordResetPage from './pages/PasswordResetPage'
 import ProtectedRoute from './components/ProtectedRoute'
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/reset-password/:uid/:token" element={<PasswordResetPage />} />
             <Route
               path="/dashboard"
               element={
