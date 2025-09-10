@@ -28,11 +28,21 @@ export default function Header({
   const { user, isAuthenticated } = useAuth()
   const logout = useLogout()
 
+  // Check if user is admin (staff or superuser)
+  type UserWithStaff = { is_staff?: boolean; is_superuser?: boolean }
+  const isAdmin = user && 'is_staff' in user && ((user as UserWithStaff).is_staff || (user as UserWithStaff).is_superuser)
+
   const handleLogout = () => {
     logout.mutate()
   }
 
-  const filteredNavItems = navItems.filter(
+  // Add admin menu items if user is admin
+  const allNavItems = [...navItems]
+  if (isAdmin) {
+    allNavItems.push({ to: '/manage/users', label: 'Manage Users', requiresAuth: true })
+  }
+
+  const filteredNavItems = allNavItems.filter(
     item => !item.requiresAuth || isAuthenticated
   )
 

@@ -30,6 +30,15 @@ ssh django "systemctl status template"
 - **Automatic asset handling**: Template tags handle Vite's hashed filenames
 - **Documentation**: See deployment/README.md for complete guide
 
+### Testing Deployment Changes
+When making significant changes to the deployment system (especially `gitops-lite.sh`), there's a comprehensive Docker-based test suite:
+```bash
+# Run the deployment test suite (~5 minutes)
+cd deployment/test-gitops-docker
+docker-compose -f docker-compose.test.yml up --build
+```
+This test validates first-time setup, dependency updates, Python version configuration, and more. See `deployment/test-gitops-docker/README.md` for details on when and why to run this test.
+
 ## Architecture Overview
 
 This is a Django + React template for Purdue web applications with the following key components:

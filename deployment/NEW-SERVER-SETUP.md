@@ -61,17 +61,29 @@ chmod g+s /opt/apps/template-qa  # Ensure new files inherit group
 ### 4. Python Environment Setup
 
 #### Choosing Python Version
-If multiple Python versions are installed, you can specify which to use:
+
+There are three ways to specify the Python version for your deployment:
+
+**Option 1: In deploy.conf (Recommended for production)**
+```bash
+# Edit /opt/apps/template/deploy.conf
+PYTHON="python3.13"  # Uncomment and set your preferred version
+```
+
+**Option 2: Via environment variable (for GitOps)**
+```bash
+# In crontab or manual runs
+GITOPS_PYTHON=python3.13 ./deployment/gitops-lite.sh
+```
+
+**Option 3: Manual venv creation**
 ```bash
 # Check available Python versions
 ls -la /usr/bin/python3*
 
-# Use specific version for venv (e.g., Python 3.13 if available)
+# Use specific version for venv
 cd /opt/apps/template-qa
 python3.13 -m venv venv  # Or python3.11, python3.9, etc.
-
-# Or use system default
-python3 -m venv venv
 ```
 
 #### Install Dependencies
@@ -81,7 +93,11 @@ pip install --upgrade pip
 pip install -r backend/requirements/production.txt
 ```
 
-Note: The dev server uses Python 3.13 for better performance, but 3.9+ works fine.
+**Best Practice Notes:**
+- The dev server uses Python 3.13 for better performance
+- Python 3.9+ is the minimum supported version
+- If GITOPS_PYTHON is set, it overrides deploy.conf
+- If neither is set, defaults to system python3
 
 ## Service Configuration (Examples)
 
@@ -156,10 +172,14 @@ The `deployment/gitops-lite.sh` script enables automatic deployments without sud
    # Add deployment jobs with email notifications:
 
    # For QA (deploy from 'qa' branch)
+   # Option A: Use Python from deploy.conf (if configured there)
    */5 * * * * GITOPS_BRANCH=qa GITOPS_APP_NAME=template-qa GITOPS_EMAIL_TO=admin@purdue.edu /home/deployer/django-react-template/deployment/gitops-lite.sh
 
-   # For Production (deploy from 'production' branch)
-   */5 * * * * GITOPS_BRANCH=production GITOPS_APP_NAME=template-prod GITOPS_EMAIL_TO=admin@purdue.edu /home/deployer/django-react-template/deployment/gitops-lite.sh
+   # Option B: Explicitly specify Python version
+   # */5 * * * * GITOPS_PYTHON=python3.13 GITOPS_BRANCH=qa GITOPS_APP_NAME=template-qa GITOPS_EMAIL_TO=admin@purdue.edu /home/deployer/django-react-template/deployment/gitops-lite.sh
+
+   # For Production (deploy from 'prod' branch)
+   */5 * * * * GITOPS_BRANCH=prod GITOPS_APP_NAME=template-prod GITOPS_EMAIL_TO=admin@purdue.edu /home/deployer/django-react-template/deployment/gitops-lite.sh
 
    # Optional: Disable success emails (only send on failure)
    # Add GITOPS_EMAIL_ON_SUCCESS=false to only get error notifications
@@ -167,7 +187,7 @@ The `deployment/gitops-lite.sh` script enables automatic deployments without sud
 
 3. **How it works:**
    - Developers merge to 'qa' branch → Auto-deploys to QA server
-   - Developers merge to 'production' branch → Auto-deploys to Production
+   - Developers merge to 'prod' branch → Auto-deploys to Production
    - No sudo required - uses group permissions
    - Hot-reload in development, service restart in production
    - Email notifications on deployment (configurable)

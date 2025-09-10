@@ -37,7 +37,14 @@ EMAIL_ON_FAILURE="${GITOPS_EMAIL_ON_FAILURE:-true}"  # Email on failures
 EMAIL_COMMITTER="${GITOPS_EMAIL_COMMITTER:-true}"  # Also email the last committer
 
 # Python configuration
-PYTHON="${GITOPS_PYTHON:-python3}"  # Allow specifying Python version
+# Check if deploy.conf exists and source Python version from it
+if [[ -f "$DEPLOY_DIR/deploy.conf" ]] && [[ -z "${GITOPS_PYTHON:-}" ]]; then
+    # Try to read PYTHON from deploy.conf if GITOPS_PYTHON not set
+    PYTHON_FROM_CONFIG=$(grep '^PYTHON=' "$DEPLOY_DIR/deploy.conf" 2>/dev/null | cut -d'"' -f2 || true)
+    PYTHON="${PYTHON_FROM_CONFIG:-python3}"
+else
+    PYTHON="${GITOPS_PYTHON:-python3}"  # Use environment variable or default
+fi
 
 # Deployment flags
 DEPLOYMENT_OCCURRED=false
