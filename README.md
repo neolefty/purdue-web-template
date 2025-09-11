@@ -64,9 +64,10 @@ git clone https://github.itap.purdue.edu/wbbaker/django-react-template
 cd django-react-template
 ```
 
-2. Copy the environment file:
+2. Copy the environment file and customize it:
 ```bash
 cp backend/.env.example backend/.env
+# Edit backend/.env to set DEFAULT_SUPERUSER_PASSWORD (default: admin123)
 ```
 
 3. (Optional) To run multiple instances simultaneously, create a `.env` file in the root directory:
@@ -92,13 +93,25 @@ docker compose -f docker-compose.hot-reload.yml up
 - Django Admin: http://localhost:8000/admin/
 - Redis: localhost:6379 (now included for caching/sessions)
 
-### First-Time Setup
+### Automatic Setup
 
-After starting the containers, run migrations and create a superuser:
+The application now handles setup automatically when you run `docker compose up`:
+- ✅ Runs database migrations
+- ✅ Creates an admin user (if none exists)
+- ✅ Uses password from `DEFAULT_SUPERUSER_PASSWORD` in `.env`
+
+No manual setup required! Just start and go.
+
+### Starting Fresh
+
+Need to reset everything and start over?
 
 ```bash
-docker compose exec backend python manage.py migrate
-docker compose exec backend python manage.py createsuperuser
+# Linux/Mac:
+./reset-project.sh
+
+# Windows:
+reset-project.bat
 ```
 
 ## Project Structure
