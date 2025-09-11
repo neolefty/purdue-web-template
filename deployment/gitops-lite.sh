@@ -121,7 +121,7 @@ send_email() {
     email_body=$(cat <<EOF
 Automated Deployment Notification
 
-This is an automated notification from the GitOps deployment system for the $APP_NAME application.
+This is an automated notification from GitOps Lite deployment for the $APP_NAME application.
 
 Deployment Details:
 -------------------
