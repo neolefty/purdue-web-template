@@ -45,9 +45,9 @@ echo Reset complete!
 echo.
 echo To start fresh:
 echo   1. Copy the example environment file:
-echo      copy backend\.env.example backend\.env
+echo      copy .env.example .env
 echo.
-echo   2. Edit backend\.env to set your admin password:
+echo   2. Edit .env to set your admin password:
 echo      DEFAULT_SUPERUSER_PASSWORD=your-secure-password
 echo.
 echo   3. Start the application:

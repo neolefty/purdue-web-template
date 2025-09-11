@@ -66,17 +66,11 @@ cd django-react-template
 
 2. Copy the environment file and customize it:
 ```bash
-cp backend/.env.example backend/.env
-# Edit backend/.env to set DEFAULT_SUPERUSER_PASSWORD (default: admin123)
+cp .env.example .env
+# Edit .env to set DEFAULT_SUPERUSER_PASSWORD and other settings
 ```
 
-3. (Optional) To run multiple instances simultaneously, create a `.env` file in the root directory:
-```bash
-# For a second instance on port 5174:
-echo "FRONTEND_PORT=5174" > .env
-```
-
-4. Start the development environment:
+3. Start the development environment:
 ```bash
 docker compose up
 ```
@@ -86,7 +80,7 @@ For hot-reload testing with Gunicorn:
 docker compose -f docker-compose.hot-reload.yml up
 ```
 
-5. Access the application:
+4. Access the application:
 - Frontend: http://localhost:5173 (or your configured FRONTEND_PORT)
 - Backend API: http://localhost:8000/api
 - API Documentation: http://localhost:8000/api/swagger/
@@ -185,7 +179,7 @@ Both modes use the same API interface, making development easier.
 
 ### Environment Variables
 
-Key environment variables (see `backend/.env.example` for full list):
+Key environment variables (see `.env.example` for full list):
 
 ```bash
 # Django

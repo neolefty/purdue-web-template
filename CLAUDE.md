@@ -106,7 +106,7 @@ npm run type-check                   # Check TypeScript types
 ## Key Configuration
 
 ### Environment Variables
-Configuration is handled via environment variables. Key settings in `.env`:
+Configuration is handled via environment variables in the root `.env` file. Key settings:
 - `AUTH_METHOD`: 'email' or 'saml' (authentication mode)
 - `DATABASE_ENGINE`: postgresql, mysql, mssql, oracle, or sqlite
 - `DEBUG`: True/False
