@@ -1,60 +1,40 @@
 # Django React Template for Purdue Web Applications
 
-A starter template for web applications that can be easily hosted and maintained at Purdue, with Purdue authentication and branding. This template combines [Django](https://www.djangoproject.com/) (Python backend) with [React](https://react.dev/) (JavaScript frontend), aiming to balance modern development practices with a standardized approach that many developers are familiar with.
+This is a starter template for web applications that can be easily hosted and maintained at Purdue, with Purdue authentication and branding, using:
+
+- [Django](https://www.djangoproject.com/) (server – written in Python)
+- [React](https://react.dev/) (user interface – written in Javascript)
+
+Together, they enable modern web applications that can start simple, grow in complexity with your needs, and are well-supported by AI coding assistants.
 
 ![Template Screenshot](docs/images/template-screenshot.png)
 
 **Note**: This is an early-stage template that will evolve based on feedback and real-world use.
 
-## Overview
+## What this template offers
 
-### For Decision Makers
+### Decision Makers
+- Purdue branding and visual standards
+- Proven technology stack approved for use on campus
+- Supports authentication via [Purdue career accounts](https://it.purdue.edu/services/career-account.php)
 
-This template provides:
-- Pre-configured Purdue login integration (SAML/CAS)
-- Purdue visual styling as a starting point
-- Modern web development setup that many developers are familiar with
-- A path to production requiring only a Python backend (no Node.js in production)
-- Security best practices and production-ready configuration
+### Developers & Researchers
+A solid foundation for developers and researchers:
+- **Only 2 tools required**: Docker Desktop and Git
+- **Works with AI assistants**: Optimized for Claude, Copilot, ChatGPT
+- **Start quickly**: Run it on your laptop in 15 minutes
+- **Immediate feedback**: Changes appear instantly with hot-reload
 
-### Technical Architecture
+## Quick Start (5 minutes)
 
-- **Backend**: Django (Python) - Handles authentication, database, APIs
-- **Frontend**: React (TypeScript) - User interface, compiles to static files
-- **Development**: Docker Compose for consistent local environment
-- **Production**: Django serves both API and compiled React files
+### Required Tools
+1. **[Docker Desktop](https://www.docker.com/products/docker-desktop/)** – Manages your development environment
+2. **[Git](https://git-scm.com/)** – Version control
 
-### Why This Approach?
-
-**Pros:**
-- Django's mature authentication system
-- React for modern, interactive UIs
-- Multi-database support out of the box
-- Can migrate to other architectures if needs change
-- No Node.js required in production (simpler deployment)
-
-**Cons:**
-- Not ideal for SEO or server-side rendering — Next.js (a React distribution) would support that at the cost of complexity
-
-## Features
-
-- **Django 5.1** backend with REST API
-- **React 18** frontend with TypeScript
-- **Multiple database support** (PostgreSQL, MySQL, MS SQL, Oracle, SQLite)
-- **Dual authentication** modes (Purdue SAML SSO / Email)
-- **TailwindCSS** with Purdue branding
-- **Docker Compose** for development
-- **Hot reloading** in development
-- **Health checks** ensure services start in correct order
-- **API documentation** with Swagger/OpenAPI
-- **Production-ready** configuration
-
-## Quick Start
-
-### Prerequisites
-
-- Docker Desktop (for `docker compose`)
-- Git
+### Optional Tools (Recommended)
+- **[Task](https://taskfile.dev/installation/)** – Run common commands easily (`task test`, `task lint`)
+- **[VS Code](https://code.visualstudio.com/)** – Editor with great Docker integration
+- **[Pre-commit](https://pre-commit.com/)** – Automated code quality checks
 
 ### Getting Started
 
@@ -75,31 +55,76 @@ cp .env.example .env
 docker compose up
 ```
 
-For hot-reload testing with Gunicorn:
-```bash
-docker compose -f docker-compose.hot-reload.yml up
-```
-
 4. Access the application:
-- Frontend: http://localhost:5173 (or your configured FRONTEND_PORT)
+- Frontend: http://localhost:5173
 - Backend API: http://localhost:8000/api
 - API Documentation: http://localhost:8000/api/swagger/
 - Django Admin: http://localhost:8000/admin/
-- Redis: localhost:6379 (now included for caching/sessions)
 
-### Automatic Setup
-
-The application now handles setup automatically when you run `docker compose up`:
+The application handles setup automatically:
 - ✅ Runs database migrations
 - ✅ Creates an admin user (if none exists)
 - ✅ Uses password from `DEFAULT_SUPERUSER_PASSWORD` in `.env`
 
 No manual setup required! Just start and go.
 
+## For Different Audiences
+
+<details>
+<summary><b>👔 For Decision Makers</b></summary>
+
+### What You Get
+- Purdue SAML authentication ready to configure
+- Multi-database support (PostgreSQL, MySQL, Oracle, SQL Server, SQLite)
+- Modern tech stack that recruits want to work with
+- Clear path from prototype to production
+
+### Production Requirements
+- Python 3.11+ server (provided by most Purdue servers)
+- Database (or use SQLite for simple apps)
+- No Node.js required in production
+
+### Why This Approach?
+
+**Pros:**
+- Django's mature authentication system
+- React for modern, interactive UIs
+- Multi-database support out of the box
+- Can migrate to other architectures if needs change
+- No Node.js required in production (simpler deployment)
+
+**Cons:**
+- Not ideal for SEO or server-side rendering (Next.js would support that at the cost of complexity)
+
+[See deployment guide →](deployment/README.md)
+</details>
+
+<details>
+<summary><b>🔬 For Researchers & Professors</b></summary>
+
+### Why This Template?
+- Build data dashboards and research tools
+- Integrate with Purdue authentication automatically
+- Deploy to Purdue servers without IT tickets
+- AI assistants can help you code
+
+### Common Use Cases
+- Lab data management systems
+- Research participant portals
+- Course project showcases
+- Department resource schedulers
+- Grant tracking dashboards
+
+### Getting Help with AI
+When using AI assistants (Claude, ChatGPT, Copilot), try prompts like:
+- "Help me add a data upload feature to this Django-React app"
+- "Create an API endpoint for storing survey responses"
+- "Add a chart to display lab measurements over time"
+
+The template includes a `CLAUDE.md` file that provides context to AI assistants automatically.
+
 ### Starting Fresh
-
 Need to reset everything and start over?
-
 ```bash
 # Linux/Mac:
 ./reset-project.sh
@@ -107,6 +132,55 @@ Need to reset everything and start over?
 # Windows:
 reset-project.bat
 ```
+</details>
+
+<details>
+<summary><b>💻 For Developers</b></summary>
+
+### Development Workflow
+```bash
+# All development happens in Docker
+docker compose up            # Start everything
+task test                    # Run tests (optional: install Task)
+task lint                    # Check code quality
+task format                  # Auto-fix code style
+```
+
+### Key Commands Reference
+| Task | Command | What it does |
+|------|---------|--------------|
+| Start dev environment | `docker compose up` | Starts all services |
+| Run tests | `task test` or `docker compose exec backend pytest` | Tests frontend & backend |
+| Format code | `task format` | Auto-fixes code style |
+| Create migration | `docker compose exec backend python manage.py makemigrations` | Updates database schema |
+| Apply migrations | `docker compose exec backend python manage.py migrate` | Applies database changes |
+| Create superuser | `docker compose exec backend python manage.py createsuperuser` | Creates admin user |
+| Install package (backend) | `docker compose exec backend pip install <package>` | Adds Python package |
+| Install package (frontend) | `docker compose exec frontend npm install <package>` | Adds npm package |
+
+### Hot Reload Testing
+For testing with Gunicorn hot-reload (mimics production):
+```bash
+docker compose -f docker-compose.hot-reload.yml up
+```
+
+### Pre-commit Hooks (Optional)
+```bash
+pip install pre-commit
+pre-commit install
+```
+
+### Technical Architecture
+
+- **Backend**: Django (Python) – Handles authentication, database, APIs
+- **Frontend**: React (TypeScript) – User interface, compiles to static files
+- **Development**: Docker Compose for consistent local environment
+- **Production**: Django serves both API and compiled React files
+- **Caching**: Redis for sessions and caching
+- **Database**: PostgreSQL (default), supports MySQL, MS SQL, Oracle, SQLite
+
+[Full developer documentation →](CLAUDE.md)
+</details>
 
 ## Project Structure
 
@@ -134,7 +208,23 @@ django-react-template/
 └── docker-compose.hot-reload.yml  # Gunicorn hot-reload testing
 ```
 
+## Features
+
+- **Django 5.1** backend with REST API
+- **React 18** frontend with TypeScript
+- **Multiple database support** (PostgreSQL, MySQL, MS SQL, Oracle, SQLite)
+- **Dual authentication** modes (Purdue SAML SSO / Email)
+- **TailwindCSS** with Purdue branding
+- **Docker Compose** for development
+- **Hot reloading** in development
+- **Health checks** ensure services start in correct order
+- **API documentation** with Swagger/OpenAPI
+- **Production-ready** configuration
+
 ## Configuration
+
+<details>
+<summary><b>⚙️ Database Configuration</b></summary>
 
 ### Database Selection
 
@@ -146,7 +236,7 @@ Set the `DATABASE_ENGINE` environment variable in `.env`:
 - `oracle`
 - `sqlite` (template/development only)
 
-#### Production Database Setup
+### Production Database Setup
 
 When creating a real application from this template:
 
@@ -161,23 +251,41 @@ When creating a real application from this template:
    ```
 3. **Run migrations**: `python manage.py migrate`
 
-#### Migrating from SQLite to Production
+### Migrating from SQLite to Production
 
 1. Export data if needed: `python manage.py dumpdata > data.json`
 2. Update `.env` with new database settings
 3. Run migrations: `python manage.py migrate`
 4. Import data if needed: `python manage.py loaddata data.json`
+</details>
+
+<details>
+<summary><b>🔐 Authentication Configuration</b></summary>
 
 ### Authentication Mode
 
 Set the `AUTH_METHOD` environment variable:
 
-- `email` - Email/password authentication (default for development)
-- `saml` - Purdue SAML SSO (for production)
+- `email` – Email/password authentication (default for development)
+- `saml` – Purdue SAML SSO (for production)
 
 Both modes use the same API interface, making development easier.
 
-### Environment Variables
+### Adding Purdue SAML
+
+1. Apply for SAML access through the [Purdue Authentication Options](https://www.purdue.edu/securepurdue/identity-access/authentication-options.php) page
+2. Once approved, obtain SAML certificates and metadata URL from Purdue IT
+3. Place certificates in `backend/saml/`
+4. Update SAML settings in `.env`:
+   ```bash
+   AUTH_METHOD=saml
+   SAML_ENTITY_ID=https://yourapp.purdue.edu/saml/metadata/
+   SAML_METADATA_URL=https://www.purdue.edu/apps/account/saml/metadata.xml
+   ```
+</details>
+
+<details>
+<summary><b>🔧 Environment Variables</b></summary>
 
 Key environment variables (see `.env.example` for full list):
 
@@ -198,8 +306,12 @@ DB_PORT=5432
 # CORS
 CORS_ALLOWED_ORIGINS=http://localhost:5173
 ```
+</details>
 
-## Development
+## Advanced Topics
+
+<details>
+<summary><b>🛠️ Development Tools & Workflow</b></summary>
 
 ### Task Runner
 
@@ -222,23 +334,21 @@ task pre-commit
 task --list
 ```
 
-### Code Quality & Linting
-
-The project uses automated code quality tools:
+### Code Quality Tools
 
 **Backend (Python):**
-- **Black** - Code formatting
-- **isort** - Import sorting
-- **Flake8** - Linting
-- **mypy** - Type checking
+- **Black** – Code formatting
+- **isort** – Import sorting
+- **Flake8** – Linting
+- **mypy** – Type checking
 
 **Frontend (TypeScript/React):**
-- **ESLint** - Linting and code quality
-- **TypeScript** - Type checking
+- **ESLint** – Linting and code quality
+- **TypeScript** – Type checking
 
-### Pre-commit Hooks (Optional)
+### Pre-commit Hooks
 
-Pre-commit hooks automatically check code quality before each commit. To enable them:
+Pre-commit hooks automatically check code quality before each commit:
 
 ```bash
 # Install pre-commit
@@ -251,43 +361,25 @@ pre-commit install
 pre-commit run --all-files
 ```
 
-Once installed, the hooks will run automatically on `git commit`. To skip hooks temporarily:
-```bash
-git commit --no-verify
-```
+To skip hooks temporarily: `git commit --no-verify`
+</details>
 
-### Backend Development
+<details>
+<summary><b>🎨 Customization Guide</b></summary>
 
-```bash
-# Access Django shell
-docker compose exec backend python manage.py shell
+### Modifying Purdue Branding
 
-# Create new Django app
-docker compose exec backend python manage.py startapp appname
+Edit the Tailwind configuration in `frontend/tailwind.config.js`:
+- Update colors in `theme.extend.colors.purdue`
+- Modify fonts in `theme.extend.fontFamily`
 
-# Make migrations
-docker compose exec backend python manage.py makemigrations
-docker compose exec backend python manage.py migrate
+### Adding New API Endpoints
 
-# Run tests
-docker compose exec backend python manage.py test
-```
-
-### Frontend Development
-
-```bash
-# Install new package
-docker compose exec frontend npm install package-name
-
-# Run type checking
-docker compose exec frontend npm run type-check
-
-# Run linting
-docker compose exec frontend npm run lint
-
-# Run tests
-docker compose exec frontend npm test
-```
+1. Create serializers in `backend/apps/api/serializers.py`
+2. Create views in `backend/apps/api/views.py`
+3. Register URLs in `backend/apps/api/urls.py`
+4. Add TypeScript types in `frontend/src/api/`
+5. Create React Query hooks for the endpoints
 
 ### Working Without Docker
 
@@ -308,42 +400,7 @@ cd frontend
 npm install
 npm run dev
 ```
-
-## Customization
-
-### Adding Purdue SAML
-
-1. Apply for SAML access through the [Purdue Authentication Options](https://www.purdue.edu/securepurdue/identity-access/authentication-options.php) page
-2. Once approved, obtain SAML certificates and metadata URL from Purdue IT
-3. Place certificates in `backend/saml/`
-4. Update SAML settings in `.env`:
-   ```bash
-   AUTH_METHOD=saml
-   SAML_ENTITY_ID=https://yourapp.purdue.edu/saml/metadata/
-   SAML_METADATA_URL=https://www.purdue.edu/apps/account/saml/metadata.xml
-   ```
-
-### Modifying Purdue Branding
-
-Edit the Tailwind configuration in `frontend/tailwind.config.js`:
-- Update colors in `theme.extend.colors.purdue`
-- Modify fonts in `theme.extend.fontFamily`
-
-### Adding New API Endpoints
-
-1. Create serializers in `backend/apps/api/serializers.py`
-2. Create views in `backend/apps/api/views.py`
-3. Register URLs in `backend/apps/api/urls.py`
-4. Add TypeScript types in `frontend/src/api/`
-5. Create React Query hooks for the endpoints
-
-### Making It Your Own
-
-TODO: Document the process for:
-1. Forking this template
-2. Renaming for your project
-3. Setting up Purdue authentication
-4. Basic customization steps
+</details>
 
 ## Deployment
 
@@ -369,37 +426,32 @@ See [`deployment/NEW-SERVER-SETUP.md`](deployment/NEW-SERVER-SETUP.md) for detai
 
 ## Testing
 
-The template includes example tests for both backend and frontend to help you get started.
+<details>
+<summary><b>🧪 Running Tests</b></summary>
 
-### Running Tests
-
-Using Task (recommended):
+### Quick Start
 ```bash
 # Run all tests
 task test
 
-# Run backend tests only
-task test:backend
-
-# Run frontend tests only
-task test:frontend
-
-# Run with coverage
-task test:backend:coverage
-task test:frontend:coverage
-```
-
-Or using Docker directly:
-```bash
-# Backend tests (Django/pytest)
-docker compose exec backend pytest -v
-
-# Frontend tests (React/Vitest)
+# Or without Task:
+docker compose exec backend pytest
 docker compose exec frontend npm test
 ```
 
-### Test Examples
+### Detailed Commands
+```bash
+# Backend tests only
+task test:backend
+task test:backend:coverage  # With coverage report
 
+# Frontend tests only
+task test:frontend
+task test:frontend:watch    # Watch mode
+task test:frontend:coverage # With coverage report
+```
+
+### Test Examples
 - **Backend**: See `backend/apps/api/test_example.py` for Django REST API testing patterns
 - **Frontend**: See `frontend/src/components/*.test.tsx` for React component testing patterns
 
@@ -409,38 +461,64 @@ Both include examples of:
 - API endpoint testing
 - Component rendering tests
 - User interaction tests
+</details>
 
-## API Documentation
+## Learn More
 
-The API is documented using OpenAPI/Swagger. Access the documentation at:
+### 📚 Tutorials & Guides
+- **Getting Started**
+  - [Django Tutorial](https://docs.djangoproject.com/en/5.1/intro/tutorial01/) – Build your first Django app
+  - [React Tutorial](https://react.dev/learn/tutorial-tic-tac-toe) – Interactive React basics
+  - [Docker Getting Started](https://docs.docker.com/get-started/) – Container basics
 
-- Swagger UI: http://localhost:8000/api/swagger/
-- ReDoc: http://localhost:8000/api/redoc/
-- OpenAPI Schema: http://localhost:8000/api/schema/
+- **For This Template**
+  - [Deployment Guide](deployment/README.md) – Deploy to production
+  - [Developer Guide](CLAUDE.md) – Detailed development instructions
+  - API Documentation: http://localhost:8000/api/swagger/ (when running)
 
-## Technology Stack
+### 🔗 External Documentation
+- **Languages & Frameworks**
+  - [Python](https://docs.python.org/3/) | [Django](https://docs.djangoproject.com/) | [Django REST Framework](https://www.django-rest-framework.org/)
+  - [TypeScript](https://www.typescriptlang.org/docs/) | [React](https://react.dev/) | [Vite](https://vitejs.dev/)
 
-| Layer | Technology | Rationale |
-|-------|------------|-----------|
-| Backend API | Django 5.1+ | Mature, secure, good auth support |
-| Frontend | React 18 + Vite | Popular, good developer experience |
-| CSS | TailwindCSS | Utility-first, easy to customize |
-| Database | PostgreSQL | Robust, widely supported |
-| Dev Environment | Docker | Consistency across machines |
+- **Tools**
+  - [Docker](https://docs.docker.com/) | [Docker Compose](https://docs.docker.com/compose/)
+  - [Task](https://taskfile.dev/usage/) | [Git](https://git-scm.com/doc)
 
-## Testing
+- **Purdue Resources**
+  - [Purdue Authentication Options](https://www.purdue.edu/securepurdue/identity-access/authentication-options.php)
+  - [Purdue Visual Identity](https://marcom.purdue.edu/our-brand/visual-identity/)
+  - [Purdue IT Service Portal](https://service.purdue.edu/)
 
-### Backend Tests
+## Troubleshooting
 
-```bash
-docker compose exec backend python manage.py test
-```
+<details>
+<summary><b>⚠️ Common Issues</b></summary>
 
-### Frontend Tests
+### Database Connection Issues
+If you see database connection errors:
+1. Ensure the database service is running: `docker compose ps`
+2. Check database credentials in `.env`
+3. Verify the database engine matches your setup
 
-```bash
-docker compose exec frontend npm test
-```
+### CORS Errors
+If you encounter CORS errors:
+1. Check `CORS_ALLOWED_ORIGINS` in `.env`
+2. Ensure the frontend URL is included
+3. Restart the backend service
+
+### Authentication Issues
+For SAML authentication problems:
+1. Verify SAML certificates are in place
+2. Check metadata URL is accessible
+3. Ensure entity ID matches Purdue's configuration
+
+### Container Issues
+If Docker containers won't start:
+1. Check Docker Desktop is running
+2. Try `docker compose down` then `docker compose up`
+3. Check for port conflicts (5173, 8000, 5432, 6379)
+</details>
 
 ## Known Limitations
 
@@ -457,43 +535,6 @@ This template doesn't lock you into specific choices. You could:
 - Split into microservices
 - Add WebSocket support for real-time features
 
-## Troubleshooting
-
-### Database Connection Issues
-
-If you see database connection errors:
-1. Ensure the database service is running: `docker compose ps`
-2. Check database credentials in `.env`
-3. Verify the database engine matches your setup
-
-### CORS Errors
-
-If you encounter CORS errors:
-1. Check `CORS_ALLOWED_ORIGINS` in `.env`
-2. Ensure the frontend URL is included
-3. Restart the backend service
-
-### Authentication Issues
-
-For SAML authentication problems:
-1. Verify SAML certificates are in place
-2. Check metadata URL is accessible
-3. Ensure entity ID matches Purdue's configuration
-
-## Resources
-
-### Purdue-Specific
-- [Purdue SAML/Authentication Documentation](https://www.purdue.edu/securepurdue/identity-access/authentication-options.php)
-- [Purdue Visual Identity](https://marcom.purdue.edu/our-brand/visual-identity/)
-- [Purdue IT Service Portal](https://service.purdue.edu/)
-- Example applications (coming soon)
-
-### Technologies
-- [Django Documentation](https://docs.djangoproject.com/)
-- [React Documentation](https://react.dev/)
-- [Vite Documentation](https://vitejs.dev/)
-- [Docker Compose](https://docs.docker.com/compose/)
-
 ## Contributing
 
 1. Fork the repository
@@ -504,7 +545,7 @@ For SAML authentication problems:
 
 ## License
 
-MIT License - See LICENSE file for details
+MIT License – See LICENSE file for details
 
 ## Support
 
