@@ -16,7 +16,7 @@ export default defineConfig({
     setupFiles: './src/test/setup.ts',
   },
   server: {
-    port: 5173,
+    port: parseInt(process.env.VITE_PORT || '5173'),
     host: true,
     proxy: {
       '/api': {
