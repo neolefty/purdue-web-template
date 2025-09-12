@@ -115,6 +115,21 @@ send_email() {
         fi
     fi
 
+    # Get recent commit messages for the email
+    local commit_messages=""
+    if [[ -f "$STATE_FILE" ]]; then
+        # Get commits since last deployment
+        local last_deployed=$(cat "$STATE_FILE" 2>/dev/null || echo "")
+        if [[ -n "$last_deployed" ]]; then
+            commit_messages=$(cd "$SOURCE_DIR" && git log --oneline --no-decorate "$last_deployed..HEAD" 2>/dev/null | head -10 || echo "")
+        fi
+    fi
+
+    # If no previous deployment or no commits found, show last 5 commits
+    if [[ -z "$commit_messages" ]]; then
+        commit_messages=$(cd "$SOURCE_DIR" && git log --oneline --no-decorate -5 2>/dev/null || echo "No commit history available")
+    fi
+
     # Try to send email (don't fail deployment if email fails)
     # Try Python script first (works with SMTP), then mail command, then sendmail
     local email_body
@@ -136,6 +151,10 @@ Deployment Details:
 Deployment Summary:
 -------------------
 $(grep -E '^\[.*\] (✓|❌|⚠️|Building|Installing|Running|Reloading)' "$LOG_FILE" | tail -20)
+
+Recent Commits:
+-------------------
+$commit_messages
 
 This is an automated message from the Purdue GitOps deployment system.
 No action is required unless the deployment failed.
