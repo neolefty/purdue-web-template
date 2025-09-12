@@ -128,4 +128,14 @@ tasks:
     cmds:
       - docker compose exec backend python manage.py createsuperuser
 
+  reset:
+    desc: Reset the project (clear database, containers, and generated files)
+    cmds:
+      - ./reset-project.sh
+
+  clean:
+    desc: Alias for reset task
+    cmds:
+      - task: reset
+
   # Deployment tasks

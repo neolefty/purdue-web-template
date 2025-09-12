@@ -31,6 +31,7 @@ if not User.objects.filter(is_superuser=True).exists():
     User.objects.create_superuser('admin', 'admin@example.com', default_password)
     print('✅ Created default admin user')
     print('   Username: admin')
+    print('   Email: admin@example.com')
     print(f'   Password: {default_password}')
     if default_password == 'admin123':
         print('   ⚠️  Using default password! Change DEFAULT_SUPERUSER_PASSWORD in .env')
@@ -47,6 +48,29 @@ if [ "$DJANGO_SETTINGS_MODULE" = "config.settings.production" ]; then
 fi
 
 echo -e "${GREEN}🎉 Setup complete! Starting server...${NC}"
+echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+
+# Display login information
+PORT="${FRONTEND_PORT:-5173}"
+echo -e "${GREEN}🌐 Application URLs:${NC}"
+echo -e "   Frontend: http://localhost:${PORT}"
+echo -e "   Backend API: http://localhost:${PORT}/api/"
+echo -e "   Admin Panel: http://localhost:${PORT}/admin/"
+echo ""
+
+# Check and display admin credentials
+python manage.py shell -c "
+from django.contrib.auth import get_user_model
+User = get_user_model()
+admin_user = User.objects.filter(email='admin@example.com', is_active=True).first()
+if admin_user:
+    print('📧 Default Admin Credentials:')
+    print(f'   Username: {admin_user.username}')
+    print('   Email: admin@example.com')
+    print('   Password: admin123 (or check DEFAULT_SUPERUSER_PASSWORD in .env)')
+    print('')
+" 2>/dev/null || true
+
 echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 
 # Execute the main command
