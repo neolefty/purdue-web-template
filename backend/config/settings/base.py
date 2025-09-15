@@ -31,7 +31,17 @@ else:
 # Security
 SECRET_KEY = env("SECRET_KEY", default="django-insecure-change-this-in-production")
 DEBUG = env("DEBUG")
-ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["localhost", "127.0.0.1", "backend"])
+
+# Site domain configuration - allows deriving other settings from a single domain
+SITE_DOMAIN = env("SITE_DOMAIN", default=None)
+
+# ALLOWED_HOSTS can be explicitly set or derived from SITE_DOMAIN
+if env("ALLOWED_HOSTS", default=None):
+    ALLOWED_HOSTS = env.list("ALLOWED_HOSTS")
+elif SITE_DOMAIN:
+    ALLOWED_HOSTS = [SITE_DOMAIN]
+else:
+    ALLOWED_HOSTS = ["localhost", "127.0.0.1", "backend"]
 
 # Application definition
 DJANGO_APPS = [
@@ -221,27 +231,32 @@ REST_FRAMEWORK = {
     ],
 }
 
-# CORS settings
-CORS_ALLOWED_ORIGINS = env.list(
-    "CORS_ALLOWED_ORIGINS",
-    default=[
+# CORS settings - can be explicitly set or derived from SITE_DOMAIN
+if env("CORS_ALLOWED_ORIGINS", default=None):
+    CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS")
+elif SITE_DOMAIN:
+    CORS_ALLOWED_ORIGINS = [f"https://{SITE_DOMAIN}"]
+else:
+    CORS_ALLOWED_ORIGINS = [
         "http://localhost:5173",  # Vite dev server
         "http://localhost:3000",  # Alternative dev port
-    ],
-)
+    ]
 CORS_ALLOW_CREDENTIALS = True
 
 # Frontend URL for password reset links
 FRONTEND_URL = env.str("FRONTEND_URL", default="http://localhost:5173")
 
 # CSRF trusted origins (required for Django 4.0+)
-CSRF_TRUSTED_ORIGINS = env.list(
-    "CSRF_TRUSTED_ORIGINS",
-    default=[
+# Can be explicitly set or derived from SITE_DOMAIN
+if env("CSRF_TRUSTED_ORIGINS", default=None):
+    CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS")
+elif SITE_DOMAIN:
+    CSRF_TRUSTED_ORIGINS = [f"https://{SITE_DOMAIN}"]
+else:
+    CSRF_TRUSTED_ORIGINS = [
         "http://localhost:5173",  # Vite dev server
         "http://localhost:3000",  # Alternative dev port
-    ],
-)
+    ]
 CORS_ALLOW_HEADERS = [
     "accept",
     "accept-encoding",

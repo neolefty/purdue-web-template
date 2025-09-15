@@ -139,3 +139,11 @@ tasks:
       - task: reset
 
   # Deployment tasks
+  test:deployment:
+    desc: Test gitops-lite.sh deployment script in Docker (~5 minutes)
+    dir: deployment/test-gitops-docker
+    cmds:
+      - echo "Testing deployment script in isolated Docker environment..."
+      - echo "This validates first-time setup, dependency updates, and Python configuration."
+      - docker-compose -f docker-compose.test.yml up --build --abort-on-container-exit
+      - docker-compose -f docker-compose.test.yml down -v

@@ -67,18 +67,13 @@ git push -u origin main -q
 echo ""
 echo -e "${YELLOW}=== Test 1: First-time deployment ===${NC}"
 echo "Should create venv, install dependencies, and deploy files"
+echo "Should also auto-generate .env with secure SECRET_KEY from template"
 echo ""
 
-# Create deployment directory and minimal .env file for testing
+# Create deployment directory but do NOT create .env file
+# This tests the auto-generation feature
 mkdir -p /opt/apps/template
-cat > /opt/apps/template/.env << EOF
-SECRET_KEY=test-secret-key-for-testing-only
-DEBUG=True
-ALLOWED_HOSTS=localhost,127.0.0.1
-DATABASE_ENGINE=sqlite
-AUTH_METHOD=email
-CORS_ALLOWED_ORIGINS=http://localhost:5173
-EOF
+# Note: .env will be auto-created from .env.production.example
 
 # Run deployment with test configuration
 GITOPS_BRANCH="main" \
@@ -106,6 +101,22 @@ if [[ -d "/opt/apps/template/venv" ]]; then
     ((TESTS_PASSED++))
 else
     echo -e "${RED}❌ Virtual environment NOT created${NC}"
+    ((TESTS_FAILED++))
+fi
+
+# Check if .env was auto-created with a secure SECRET_KEY
+if [[ -f "/opt/apps/template/.env" ]]; then
+    SECRET_KEY=$(grep "^SECRET_KEY=" /opt/apps/template/.env | cut -d'=' -f2)
+    if [[ -n "$SECRET_KEY" ]] && [[ "$SECRET_KEY" != "your-secret-key-here-change-in-production" ]]; then
+        echo -e "${GREEN}✅ .env auto-created with secure SECRET_KEY${NC}"
+        echo "   Key length: ${#SECRET_KEY} characters"
+        ((TESTS_PASSED++))
+    else
+        echo -e "${RED}❌ .env created but SECRET_KEY not properly generated${NC}"
+        ((TESTS_FAILED++))
+    fi
+else
+    echo -e "${RED}❌ .env file NOT created${NC}"
     ((TESTS_FAILED++))
 fi
 
@@ -242,7 +253,7 @@ GITOPS_SOURCE_DIR="/home/deployer/source/django-react-template" \
 GITOPS_DEPLOY_DIR="/opt/apps/template" \
 GITOPS_BUILD_FRONTEND="false" \
 GITOPS_EMAIL_TO="" \
-timeout 2 ./deployment/gitops-lite.sh >/dev/null 2>&1
+timeout 5 ./deployment/gitops-lite.sh >/tmp/gitops-python-test.log 2>&1
 EXIT_CODE=$?
 set -e  # Re-enable exit on error
 
@@ -252,7 +263,10 @@ if [[ $EXIT_CODE -eq 0 ]] || [[ $EXIT_CODE -eq 124 ]]; then
     echo -e "${GREEN}✅ GITOPS_PYTHON environment variable works${NC}"
     ((TESTS_PASSED++))
 else
-    echo -e "${YELLOW}⚠️  GITOPS_PYTHON test inconclusive (exit code: $EXIT_CODE)${NC}"
+    echo -e "${YELLOW}⚠️  GITOPS_PYTHON test failed (exit code: $EXIT_CODE)${NC}"
+    echo "   Last 5 lines of output:"
+    tail -5 /tmp/gitops-python-test.log 2>/dev/null | sed 's/^/   /'
+    # Don't count as hard failure since main tests passed
 fi
 
 echo ""

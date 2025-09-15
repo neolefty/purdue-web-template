@@ -15,10 +15,12 @@ The application consists of:
 
 ### 1. System Requirements
 - Rocky Linux 9+ or RHEL 9+ (or any Linux you prefer)
-- Python 3.9+ (3.12 recommended for new deployments)
+- Python 3.11+ (3.12 recommended for new deployments)
+- mariadb-devel, python3.xx-devel, and gcc (for MySQL client libraries)
 - nginx (for reverse proxy)
 - systemd (for service management)
 - Git (for pulling code)
+- nodejs 24+, npm 11+
 
 ### 2. User and Group Setup
 
@@ -30,6 +32,8 @@ for example using group permissions in the deployment directory.
 groupadd template-qa    # or template-prod
 useradd -m -g template-qa deployer
 usermod -a -G template-qa your_developer_username
+# Optional: If using nginx to serve static files, add nginx user to group
+usermod -a -G template-qa nginx
 ```
 
 ### 3. Directory Structure
@@ -62,12 +66,12 @@ chmod g+s /opt/apps/template-qa  # Ensure new files inherit group
 
 #### Choosing Python Version
 
-There are three ways to specify the Python version for your deployment:
+The deployment defaults to using `python3.13`; there are three ways to specify the Python version for your deployment:
 
 **Option 1: In deploy.conf (Recommended for production)**
 ```bash
 # Edit /opt/apps/template/deploy.conf
-PYTHON="python3.13"  # Uncomment and set your preferred version
+PYTHON="python3.13"  # set your preferred version
 ```
 
 **Option 2: Via environment variable (for GitOps)**

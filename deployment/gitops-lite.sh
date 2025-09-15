@@ -262,12 +262,6 @@ rsync -aq --delete \
     --exclude='db.sqlite3' \
     backend/ "$DEPLOY_DIR/backend/"
 
-# Check if production .env exists, warn if missing
-if [[ ! -f "$DEPLOY_DIR/.env" ]]; then
-    log "⚠️ WARNING: No .env file found at $DEPLOY_DIR/.env"
-    log "⚠️ Create one from .env.production.example template or deployment will fail!"
-fi
-
 # Check if pip install needed (first time or requirements changed)
 REQUIREMENTS_FILE="$DEPLOY_DIR/backend/requirements/production.txt"
 if [[ ! -f "$REQUIREMENTS_FILE" ]]; then
@@ -283,10 +277,34 @@ if [[ "$FIRST_TIME_SETUP" == "true" ]] || [[ ! -f "$STATE_FILE" ]] || \
     log "✓ Python packages updated"
 fi
 
+# Check if production .env exists, create from template if missing on first deploy
+if [[ ! -f "$DEPLOY_DIR/.env" ]]; then
+    if [[ "$FIRST_TIME_SETUP" == "true" ]] && [[ -f "$SOURCE_DIR/.env.production.example" ]]; then
+        log "Creating .env file from template with secure SECRET_KEY..."
+
+        # Generate a secure SECRET_KEY
+        # Try Django's method first (now that Django is installed), fall back to other methods
+        SECRET_KEY=$("$DEPLOY_DIR/venv/bin/python" -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())" 2>/dev/null || \
+                     openssl rand -base64 50 2>/dev/null || \
+                     head -c 50 /dev/urandom | base64)
+
+        # Copy template and replace the SECRET_KEY placeholder
+        cp "$SOURCE_DIR/.env.production.example" "$DEPLOY_DIR/.env"
+        sed -i "s/SECRET_KEY=.*/SECRET_KEY=$SECRET_KEY/" "$DEPLOY_DIR/.env"
+
+        log "✓ Created .env file with auto-generated SECRET_KEY"
+        log "⚠️ Review and update other settings in $DEPLOY_DIR/.env as needed"
+    else
+        log "⚠️ WARNING: No .env file found at $DEPLOY_DIR/.env"
+        log "⚠️ Create one from .env.production.example template or deployment will fail!"
+    fi
+fi
+
 # Ensure required directories exist
 # Note: Django's collectstatic will create the static directory
 mkdir -p "$DEPLOY_DIR/backend/media"
 mkdir -p "$DEPLOY_DIR/backend/logs"
+mkdir -p "$DEPLOY_DIR/data"  # For SQLite database
 
 # Frontend deployment
 if [ "$BUILD_FRONTEND" = "true" ] && [ -f frontend/package.json ]; then
