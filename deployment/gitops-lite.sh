@@ -37,13 +37,21 @@ EMAIL_ON_FAILURE="${GITOPS_EMAIL_ON_FAILURE:-true}"  # Email on failures
 EMAIL_COMMITTER="${GITOPS_EMAIL_COMMITTER:-true}"  # Also email the last committer
 
 # Python configuration
-# Check if deploy.conf exists and source Python version from it
-if [[ -f "$DEPLOY_DIR/deploy.conf" ]] && [[ -z "${GITOPS_PYTHON:-}" ]]; then
-    # Try to read PYTHON from deploy.conf if GITOPS_PYTHON not set
-    PYTHON_FROM_CONFIG=$(grep '^PYTHON=' "$DEPLOY_DIR/deploy.conf" 2>/dev/null | cut -d'"' -f2 || true)
-    PYTHON="${PYTHON_FROM_CONFIG:-python3}"
+# Check for gitops.conf first (preferred), then deploy.conf (backwards compatibility)
+if [[ -z "${GITOPS_PYTHON:-}" ]]; then
+    if [[ -f "$DEPLOY_DIR/gitops.conf" ]]; then
+        # Try to read PYTHON from gitops.conf
+        PYTHON_FROM_CONFIG=$(grep '^PYTHON=' "$DEPLOY_DIR/gitops.conf" 2>/dev/null | cut -d'"' -f2 || true)
+        PYTHON="${PYTHON_FROM_CONFIG:-python3}"
+    elif [[ -f "$DEPLOY_DIR/deploy.conf" ]]; then
+        # Fallback to deploy.conf for backwards compatibility
+        PYTHON_FROM_CONFIG=$(grep '^PYTHON=' "$DEPLOY_DIR/deploy.conf" 2>/dev/null | cut -d'"' -f2 || true)
+        PYTHON="${PYTHON_FROM_CONFIG:-python3}"
+    else
+        PYTHON="python3"  # Default if no config file exists
+    fi
 else
-    PYTHON="${GITOPS_PYTHON:-python3}"  # Use environment variable or default
+    PYTHON="${GITOPS_PYTHON}"  # Environment variable takes precedence
 fi
 
 # Deployment flags
@@ -291,6 +299,11 @@ if [[ ! -f "$DEPLOY_DIR/.env" ]]; then
         # Copy template and replace the SECRET_KEY placeholder
         cp "$SOURCE_DIR/.env.production.example" "$DEPLOY_DIR/.env"
         sed -i "s/SECRET_KEY=.*/SECRET_KEY=$SECRET_KEY/" "$DEPLOY_DIR/.env"
+
+        # Update SQLite database path to match the actual deployment directory (only for SQLite)
+        if grep -q "^DATABASE_ENGINE=sqlite" "$DEPLOY_DIR/.env"; then
+            sed -i "s|DB_NAME=/opt/apps/template/|DB_NAME=$DEPLOY_DIR/|" "$DEPLOY_DIR/.env"
+        fi
 
         log "✓ Created .env file with auto-generated SECRET_KEY"
         log "⚠️ Review and update other settings in $DEPLOY_DIR/.env as needed"

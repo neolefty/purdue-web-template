@@ -1,51 +1,98 @@
 # First-Time Server Setup Guide
 
-This guide provides recommendations for setting up a new server to host this Django-React application. Feel free to adapt these suggestions to match your organization's standards and preferences.
+This guide walks through setting up a new server to host this Django-React application. Adapt freely to match your organization's standards.
 
-This application was designed with containers in mind, runs well under `docker compose` especially for local development, and anticipates deployment using Kubernetes.  See [README.md](../README.md) for more details.
+While the app works great with containers (`docker compose` for development, Kubernetes for production), this guide focuses on traditional server deployment. See [README.md](../README.md) for container options.
 
-## Overview
+## What You're Deploying
 
-The application consists of:
-- A Python backend (Django) that serves both the API and static files
-- Pre-compiled React frontend files (no Node.js needed in production)
-- Optional connection to external database (or SQLite for simpler setups)
+- Python backend (Django) serving API and static files
+- Pre-compiled React frontend (no Node.js needed in production)
+- Your choice of database (external or SQLite for simpler setups)
 
-## Suggested Server Setup
+## Choose Your Setup
+
+Pick the pattern that fits your needs:
+
+### Pattern 1: Single Instance per Application
+Each application gets one instance on the server:
+```
+/opt/apps/
+├── template/           # This Django-React template
+├── iot-registry/       # Another application
+└── prism/             # Yet another application
+```
+**Best for:** Dedicated servers (one for prod, one for QA, etc.)
+
+### Pattern 2: Multiple Instances per Application
+Multiple environments of the same app on one server:
+```
+/opt/apps/
+├── template-dev/       # Development instance
+├── template-qa/        # QA instance
+├── template-prod/      # Production instance
+├── iot-registry-qa/    # QA for another app
+└── prism-qa/          # QA for yet another app
+```
+**Best for:** Shared servers hosting multiple environments
+
+**Note:** Throughout this guide, `{instance}` is a placeholder:
+- Pattern 1: Just your app name (e.g., `template`)
+- Pattern 2: App name + environment (e.g., `template-qa`)
+
+## Server Setup
 
 ### 1. System Requirements
-- Rocky Linux 9+ or RHEL 9+ (or any Linux you prefer)
-- Python 3.11+ (3.12 recommended for new deployments)
-- mariadb-devel, python3.xx-devel, and gcc (for MySQL client libraries)
-- nginx (for reverse proxy)
-- systemd (for service management)
-- Git (for pulling code)
-- nodejs 24+, npm 11+
+- Rocky Linux 9+, RHEL 9+, or your preferred Linux
+- Python 3.11+ (3.12 recommended)
+- Build tools: mariadb-devel, python3.xx-devel, gcc (for MySQL support)
+- nginx (reverse proxy)
+- systemd (service management)
+- Git
+- Node.js 24+, npm 11+ (for building frontend)
 
 ### 2. User and Group Setup
 
-This guide assumes that code can be deployed without `sudo`,
-for example using group permissions in the deployment directory.
+The setup below lets developers deploy without `sudo` using group permissions:
 
 ```bash
-# Example approach (adapt as needed):
-groupadd template-qa    # or template-prod
+# Adapt as needed:
+# For Pattern 1 (single instance):
+groupadd template
+useradd -m -g template deployer
+usermod -a -G template your_developer_username
+
+# For Pattern 2 (multiple instances):
+groupadd template-qa    # Create group per environment
 useradd -m -g template-qa deployer
 usermod -a -G template-qa your_developer_username
+
 # Optional: If using nginx to serve static files, add nginx user to group
-usermod -a -G template-qa nginx
+usermod -a -G template-{instance} nginx
 ```
 
 ### 3. Directory Structure
 
-A suggested layout (modify to fit your standards):
+Set up directories for your chosen pattern:
 
+**Pattern 1 Example (single instance):**
+```bash
+/opt/apps/
+├── template/            # Your application
+│   ├── backend/
+│   ├── venv/           # Python virtual environment
+│   ├── static/         # Collected static files
+│   └── logs/
+└── another-app/        # Different application
+```
+
+**Pattern 2 Example (multiple instances):**
 ```bash
 /opt/apps/
 ├── template-qa/         # QA environment
 │   ├── backend/
-│   ├── venv/            # Python virtual environment
-│   ├── static/          # Collected static files
+│   ├── venv/
+│   ├── static/
 │   └── logs/
 └── template-prod/       # Production environment
     ├── backend/
@@ -54,160 +101,193 @@ A suggested layout (modify to fit your standards):
     └── logs/
 ```
 
-Make directories group-writable for developer deployments:
+Make them group-writable so developers can deploy:
 ```bash
-mkdir -p /opt/apps/template-qa
-chown -R root:template-qa /opt/apps/template-qa
-chmod -R 775 /opt/apps/template-qa
-chmod g+s /opt/apps/template-qa  # Ensure new files inherit group
+# Replace {instance} with your actual instance name
+mkdir -p /opt/apps/template-{instance}
+chown -R root:template-{instance} /opt/apps/template-{instance}
+chmod -R 775 /opt/apps/template-{instance}
+chmod g+s /opt/apps/template-{instance}  # Ensure new files inherit group
 ```
 
-### 4. Python Environment Setup
+### 4. Get the Code
 
-#### Choosing Python Version
-
-The deployment defaults to using `python3.13`; there are three ways to specify the Python version for your deployment:
-
-**Option 1: In deploy.conf (Recommended for production)**
 ```bash
-# Edit /opt/apps/template/deploy.conf
-PYTHON="python3.13"  # set your preferred version
+# As the deployer user or your developer account:
+cd ~
+mkdir -p source
+cd source
+git clone https://github.com/yourorg/django-react-template
+cd django-react-template
 ```
 
-**Option 2: Via environment variable (for GitOps)**
+### 5. Python Version (Optional)
+
+Need a specific Python version? The default is system `python3`, but you can override it:
+
 ```bash
-# In crontab or manual runs
-GITOPS_PYTHON=python3.13 ./deployment/gitops-lite.sh
+# Copy the minimal gitops configuration
+# Replace {instance} with your actual instance name (e.g., template or template-qa)
+cp ~/source/django-react-template/deployment/configs/gitops.conf /opt/apps/template-{instance}/
+
+# Review and edit if needed
+nano /opt/apps/template-{instance}/gitops.conf
 ```
 
-**Option 3: Manual venv creation**
+The file has one setting: `PYTHON="python3.13"`
+
+**Priority order:**
+1. `GITOPS_PYTHON` environment variable
+2. `gitops.conf` in deployment directory
+3. `deploy.conf` (legacy)
+4. System `python3`
+
+Check available versions:
 ```bash
-# Check available Python versions
 ls -la /usr/bin/python3*
-
-# Use specific version for venv
-cd /opt/apps/template-qa
-python3.13 -m venv venv  # Or python3.11, python3.9, etc.
+# Typically includes: python3, python3.9, python3.11, python3.13
 ```
 
-#### Install Dependencies
-```bash
-source venv/bin/activate
-pip install --upgrade pip
-pip install -r backend/requirements/production.txt
-```
+## Service Configuration
 
-**Best Practice Notes:**
-- The dev server uses Python 3.13 for better performance
-- Python 3.9+ is the minimum supported version
-- If GITOPS_PYTHON is set, it overrides deploy.conf
-- If neither is set, defaults to system python3
+Example systemd files in `deployment/systemd/` give you a starting point. Customize them for your setup:
 
-## Service Configuration (Examples)
-
-We've included example systemd service files in `deployment/systemd/` that you might find helpful. These are just starting points - modify them to match your environment:
-
-### Example Service File
-See `deployment/systemd/template.service` for a basic example. Key points to customize:
+See `deployment/systemd/template.service` and customize:
 - User/Group settings
 - Working directory paths
 - Environment variables
 - Number of workers
 - Logging preferences
 
-To use with your naming convention:
+Install it:
 ```bash
-cp deployment/systemd/template.service /etc/systemd/system/myapp-qa.service
+# Replace {instance} with your actual instance name
+cp deployment/systemd/template.service /etc/systemd/system/template-{instance}.service
 # Edit to match your paths and preferences
 systemctl daemon-reload
-systemctl enable myapp-qa
-systemctl start myapp-qa
+systemctl enable template-{instance}
+systemctl start template-{instance}
 ```
 
 ## Web Server Configuration
 
-Example nginx configurations are in `deployment/templates/`. These show common patterns for:
-- Proxying to Gunicorn
-- Serving static files
+Check `deployment/templates/` for nginx examples covering:
+- Gunicorn proxying
+- Static file serving
 - SSL termination
 - Security headers
 
-Adapt these to your nginx setup and domain configuration.
+Adapt to your setup and domain.
 
 ## Environment Configuration
 
-The application uses environment variables for configuration. Create a `.env` file:
+The app uses a `.env` file. It's auto-generated on first deployment, but you can set it up manually:
 
 ```bash
-# /opt/apps/template-qa/backend/.env
-SECRET_KEY=your-secret-key-here
-DEBUG=False
-ALLOWED_HOSTS=qa.yourdomain.edu
+# Copy and customize the environment template
+# Replace {instance} with your actual instance name
+cp ~/source/django-react-template/.env.production.example /opt/apps/template-{instance}/.env
 
-# Database (optional - uses SQLite if not specified)
-DATABASE_ENGINE=postgresql
-DB_NAME=template_qa
-DB_HOST=localhost
-DB_USER=template_qa
-DB_PASSWORD=secure-password
-
-# Authentication
-AUTH_METHOD=saml  # or 'email' for development
+# Edit to set your domain (this automatically configures CORS, CSRF, etc.)
+nano /opt/apps/template-{instance}/.env
+# Change: SITE_DOMAIN=your-app.purdue.edu
 ```
 
-## Automated Deployment (Optional but Recommended)
+**Auto-setup:** If no `.env` exists, gitops-lite.sh:
+- Copies `.env.production.example`
+- Generates a secure SECRET_KEY
+- Creates data, logs, and media directories
 
-The `deployment/gitops-lite.sh` script enables automatic deployments without sudo. It's designed to be flexible:
+## Automated Deployment (Recommended)
 
-### Branch-Based Deployment Setup
+`deployment/gitops-lite.sh` enables automatic deployments without sudo:
 
-1. **Set up source repository for each environment:**
-   ```bash
-   # As the deployer user:
-   cd ~
-   git clone https://github.com/yourorg/django-react-template
-   ```
+### Setting Up Auto-Deploy
 
-2. **Configure cron for automatic deployment:**
+1. **You should already have the source code** (from step 4)
+
+2. **Add to cron:**
+
+   **Pattern 1 (single instance):**
    ```bash
    # Edit crontab
    crontab -e
 
-   # Add deployment jobs with email notifications:
+   # Deploy from main branch to the single instance
+   */5 * * * * GITOPS_BRANCH=main GITOPS_APP_NAME=template GITOPS_SOURCE_DIR=/home/deployer/source/django-react-template GITOPS_DEPLOY_DIR=/opt/apps/template GITOPS_EMAIL_TO=admin@purdue.edu /home/deployer/source/django-react-template/deployment/gitops-lite.sh
+   ```
 
-   # For QA (deploy from 'qa' branch)
-   # Option A: Use Python from deploy.conf (if configured there)
-   */5 * * * * GITOPS_BRANCH=qa GITOPS_APP_NAME=template-qa GITOPS_EMAIL_TO=admin@purdue.edu /home/deployer/django-react-template/deployment/gitops-lite.sh
+   **Pattern 2 (multiple environments):**
+   ```bash
+   # Edit crontab
+   crontab -e
 
-   # Option B: Explicitly specify Python version
-   # */5 * * * * GITOPS_PYTHON=python3.13 GITOPS_BRANCH=qa GITOPS_APP_NAME=template-qa GITOPS_EMAIL_TO=admin@purdue.edu /home/deployer/django-react-template/deployment/gitops-lite.sh
+   # Deploy from different branches to different instances
+   # QA instance (from qa branch)
+   */5 * * * * GITOPS_BRANCH=qa GITOPS_APP_NAME=template-qa GITOPS_SOURCE_DIR=/home/deployer/source/django-react-template GITOPS_DEPLOY_DIR=/opt/apps/template-qa GITOPS_EMAIL_TO=admin@purdue.edu /home/deployer/source/django-react-template/deployment/gitops-lite.sh
 
-   # For Production (deploy from 'prod' branch)
-   */5 * * * * GITOPS_BRANCH=prod GITOPS_APP_NAME=template-prod GITOPS_EMAIL_TO=admin@purdue.edu /home/deployer/django-react-template/deployment/gitops-lite.sh
+   # Production instance (from prod branch)
+   */5 * * * * GITOPS_BRANCH=prod GITOPS_APP_NAME=template-prod GITOPS_SOURCE_DIR=/home/deployer/source/django-react-template GITOPS_DEPLOY_DIR=/opt/apps/template-prod GITOPS_EMAIL_TO=admin@purdue.edu /home/deployer/source/django-react-template/deployment/gitops-lite.sh
 
    # Optional: Disable success emails (only send on failure)
    # Add GITOPS_EMAIL_ON_SUCCESS=false to only get error notifications
    ```
 
-3. **How it works:**
-   - Developers merge to 'qa' branch → Auto-deploys to QA server
-   - Developers merge to 'prod' branch → Auto-deploys to Production
-   - No sudo required - uses group permissions
-   - Hot-reload in development, service restart in production
-   - Email notifications on deployment (configurable)
+3. **What happens:**
+   - Push to 'qa' branch → Deploys to QA
+   - Push to 'prod' branch → Deploys to Production
+   - No sudo needed
+   - Hot-reload in dev, service restart in prod
+   - Optional email notifications
 
-4. **Email notification options:**
-   - `GITOPS_EMAIL_TO` - Email address for notifications (required for emails)
+4. **Email options:**
+   - `GITOPS_EMAIL_TO` - Where to send notifications
    - `GITOPS_EMAIL_FROM` - From address (default: gitops@hostname)
-   - `GITOPS_EMAIL_ON_SUCCESS` - Send on successful deploy (default: true)
-   - `GITOPS_EMAIL_ON_FAILURE` - Send on failed deploy (default: true)
+   - `GITOPS_EMAIL_ON_SUCCESS` - Notify on success (default: true)
+   - `GITOPS_EMAIL_ON_FAILURE` - Notify on failure (default: true)
 
-### Manual Deployment Option
+### First Deployment
 
-If you prefer manual control:
+Test manually before automating:
+
 ```bash
-cd ~/django-react-template
-git checkout qa  # or production
+cd ~/source/django-react-template
+git checkout main  # or your desired branch (qa, prod, etc.)
 git pull
-GITOPS_BRANCH=qa GITOPS_APP_NAME=template-qa ./deployment/gitops-lite.sh
+
+# Run the deployment script
+# Replace {instance} and {branch} with your actual values
+GITOPS_BRANCH={branch} \
+  GITOPS_APP_NAME=template-{instance} \
+  GITOPS_SOURCE_DIR=$PWD \
+  GITOPS_DEPLOY_DIR=/opt/apps/template-{instance} \
+  ./deployment/gitops-lite.sh
+
+# Examples:
+# Pattern 1: GITOPS_BRANCH=main GITOPS_APP_NAME=template GITOPS_DEPLOY_DIR=/opt/apps/template
+# Pattern 2: GITOPS_BRANCH=qa GITOPS_APP_NAME=template-qa GITOPS_DEPLOY_DIR=/opt/apps/template-qa
+```
+
+**First run will:**
+1. Create Python virtual environment
+2. Install dependencies
+3. Set up `.env` with secure SECRET_KEY
+4. Create necessary directories
+5. Run migrations
+6. Collect static files
+
+### Manual Deployment
+
+Prefer to deploy manually? Just run:
+```bash
+cd ~/source/django-react-template
+git checkout {branch}  # main, qa, prod, etc.
+git pull
+
+# Replace {instance} and {branch} with your actual values
+GITOPS_BRANCH={branch} \
+  GITOPS_APP_NAME=template-{instance} \
+  GITOPS_SOURCE_DIR=$PWD \
+  GITOPS_DEPLOY_DIR=/opt/apps/template-{instance} \
+  ./deployment/gitops-lite.sh
 ```

@@ -21,8 +21,11 @@ SECURE_HSTS_PRELOAD = True
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 USE_X_FORWARDED_HOST = True
 
-# Allowed hosts must be explicitly set in production
-ALLOWED_HOSTS = env.list("ALLOWED_HOSTS")
+# ALLOWED_HOSTS inherits from base.py which derives from SITE_DOMAIN
+# Only override here if explicitly set for production
+if env("ALLOWED_HOSTS", default=None):
+    ALLOWED_HOSTS = env.list("ALLOWED_HOSTS")
+# Otherwise, ALLOWED_HOSTS is already set by base.py from SITE_DOMAIN
 
 # Static files with compression
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
