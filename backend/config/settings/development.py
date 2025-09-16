@@ -2,18 +2,26 @@
 Development settings
 """
 
+import importlib.util
+
 from .base import *
 
 DEBUG = True
 
 # Development-specific apps
-INSTALLED_APPS += [
-    "django_extensions",
-    "debug_toolbar",
-]
+# Only add these if they're installed
 
-# Add debug toolbar middleware
-MIDDLEWARE.insert(2, "debug_toolbar.middleware.DebugToolbarMiddleware")
+dev_apps = []
+if importlib.util.find_spec("django_extensions"):
+    dev_apps.append("django_extensions")
+if importlib.util.find_spec("debug_toolbar"):
+    dev_apps.append("debug_toolbar")
+
+INSTALLED_APPS += dev_apps
+
+# Add debug toolbar middleware (only if installed)
+if "debug_toolbar" in dev_apps:
+    MIDDLEWARE.insert(2, "debug_toolbar.middleware.DebugToolbarMiddleware")
 
 # Debug toolbar settings
 INTERNAL_IPS = [

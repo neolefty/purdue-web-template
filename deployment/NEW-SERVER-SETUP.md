@@ -276,6 +276,34 @@ GITOPS_BRANCH={branch} \
 5. Run migrations
 6. Collect static files
 
+### Creating an Initial User
+
+After the first deployment, you'll need to create an admin user to access the Django admin interface:
+
+```bash
+# Navigate to your app directory
+# Replace {instance} with your actual instance name
+cd /opt/apps/template-{instance}
+
+# Activate the virtual environment
+source ./venv/bin/activate
+
+# Navigate to the backend directory
+cd backend
+
+# Create a superuser (follow the interactive prompts)
+python manage.py createsuperuser
+```
+
+The command will prompt you for:
+- Username (or email, depending on AUTH_METHOD)
+- Email address
+- Password (entered twice for confirmation)
+
+After creating the superuser, you can access the Django admin at:
+- Pattern 1: `https://your-app.purdue.edu/admin/`
+- Pattern 2: `https://your-app-qa.purdue.edu/admin/` (or appropriate domain)
+
 ### Manual Deployment
 
 Prefer to deploy manually? Just run:
