@@ -29,7 +29,7 @@ export default function LoginPage() {
         onSuccess: () => navigate('/dashboard'),
       })
     } else {
-      login.mutate({ email: data.email, password: data.password }, {
+      login.mutate({ username_or_email: data.username_or_email, password: data.password }, {
         onSuccess: () => navigate('/dashboard'),
       })
     }
@@ -116,26 +116,45 @@ export default function LoginPage() {
               </>
             )}
 
-            <div>
-              <label htmlFor="email" className="label">
-                Email
-              </label>
-              <input
-                {...registerField('email', {
-                  required: 'Email is required',
-                  pattern: {
-                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                    message: 'Invalid email address',
-                  },
-                })}
-                type="email"
-                className="input"
-                placeholder="john@purdue.edu"
-              />
-              {errors.email && (
-                <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
-              )}
-            </div>
+            {isRegisterMode ? (
+              <div>
+                <label htmlFor="email" className="label">
+                  Email
+                </label>
+                <input
+                  {...registerField('email', {
+                    required: 'Email is required',
+                    pattern: {
+                      value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                      message: 'Invalid email address',
+                    },
+                  })}
+                  type="email"
+                  className="input"
+                  placeholder="john@purdue.edu"
+                />
+                {errors.email && (
+                  <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
+                )}
+              </div>
+            ) : (
+              <div>
+                <label htmlFor="username_or_email" className="label">
+                  Username or Email
+                </label>
+                <input
+                  {...registerField('username_or_email', {
+                    required: 'Username or email is required',
+                  })}
+                  type="text"
+                  className="input"
+                  placeholder="johndoe or john@purdue.edu"
+                />
+                {errors.username_or_email && (
+                  <p className="text-red-500 text-sm mt-1">{errors.username_or_email.message}</p>
+                )}
+              </div>
+            )}
 
             <div>
               <label htmlFor="password" className="label">
