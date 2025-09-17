@@ -319,6 +319,12 @@ mkdir -p "$DEPLOY_DIR/backend/media"
 mkdir -p "$DEPLOY_DIR/backend/logs"
 mkdir -p "$DEPLOY_DIR/data"  # For SQLite database
 
+# Set proper permissions for SQLite data directory
+# This ensures both the deployer and service user can read/write
+chmod 775 "$DEPLOY_DIR/data" 2>/dev/null || true
+# Set setgid bit so new files inherit the group
+chmod g+s "$DEPLOY_DIR/data" 2>/dev/null || true
+
 # Frontend deployment
 if [ "$BUILD_FRONTEND" = "true" ] && [ -f frontend/package.json ]; then
     # Clean up old frontend build directories (older than 7 days)
@@ -387,6 +393,13 @@ MIGRATE_EXIT=$?
 set -e
 if [ $MIGRATE_EXIT -eq 0 ]; then
     log "✓ Migrations completed"
+
+    # Fix SQLite database permissions if using SQLite
+    # This ensures the service user can write to the database
+    if [ -f "$DEPLOY_DIR/data/db.sqlite3" ]; then
+        chmod 664 "$DEPLOY_DIR/data/db.sqlite3" 2>/dev/null || true
+        log "✓ Set SQLite database permissions"
+    fi
 else
     log "⚠️ Migrations skipped (may already be applied, see /tmp/migrate-$APP_NAME.log)"
 fi
