@@ -240,6 +240,44 @@ else
     log "[$BRANCH → $APP_NAME] Deploying current version $(echo $CURRENT | cut -c1-7) (state sync)"
 fi
 
+# ONE-TIME MIGRATION: Custom User Model (Remove this block after November 2025)
+# This handles the breaking change from built-in to custom User model
+MIGRATION_FLAG_FILE="$DEPLOY_DIR/.custom-user-model-migrated"
+if [[ ! -f "$MIGRATION_FLAG_FILE" ]] && [[ -f "$DEPLOY_DIR/data/db.sqlite3" ]]; then
+    log "⚠️  DETECTED: Need to migrate to custom User model"
+    log "⚠️  This will DELETE all data in SQLite database (one-time operation)"
+
+    # Only proceed if using SQLite
+    if [[ -f "$DEPLOY_DIR/.env" ]]; then
+        if grep -q "^DATABASE_ENGINE=sqlite" "$DEPLOY_DIR/.env" 2>/dev/null || ! grep -q "^DATABASE_ENGINE=" "$DEPLOY_DIR/.env" 2>/dev/null; then
+            log "Backing up existing SQLite database..."
+            BACKUP_FILE="$DEPLOY_DIR/data/db.sqlite3.pre-custom-user.$(date +%Y%m%d-%H%M%S)"
+            cp "$DEPLOY_DIR/data/db.sqlite3" "$BACKUP_FILE" 2>/dev/null || true
+            log "✓ Backup saved to: $BACKUP_FILE"
+
+            log "Removing old SQLite database..."
+            rm -f "$DEPLOY_DIR/data/db.sqlite3"*
+            rm -f "$DEPLOY_DIR/backend/db.sqlite3"*
+            log "✓ Old database removed"
+
+            log "✓ Will create fresh database with custom User model"
+
+            # Create flag file to prevent running this again
+            echo "Migrated to custom User model on $(date)" > "$MIGRATION_FLAG_FILE"
+            echo "Original database backed up to: $BACKUP_FILE" >> "$MIGRATION_FLAG_FILE"
+
+            # Send notification if email is configured
+            if [ -n "$EMAIL_TO" ]; then
+                send_email "Custom User Model Migration" "success" "The Django app has been migrated to use a custom User model. The SQLite database was reset. Please create a new superuser account."
+            fi
+        else
+            log "⚠️  Non-SQLite database detected - manual migration required"
+            log "⚠️  See deployment/CUSTOM_USER_MIGRATION.md for instructions"
+        fi
+    fi
+fi
+# END ONE-TIME MIGRATION BLOCK
+
 # Check if this is first-time setup
 if [[ ! -d "$DEPLOY_DIR/venv" ]]; then
     FIRST_TIME_SETUP=true

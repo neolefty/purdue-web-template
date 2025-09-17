@@ -5,11 +5,11 @@ Authentication backends for Purdue Web Application
 import logging
 
 from django.conf import settings
-from django.contrib.auth import get_user_model
 from django.contrib.auth.backends import BaseBackend
 
+from .models import User
+
 logger = logging.getLogger(__name__)
-User = get_user_model()
 
 
 class PurdueSAMLBackend(BaseBackend):

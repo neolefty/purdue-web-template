@@ -179,6 +179,61 @@ Check `deployment/templates/` for nginx examples covering:
 
 Adapt to your setup and domain.
 
+## SELinux Configuration
+
+If SELinux is enabled (common on RHEL/Rocky Linux), you'll need to configure it to allow nginx to connect to the Gunicorn socket:
+
+### Check if SELinux is enforcing:
+```bash
+getenforce
+```
+
+### Common SELinux denials and solutions:
+
+1. **nginx denied access to Gunicorn socket:**
+   ```
+   type=AVC msg=audit(...): avc:  denied  { write } for  pid=... comm="nginx"
+   name="gunicorn.sock" ... scontext=system_u:system_r:httpd_t:s0 ...
+   ```
+
+   **Solution options (try in order):**
+   ```bash
+   # Option A: If using Unix sockets (most common for non-containerized setups)
+   # First check where your socket is located (common: /run or /opt/apps/{instance})
+
+   # For sockets in /run directory:
+   sudo semanage fcontext -a -t httpd_sys_rw_content_t "/run/template-{instance}(/.*)?"
+   sudo restorecon -Rv /run/template-{instance}
+
+   # For sockets in /opt/apps:
+   sudo semanage fcontext -a -t httpd_sys_rw_content_t "/opt/apps/template-{instance}/gunicorn.sock"
+   sudo restorecon -v /opt/apps/template-{instance}/gunicorn.sock
+
+   # Option B: If using HTTP/TCP connection between nginx and Gunicorn (port 8000)
+   sudo setsebool -P httpd_can_network_connect 1
+   ```
+
+2. **Creating a custom policy (if needed):**
+   ```bash
+   # Capture denials in audit log
+   sudo ausearch -c 'nginx' --raw | audit2allow -M nginx-gunicorn
+
+   # Review the generated policy
+   cat nginx-gunicorn.te
+
+   # Install the policy module
+   sudo semodule -i nginx-gunicorn.pp
+   ```
+
+3. **Allow nginx to serve static files:**
+   ```bash
+   # Set correct context for static files
+   sudo semanage fcontext -a -t httpd_sys_content_t "/opt/apps/template-{instance}/static(/.*)?"
+   sudo restorecon -Rv /opt/apps/template-{instance}/static
+   ```
+
+**Note:** Your system administrator may have already created custom SELinux policies for Gunicorn. Check with them before making changes.
+
 ## Environment Configuration
 
 The app uses a `.env` file. It's auto-generated on first deployment, but you can set it up manually:
@@ -198,11 +253,13 @@ nano /opt/apps/template-{instance}/.env
 - Generates a secure SECRET_KEY
 - Creates data, logs, and media directories
 
-## Automated Deployment (Recommended)
+## Deployment Options
 
-`deployment/gitops-lite.sh` enables automatic deployments without sudo:
+You can deploy either automatically (recommended) or manually. Both use `deployment/gitops-lite.sh` which handles everything without requiring sudo.
 
-### Setting Up Auto-Deploy
+### Option A: Automated Deployment (Recommended)
+
+Set up automatic deployments via cron:
 
 1. **You should already have the source code** (from step 4)
 
@@ -246,29 +303,26 @@ nano /opt/apps/template-{instance}/.env
    - `GITOPS_EMAIL_ON_SUCCESS` - Notify on success (default: true)
    - `GITOPS_EMAIL_ON_FAILURE` - Notify on failure (default: true)
 
-### First Deployment
+### Option B: Manual Deployment
 
-Test manually before automating:
+Prefer to deploy manually? Just run:
 
 ```bash
 cd ~/source/django-react-template
-git checkout main  # or your desired branch (qa, prod, etc.)
+git checkout {branch}  # main, qa, prod, etc.
 git pull
 
-# Run the deployment script
 # Replace {instance} and {branch} with your actual values
 GITOPS_BRANCH={branch} \
   GITOPS_APP_NAME=template-{instance} \
   GITOPS_SOURCE_DIR=$PWD \
   GITOPS_DEPLOY_DIR=/opt/apps/template-{instance} \
   ./deployment/gitops-lite.sh
-
-# Examples:
-# Pattern 1: GITOPS_BRANCH=main GITOPS_APP_NAME=template GITOPS_DEPLOY_DIR=/opt/apps/template
-# Pattern 2: GITOPS_BRANCH=qa GITOPS_APP_NAME=template-qa GITOPS_DEPLOY_DIR=/opt/apps/template-qa
 ```
 
-**First run will:**
+### First Deployment
+
+Whether using automated or manual deployment, the first run will:
 1. Create Python virtual environment
 2. Install dependencies
 3. Set up `.env` with secure SECRET_KEY
@@ -276,7 +330,7 @@ GITOPS_BRANCH={branch} \
 5. Run migrations
 6. Collect static files
 
-### Creating an Initial User
+## Creating an Initial User
 
 After the first deployment, you'll need to create an admin user to access the Django admin interface:
 
@@ -303,19 +357,3 @@ The command will prompt you for:
 After creating the superuser, you can access the Django admin at:
 - Pattern 1: `https://your-app.purdue.edu/admin/`
 - Pattern 2: `https://your-app-qa.purdue.edu/admin/` (or appropriate domain)
-
-### Manual Deployment
-
-Prefer to deploy manually? Just run:
-```bash
-cd ~/source/django-react-template
-git checkout {branch}  # main, qa, prod, etc.
-git pull
-
-# Replace {instance} and {branch} with your actual values
-GITOPS_BRANCH={branch} \
-  GITOPS_APP_NAME=template-{instance} \
-  GITOPS_SOURCE_DIR=$PWD \
-  GITOPS_DEPLOY_DIR=/opt/apps/template-{instance} \
-  ./deployment/gitops-lite.sh
-```
