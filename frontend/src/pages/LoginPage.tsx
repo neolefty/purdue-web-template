@@ -80,6 +80,8 @@ export default function LoginPage() {
                       },
                     })}
                     type="text"
+                    id="username"
+                    autoComplete="username"
                     className="input"
                     placeholder="johndoe"
                   />
@@ -96,6 +98,8 @@ export default function LoginPage() {
                     <input
                       {...registerField('first_name')}
                       type="text"
+                      id="first_name"
+                      autoComplete="given-name"
                       className="input"
                       placeholder="John"
                     />
@@ -108,6 +112,8 @@ export default function LoginPage() {
                     <input
                       {...registerField('last_name')}
                       type="text"
+                      id="last_name"
+                      autoComplete="family-name"
                       className="input"
                       placeholder="Doe"
                     />
@@ -130,6 +136,8 @@ export default function LoginPage() {
                     },
                   })}
                   type="email"
+                  id="email"
+                  autoComplete="email"
                   className="input"
                   placeholder="john@purdue.edu"
                 />
@@ -147,6 +155,8 @@ export default function LoginPage() {
                     required: 'Username or email is required',
                   })}
                   type="text"
+                  id="username_or_email"
+                  autoComplete="username email"
                   className="input"
                   placeholder="johndoe or john@purdue.edu"
                 />
@@ -169,6 +179,8 @@ export default function LoginPage() {
                   },
                 })}
                 type="password"
+                id="password"
+                autoComplete={isRegisterMode ? "new-password" : "current-password"}
                 className="input"
                 placeholder="••••••••"
               />
@@ -189,6 +201,8 @@ export default function LoginPage() {
                       value === watch('password') || 'Passwords do not match',
                   })}
                   type="password"
+                  id="password_confirm"
+                  autoComplete="new-password"
                   className="input"
                   placeholder="••••••••"
                 />
