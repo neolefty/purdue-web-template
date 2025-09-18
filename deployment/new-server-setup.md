@@ -7,7 +7,7 @@ While the app works great with containers (`docker compose` for development, Kub
 ## What You're Deploying
 
 - Python backend (Django) serving API and static files
-- Pre-compiled React frontend (no Node.js needed in production)
+- Pre-compiled React frontend (no Node.js needed in production, only for building)
 - Your choice of database (external or SQLite for simpler setups)
 
 ## Choose Your Setup
@@ -49,7 +49,7 @@ Multiple environments of the same app on one server:
 - nginx (reverse proxy)
 - systemd (service management)
 - Git
-- Node.js 24+, npm 11+ (for building frontend)
+- Node.js 24+, npm 11+ (only needed if building frontend from source)
 
 ### 2. User and Group Setup
 
@@ -162,7 +162,7 @@ See `deployment/systemd/template.service` and customize:
 Install it:
 ```bash
 # Replace {instance} with your actual instance name
-cp deployment/systemd/template.service /etc/systemd/system/template-{instance}.service
+cp ~/source/django-react-template/deployment/systemd/template.service /etc/systemd/system/template-{instance}.service
 # Edit to match your paths and preferences
 systemctl daemon-reload
 systemctl enable template-{instance}
@@ -261,7 +261,7 @@ You can deploy either automatically (recommended) or manually. Both use `deploym
 
 Set up automatic deployments via cron:
 
-1. **You should already have the source code** (from step 4)
+1. **You should already have the source code** (from Server Setup section 4)
 
 2. **Add to cron:**
 
