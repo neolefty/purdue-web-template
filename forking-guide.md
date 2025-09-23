@@ -393,6 +393,46 @@ YOUR-APP-NAME/
 - **Database models**: `backend/apps/*/models.py`
 - **API integration**: `frontend/src/api/`
 
+## 🚀 Ready to Deploy?
+
+When you're ready to move beyond local development:
+
+### Requesting Deployment to Dev/QA Servers
+
+1. **Prepare your deployment files** (one-time setup):
+   ```bash
+   # Run from your project root
+   ./deployment/rename-for-deployment.sh your-app-name
+
+   # Review the changes it made
+   git diff
+
+   # Commit when ready
+   git add deployment/ .env.production.example
+   git commit -m "Customize deployment for your-app-name"
+   git push
+   ```
+
+2. **Submit a deployment request:**
+   - Send email to: **it@purdue.edu**
+   - Subject: "Web App Deployment Request - [Your App Name]"
+   - Include at the top: **"Please assign to RHTS Research Solutions"**
+   - Provide:
+     - Link to your Git repository
+     - Which environment(s) you need (dev and/or qa)
+     - Your app name (what you renamed from "template")
+     - Requested URL (e.g., mylab.ag.purdue.edu)
+     - Your contact information
+
+3. **What happens next:**
+   - A sysadmin will contact you to schedule the deployment
+   - They'll set up your app on the requested server(s)
+   - You'll receive confirmation of the URLs for your deployed application
+
+### Production Deployment
+
+*Coming soon: Production deployment requires a security review process. This section will be updated with the complete procedure.*
+
 ## 🏁 Success Checklist
 
 You're ready to build when you can:
