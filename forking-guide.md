@@ -400,6 +400,9 @@ When you're ready to move beyond local development:
 ### Requesting Deployment to Dev/QA Servers
 
 1. **Prepare your deployment files** (one-time setup):
+
+   *Windows users: This script requires WSL or Git Bash. Alternatively, you can manually rename the files in `deployment/systemd/` from `template.*` to `your-app.*`*
+
    ```bash
    # Run from your project root
    ./deployment/rename-for-deployment.sh your-app-name
