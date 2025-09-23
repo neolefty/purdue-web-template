@@ -7,9 +7,11 @@ This is a starter template for web applications that can be easily hosted and ma
 
 Together, they enable modern web applications that can start simple, grow in complexity with your needs, and are well-supported by AI coding assistants.
 
+**Note**: This is an early-stage template that will evolve based on feedback and real-world use. The authors welcome comments, [contributions](https://github.itap.purdue.edu/agit/django-react-template/pulls), and ticket requests — see [Support](#support) below.
+
 ![Template Screenshot](docs/images/template-screenshot.png)
 
-**Note**: This is an early-stage template that will evolve based on feedback and real-world use.
+**📘 Ready to build your own app?** See the [Forking Guide](forking-guide.md) for step-by-step instructions to extend this template.
 
 ## What this template offers
 
@@ -545,15 +547,14 @@ This template doesn't lock you into specific choices. You could:
 
 ## License
 
-MIT License – See LICENSE file for details
+MIT License – See [LICENSE](LICENSE) file for details.
 
 ## Support
 
 This is an evolving template. For questions or suggestions:
-- Contact the development team via Microsoft Teams (preferred)
-- Email: wbbaker@purdue.edu, deshunz@purdue.edu, brooksa@purdue.edu
-- Create an issue on [GitHub](https://github.itap.purdue.edu/wbbaker/django-react-template/issues)
-- [Purdue IT Service Portal](https://service.purdue.edu/)
+- Contact a member of the development team via Microsoft Teams
+- Email the RHTS web development team, [wbbaker@purdue.edu, deshunz@purdue.edu, brooksa@purdue.edu](mailto:wbbaker@purdue.edu,deshunz@purdue.edu,brooksa@purdue.edu)
+- Create a ticket in the [Purdue IT Service Portal](https://service.purdue.edu/) – include the phrase **_Please assign to RHTS Research Solutions_** at the top of your request.
 
 ## Acknowledgments
 
