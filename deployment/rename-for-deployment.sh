@@ -67,6 +67,7 @@ for file in *.service *.socket; do
             sed -i.bak \
                 -e "s|/opt/apps/template|/opt/apps/$APP_NAME|g" \
                 -e "s|template\.socket|${APP_NAME}.socket|g" \
+                -e "s|template\.service|${APP_NAME}.service|g" \
                 -e "s|template\.sock|${APP_NAME}.sock|g" \
                 -e "s|/run/template|/run/$APP_NAME|g" \
                 "$file"
