@@ -2,42 +2,11 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Deployment System
+## Quick Start
 
-### Current Dev Server Setup
-- **Continuous Deployment**: GitOps Lite runs every minute via cron
-- **Hot Reload**: Gunicorn with `--reload` flag (auto-restarts on changes)
-- **No sudo needed**: Developers can deploy without system access
-- **Push to deploy**: Just `git push` to main branch, wait ~1 minute
+**Local Development**: `docker compose up` (frontend on :5173, backend on :8000, proxied through frontend)
 
-### Deployment Commands
-```bash
-# Manual deploy (if needed)
-ssh django "cd ~/source/django-react-template && git pull && deployment/gitops-lite.sh"
-
-# Check deployment logs
-ssh django "tail -f /tmp/gitops-lite.log"
-
-# Service status
-ssh django "systemctl status template"
-```
-
-### Production Features
-- **Non-root deployment**: Works without sudo/root access
-- **Socket activation**: Systemd socket files included for production
-- **Flexible configuration**: Environment-based settings with `.env` files
-- **SQLite support**: Can run without external database for demos/testing
-- **Automatic asset handling**: Template tags handle Vite's hashed filenames
-- **Documentation**: See deployment/README.md for complete guide
-
-### Testing Deployment Changes
-When making significant changes to the deployment system (especially `gitops-lite.sh`), there's a comprehensive Docker-based test suite:
-```bash
-# Run the deployment test suite (~5 minutes)
-cd deployment/test-gitops-docker
-docker-compose -f docker-compose.test.yml up --build
-```
-This test validates first-time setup, dependency updates, Python version configuration, and more. See `deployment/test-gitops-docker/README.md` for details on when and why to run this test.
+**Deployment**: Push to main → auto-deploys in ~1 minute via GitOps Lite (see `deployment/README.md` for setup)
 
 ## Architecture Overview
 
@@ -61,46 +30,18 @@ This is a Django + React template for Purdue web applications with the following
   - Frontend Vite dev server
   - Health checks ensure proper startup order
 
-## Development Commands
-
-### Using Docker (Recommended)
+## Common Commands
 
 ```bash
-# Start all services
-docker compose up
-
-# Django management commands
+# Django operations (via Docker)
 docker compose exec backend python manage.py migrate
 docker compose exec backend python manage.py makemigrations
 docker compose exec backend python manage.py createsuperuser
-docker compose exec backend python manage.py test
-docker compose exec backend python manage.py shell
 
-# Frontend commands
+# Frontend operations (via Docker)
 docker compose exec frontend npm install <package>
 docker compose exec frontend npm run lint
 docker compose exec frontend npm run type-check
-docker compose exec frontend npm run build
-```
-
-### Without Docker
-
-Backend:
-```bash
-cd backend
-python manage.py runserver           # Start dev server on port 8000
-python manage.py test                 # Run tests
-python manage.py makemigrations      # Create migrations
-python manage.py migrate             # Apply migrations
-```
-
-Frontend:
-```bash
-cd frontend
-npm run dev                          # Start Vite dev server on port 5173
-npm run build                        # Build production bundle
-npm run lint                         # Run ESLint
-npm run type-check                   # Check TypeScript types
 ```
 
 ## Key Configuration
@@ -151,3 +92,33 @@ For complete Purdue brand guidelines, see: https://marcom.purdue.edu/
 - React Query for server state (API data)
 - React Context for client state (auth, UI)
 - Form handling with react-hook-form
+
+## Development Tips & Gotchas
+
+### Local Development with Docker
+- **API Access**: Frontend dev server (port 5173 or FRONTEND_PORT if set) proxies `/api/*` to backend
+- **Testing API**: Use `http://localhost:5173/api/...` NOT `localhost:8000`
+- **Email Testing**: Emails print to backend container logs (use `docker compose logs backend`)
+
+### Configuration Best Practices
+- **SITE_DOMAIN Pattern**: When adding URL-based settings, derive from SITE_DOMAIN like other settings do:
+  ```python
+  if env("YOUR_URL", default=None):
+      YOUR_URL = env.str("YOUR_URL")
+  elif SITE_DOMAIN:
+      YOUR_URL = f"https://{SITE_DOMAIN}/path"
+  else:
+      YOUR_URL = "http://localhost:5173/path"
+  ```
+- This ensures production works with minimal configuration
+
+### Working with Pre-commit Hooks
+- Commits may fail 2-3 times as hooks auto-format code
+- After hook failures: `git add -A` then retry commit
+- Python line length: 100 chars max
+- Files auto-fixed: black (Python formatting), isort (imports), ESLint (JS/TS)
+
+### Security Patterns
+- **Never reveal user existence**: Return generic messages for login/reset failures
+- **Auth-aware features**: Check `settings.AUTH_METHOD` before allowing password operations
+- **Email backends**: Development uses console backend, production uses SMTP
