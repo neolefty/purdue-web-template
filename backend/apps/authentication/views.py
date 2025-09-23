@@ -19,6 +19,7 @@ from .serializers import (
     AdminUserCreateSerializer,
     LoginSerializer,
     PasswordChangeSerializer,
+    PasswordResetRequestSerializer,
     RegisterSerializer,
     UserSerializer,
 )
@@ -138,6 +139,78 @@ def change_password_view(request):
         user.set_password(serializer.validated_data["new_password"])
         user.save()
         return Response({"message": "Password changed successfully"})
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def password_reset_request_view(request):
+    """
+    Request password reset - sends email with reset link
+    """
+    serializer = PasswordResetRequestSerializer(data=request.data)
+    if serializer.is_valid():
+        email = serializer.validated_data["email"]
+
+        # Try to find user with this email
+        try:
+            user = User.objects.get(email=email)
+
+            # Generate reset token and uid
+            from django.contrib.auth.tokens import default_token_generator
+            from django.core.mail import send_mail
+            from django.utils.encoding import force_bytes
+            from django.utils.http import urlsafe_base64_encode
+
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+            token = default_token_generator.make_token(user)
+
+            # Build reset URL
+            reset_url = f"{settings.FRONTEND_URL}/reset-password/{uid}/{token}/"
+
+            # Send email
+            subject = "Password Reset Request"
+            message = f"""
+Hello {user.first_name or user.username},
+
+You have requested a password reset. Please click the link below to reset your password:
+
+{reset_url}
+
+This link will expire in 24 hours.
+
+If you did not request this password reset, please ignore this email.
+
+Best regards,
+The Team
+            """
+
+            try:
+                send_mail(
+                    subject,
+                    message,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [user.email],
+                    fail_silently=False,
+                )
+                logger.info(f"Password reset email sent to {email}")
+            except Exception as e:
+                logger.error(f"Failed to send password reset email to {email}: {e}")
+                # Still return success to not reveal if email exists
+
+        except User.DoesNotExist:
+            # Don't reveal that the email doesn't exist
+            logger.info(f"Password reset requested for non-existent email: {email}")
+
+        # Always return success to prevent email enumeration
+        return Response(
+            {
+                "message": (
+                    "If an account with that email exists, " "a password reset link has been sent."
+                )
+            }
+        )
+
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 

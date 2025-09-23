@@ -247,7 +247,13 @@ else:
 CORS_ALLOW_CREDENTIALS = True
 
 # Frontend URL for password reset links
-FRONTEND_URL = env.str("FRONTEND_URL", default="http://localhost:5173")
+# Can be explicitly set or derived from SITE_DOMAIN
+if env("FRONTEND_URL", default=None):
+    FRONTEND_URL = env.str("FRONTEND_URL")
+elif SITE_DOMAIN:
+    FRONTEND_URL = f"https://{SITE_DOMAIN}"
+else:
+    FRONTEND_URL = "http://localhost:5173"
 
 # CSRF trusted origins (required for Django 4.0+)
 # Can be explicitly set or derived from SITE_DOMAIN

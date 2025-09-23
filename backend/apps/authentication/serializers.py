@@ -129,6 +129,19 @@ class PasswordChangeSerializer(serializers.Serializer):
         return value
 
 
+class PasswordResetRequestSerializer(serializers.Serializer):
+    """
+    Serializer for password reset request
+    """
+
+    email = serializers.EmailField()
+
+    def validate_email(self, value):
+        # We don't want to reveal if an email exists or not for security
+        # So we always return success even if the email doesn't exist
+        return value
+
+
 class AdminUserCreateSerializer(serializers.ModelSerializer):
     """
     Serializer for admin to create users with role assignments.

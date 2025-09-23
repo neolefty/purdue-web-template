@@ -8,6 +8,7 @@ import EditProfilePage from './pages/EditProfilePage'
 import ChangePasswordPage from './pages/ChangePasswordPage'
 import ManageUsersPage from './pages/ManageUsersPage'
 import PasswordResetPage from './pages/PasswordResetPage'
+import PasswordResetRequestPage from './pages/PasswordResetRequestPage'
 import ProtectedRoute from './components/ProtectedRoute'
 
 function App() {
@@ -18,6 +19,7 @@ function App() {
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/forgot-password" element={<PasswordResetRequestPage />} />
             <Route path="/reset-password/:uid/:token" element={<PasswordResetPage />} />
             <Route
               path="/dashboard"

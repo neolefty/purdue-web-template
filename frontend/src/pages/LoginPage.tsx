@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate, Navigate } from 'react-router-dom'
+import { useNavigate, Navigate, Link } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { useAuth } from '@/hooks/useAuth'
 import { useLogin, useRegister, LoginCredentials, RegisterData } from '@/api/auth'
@@ -186,6 +186,16 @@ export default function LoginPage() {
               />
               {errors.password && (
                 <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>
+              )}
+              {!isRegisterMode && (
+                <div className="mt-2 text-right">
+                  <Link
+                    to="/forgot-password"
+                    className="text-sm text-purdue-gold-dark hover:text-purdue-gold"
+                  >
+                    Forgot password?
+                  </Link>
+                </div>
               )}
             </div>
 
