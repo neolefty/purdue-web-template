@@ -424,7 +424,7 @@ ssh server "cd ~/source/django-react-template && ./deployment/gitops-lite.sh"
 docker compose -f docker-compose.hot-reload.yml up
 ```
 
-See [`deployment/NEW-SERVER-SETUP.md`](deployment/NEW-SERVER-SETUP.md) for detailed server setup and production deployment instructions.
+See [`deployment/new-server-setup.md`](deployment/new-server-setup.md) for detailed server setup and production deployment instructions.
 
 ## Testing
 
