@@ -66,13 +66,15 @@ def register_view(request):
     """
     Registration endpoint for email/password authentication
     """
-    # Debug logging
+    # Debug logging - sanitize sensitive data
     logger.info(f"Register request from {request.META.get('REMOTE_ADDR')}")
     logger.info(
         f"Request headers: Host={request.META.get('HTTP_HOST')}, "
         f"Origin={request.META.get('HTTP_ORIGIN')}"
     )
-    logger.info(f"Request data: {request.data}")
+    # Log request data without sensitive fields
+    safe_data = {k: v for k, v in request.data.items() if k not in ["password", "password_confirm"]}
+    logger.info(f"Request data (sanitized): {safe_data}")
     logger.info(f"AUTH_METHOD: {settings.AUTH_METHOD}")
 
     if settings.AUTH_METHOD == "saml":
