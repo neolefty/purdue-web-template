@@ -5,6 +5,7 @@ import Card from '@/components/Card'
 import StatusBadge from '@/components/StatusBadge'
 import Button from '@/components/Button'
 import UserModal from '@/components/UserModal'
+import ConfirmDialog from '@/components/ConfirmDialog'
 
 export default function ManageUsersPage() {
   const { user: currentUser } = useAuth()
@@ -16,6 +17,7 @@ export default function ManageUsersPage() {
   const [modalMode, setModalMode] = useState<'create' | 'edit'>('create')
   const [selectedUser, setSelectedUser] = useState<UserListItem | null>(null)
   const [successMessage, setSuccessMessage] = useState('')
+  const [userToDelete, setUserToDelete] = useState<UserListItem | null>(null)
 
   // Ensure users is always an array
   const users = Array.isArray(usersResponse) ? usersResponse : []
@@ -70,9 +72,10 @@ export default function ManageUsersPage() {
     setModalOpen(true)
   }
 
-  const handleDeleteUser = async (user: UserListItem) => {
-    if (window.confirm(`Are you sure you want to delete ${user.username}?`)) {
-      deleteUser.mutate(user.id)
+  const handleDeleteUser = async () => {
+    if (userToDelete) {
+      deleteUser.mutate(userToDelete.id)
+      setUserToDelete(null)
     }
   }
 
@@ -214,7 +217,7 @@ export default function ManageUsersPage() {
                         )}
                         {user.id !== currentUser?.id && !user.is_superuser && (
                           <button
-                            onClick={() => handleDeleteUser(user)}
+                            onClick={() => setUserToDelete(user)}
                             className="text-red-600 hover:text-red-800"
                           >
                             Delete
@@ -247,6 +250,30 @@ export default function ManageUsersPage() {
         }}
         user={selectedUser}
         mode={modalMode}
+      />
+
+      <ConfirmDialog
+        isOpen={!!userToDelete}
+        onClose={() => setUserToDelete(null)}
+        onConfirm={handleDeleteUser}
+        title="Delete User"
+        message={`Are you sure you want to delete ${userToDelete?.username}?`}
+        details={
+          userToDelete && (
+            <div className="p-3 bg-purdue-gray-50 rounded">
+              <p className="text-sm font-medium text-purdue-gray-900">
+                {userToDelete.first_name} {userToDelete.last_name}
+              </p>
+              <p className="text-xs text-purdue-gray-600 mt-1">
+                {userToDelete.email}
+              </p>
+            </div>
+          )
+        }
+        confirmText={deleteUser.isPending ? 'Deleting...' : 'Delete User'}
+        cancelText="Cancel"
+        variant="danger"
+        isLoading={deleteUser.isPending}
       />
     </div>
   )
