@@ -238,9 +238,9 @@ export default function ManageUsersPage() {
 
       <UserModal
         isOpen={modalOpen}
-        onClose={() => {
+        onClose={(wasCreated?: boolean) => {
           setModalOpen(false)
-          if (modalMode === 'create') {
+          if (modalMode === 'create' && wasCreated) {
             setSuccessMessage('User created successfully. A password reset email has been sent.')
             window.setTimeout(() => setSuccessMessage(''), 5000)
           }

@@ -4,7 +4,7 @@ import Button from './Button'
 
 interface UserModalProps {
   isOpen: boolean
-  onClose: () => void
+  onClose: (wasCreated?: boolean) => void
   user?: UserListItem | null
   mode: 'create' | 'edit'
 }
@@ -70,6 +70,7 @@ export default function UserModal({ isOpen, onClose, user, mode }: UserModalProp
     try {
       if (mode === 'create') {
         await createUser.mutateAsync(formData)
+        onClose(true)
       } else if (user) {
         const updateData: Partial<UserListItem> = {
           username: formData.username,
@@ -81,8 +82,8 @@ export default function UserModal({ isOpen, onClose, user, mode }: UserModalProp
           is_superuser: formData.is_superuser,
         }
         await updateUser.mutateAsync({ id: user.id, data: updateData })
+        onClose()
       }
-      onClose()
     } catch (error) {
       const err = error as { response?: { data?: Record<string, string> } }
       if (err.response?.data) {
@@ -207,7 +208,7 @@ export default function UserModal({ isOpen, onClose, user, mode }: UserModalProp
             <Button
               type="button"
               variant="secondary"
-              onClick={onClose}
+              onClick={() => onClose()}
             >
               Cancel
             </Button>
