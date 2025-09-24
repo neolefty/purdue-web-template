@@ -25,7 +25,7 @@ export default function Button({
     secondary: 'btn-secondary',
     outline: 'btn-outline',
     action: 'btn-primary btn-action',
-    danger: 'btn bg-red-600 hover:bg-red-700 text-white border-transparent focus:ring-red-500'
+    danger: 'btn-danger'
   }
 
   const sizeClasses = {

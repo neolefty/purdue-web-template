@@ -83,6 +83,10 @@
     @apply btn border-2 border-purdue-gold text-purdue-gold hover:bg-purdue-black hover:text-purdue-gold hover:border-purdue-black focus:ring-purdue-gold transition-all duration-200;
   }
 
+  .btn-danger {
+    @apply btn bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 transition-all duration-200;
+  }
+
   /* Action button style (United Sans) */
   .btn-action {
     @apply font-united font-black uppercase tracking-wider px-10 py-4;
