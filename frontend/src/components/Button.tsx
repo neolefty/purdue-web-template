@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode
-  variant?: 'primary' | 'secondary' | 'outline' | 'action'
+  variant?: 'primary' | 'secondary' | 'outline' | 'action' | 'danger'
   size?: 'sm' | 'md' | 'lg'
   href?: string
   to?: string
@@ -24,7 +24,8 @@ export default function Button({
     primary: 'btn-primary',
     secondary: 'btn-secondary',
     outline: 'btn-outline',
-    action: 'btn-primary btn-action'
+    action: 'btn-primary btn-action',
+    danger: 'btn bg-red-600 hover:bg-red-700 text-white border-transparent focus:ring-red-500'
   }
 
   const sizeClasses = {
