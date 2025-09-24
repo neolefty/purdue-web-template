@@ -423,11 +423,11 @@ fi
 
 # Basic Python syntax check
 set +e
-find "$DEPLOY_DIR/backend" -name "*.py" -type f -exec "$DEPLOY_DIR/venv/bin/python" -m py_compile {} \; 2>/tmp/py_compile_error.log
+find "$DEPLOY_DIR/backend" -name "*.py" -type f -exec "$DEPLOY_DIR/venv/bin/python" -m py_compile {} \; 2>/tmp/py_compile_error-$APP_NAME.log
 SYNTAX_CHECK=$?
 set -e
 if [ $SYNTAX_CHECK -ne 0 ]; then
-    log "⚠️ Python syntax warnings detected (see /tmp/py_compile_error.log)"
+    log "⚠️ Python syntax warnings detected (see /tmp/py_compile_error-$APP_NAME.log)"
 fi
 
 # Mark as deployed
