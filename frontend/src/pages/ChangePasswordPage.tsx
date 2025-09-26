@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom'
 import { useChangePassword } from '@/api/auth'
 import Card from '@/components/Card'
 import Button from '@/components/Button'
+import PageLayout from '@/components/PageLayout'
+import PageHeader from '@/components/PageHeader'
 
 export default function ChangePasswordPage() {
   const navigate = useNavigate()
@@ -69,9 +71,9 @@ export default function ChangePasswordPage() {
   }
 
   return (
-    <div className="container-app py-12">
+    <PageLayout width="default">
       <div className="max-w-2xl mx-auto">
-        <h1 className="text-3xl text-headline mb-8">Change Password</h1>
+        <PageHeader title="Change Password" />
 
         <Card>
           {success ? (
@@ -162,6 +164,6 @@ export default function ChangePasswordPage() {
           )}
         </Card>
       </div>
-    </div>
+    </PageLayout>
   )
 }

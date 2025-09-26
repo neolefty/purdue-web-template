@@ -6,6 +6,8 @@ import { useAuth } from '@/hooks/useAuth'
 import apiClient from '@/api/client'
 import Card from '@/components/Card'
 import Button from '@/components/Button'
+import PageLayout from '@/components/PageLayout'
+import PageHeader from '@/components/PageHeader'
 import type { User } from '@/api/auth'
 
 export default function EditProfilePage() {
@@ -51,9 +53,9 @@ export default function EditProfilePage() {
   }
 
   return (
-    <div className="container-app py-12">
+    <PageLayout width="default">
       <div className="max-w-2xl mx-auto">
-        <h1 className="text-3xl text-headline mb-8">Edit Profile</h1>
+        <PageHeader title="Edit Profile" />
 
         <Card>
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -147,6 +149,6 @@ export default function EditProfilePage() {
           </form>
         </Card>
       </div>
-    </div>
+    </PageLayout>
   )
 }
