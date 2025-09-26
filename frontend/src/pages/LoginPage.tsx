@@ -20,17 +20,17 @@ export default function LoginPage() {
   } = useForm<LoginCredentials & RegisterData>()
 
   if (isAuthenticated) {
-    return <Navigate to="/dashboard" replace />
+    return <Navigate to="/" replace />
   }
 
   const onSubmit = (data: LoginCredentials & RegisterData) => {
     if (isRegisterMode) {
       register.mutate(data, {
-        onSuccess: () => navigate('/dashboard'),
+        onSuccess: () => navigate('/'),
       })
     } else {
       login.mutate({ username_or_email: data.username_or_email, password: data.password }, {
-        onSuccess: () => navigate('/dashboard'),
+        onSuccess: () => navigate('/'),
       })
     }
   }

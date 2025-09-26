@@ -46,7 +46,7 @@ export default function ChangePasswordPage() {
         onSuccess: () => {
           setSuccess(true)
           window.setTimeout(() => {
-            navigate('/dashboard')
+            navigate('/profile')
           }, 2000)
         },
         onError: (error: unknown) => {
@@ -155,7 +155,7 @@ export default function ChangePasswordPage() {
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => navigate('/dashboard')}
+                  onClick={() => navigate('/profile')}
                 >
                   Cancel
                 </Button>

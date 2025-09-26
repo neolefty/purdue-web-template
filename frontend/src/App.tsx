@@ -3,7 +3,7 @@ import { AuthProvider } from './contexts/AuthContext'
 import Layout from './components/Layout'
 import HomePage from './pages/HomePage'
 import LoginPage from './pages/LoginPage'
-import DashboardPage from './pages/DashboardPage'
+import ProfilePage from './pages/ProfilePage'
 import EditProfilePage from './pages/EditProfilePage'
 import ChangePasswordPage from './pages/ChangePasswordPage'
 import ManageUsersPage from './pages/ManageUsersPage'
@@ -22,10 +22,10 @@ function App() {
             <Route path="/forgot-password" element={<PasswordResetRequestPage />} />
             <Route path="/reset-password/:uid/:token" element={<PasswordResetPage />} />
             <Route
-              path="/dashboard"
+              path="/profile"
               element={
                 <ProtectedRoute>
-                  <DashboardPage />
+                  <ProfilePage />
                 </ProtectedRoute>
               }
             />

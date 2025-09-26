@@ -1,11 +1,34 @@
 import { useAuth } from '@/hooks/useAuth'
+import { useQuery } from '@tanstack/react-query'
+import apiClient from '@/api/client'
 import Button from '@/components/Button'
 import Card from '@/components/Card'
 import StatCard from '@/components/StatCard'
 import CodeBlock from '@/components/CodeBlock'
+import InfoList from '@/components/InfoList'
+import StatusBadge from '@/components/StatusBadge'
+
+interface HealthCheck {
+  status: string
+  database: {
+    connected: boolean
+    engine: string
+  }
+  django_version: string
+  python_version: string
+  auth_method: string
+  debug_mode: boolean
+}
 
 export default function HomePage() {
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, user } = useAuth()
+
+  const { data: health } = useQuery({
+    queryKey: ['health'],
+    queryFn: () => apiClient.get<HealthCheck>('/health/'),
+    enabled: isAuthenticated,
+    refetchInterval: 30000,
+  })
 
   return (
     <div className="container-app py-12">
@@ -53,12 +76,118 @@ export default function HomePage() {
           </Card>
         </div>
 
+        {/* Authenticated user sections */}
+        {isAuthenticated && (
+          <div className="mb-12">
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* Welcome Back */}
+              <Card variant="highlighted">
+                <div className="flex justify-between items-start mb-4">
+                  <h2 className="text-2xl font-bold text-purdue-black">
+                    Welcome back, {user?.first_name || user?.username}!
+                  </h2>
+                  <Button to="/profile" variant="outline" size="sm">
+                    View Profile
+                  </Button>
+                </div>
+                <InfoList
+                  items={[
+                    {
+                      label: 'Account Type',
+                      value: user && 'is_staff' in user && ((user as { is_staff?: boolean; is_superuser?: boolean }).is_staff || (user as { is_staff?: boolean; is_superuser?: boolean }).is_superuser) ?
+                        <StatusBadge status="Admin" variant="info" /> :
+                        <StatusBadge status="User" />
+                    },
+                    {
+                      label: 'Last Login',
+                      value: (() => {
+                        // Mock last login - in a real app this would come from the API
+                        const lastLogin = new Date(Date.now() - 7200000) // 2 hours ago
+                        const now = new Date()
+                        const diff = now.getTime() - lastLogin.getTime()
+                        const hours = Math.floor(diff / (1000 * 60 * 60))
+                        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
+
+                        if (hours > 24) {
+                          return `${Math.floor(hours / 24)} days ago`
+                        } else if (hours > 0) {
+                          return `${hours} hour${hours === 1 ? '' : 's'} ago`
+                        } else if (minutes > 0) {
+                          return `${minutes} minute${minutes === 1 ? '' : 's'} ago`
+                        } else {
+                          return 'Just now'
+                        }
+                      })()
+                    },
+                    {
+                      label: 'Member Since',
+                      value: (() => {
+                        if (user?.date_joined) {
+                          const joined = new Date(user.date_joined)
+                          const now = new Date()
+                          const days = Math.floor((now.getTime() - joined.getTime()) / (1000 * 60 * 60 * 24))
+                          return `${days} days (${joined.toLocaleDateString()})`
+                        }
+                        return 'N/A'
+                      })()
+                    },
+                    {
+                      label: 'Recent Activity',
+                      value: '3 actions today' // Mock data - would come from API
+                    }
+                  ]}
+                />
+              </Card>
+
+              {/* System Status */}
+              <Card subtitle="System Status">
+                {health ? (
+                  <>
+                    <InfoList
+                      items={[
+                        {
+                          label: 'Status',
+                          value: <StatusBadge
+                            status={health.status}
+                            variant={health.status === 'healthy' ? 'success' : 'error'}
+                          />
+                        },
+                        {
+                          label: 'Database',
+                          value: (
+                            <>
+                              {health.database.connected ? '✅ Connected' : '❌ Disconnected'}
+                              <span className="text-sm text-purdue-gray-500 ml-2">
+                                ({health.database.engine.split('.').pop()})
+                              </span>
+                            </>
+                          )
+                        },
+                        { label: 'Auth Method', value: health.auth_method.toUpperCase() },
+                        { label: 'Debug Mode', value: health.debug_mode ? 'Enabled' : 'Disabled' }
+                      ]}
+                    />
+                    <div className="mt-4 pt-4 border-t border-purdue-gray-100">
+                      <a
+                        href="/api/swagger/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-purdue-gold hover:text-purdue-gold-dark text-sm underline"
+                      >
+                        View API Documentation →
+                      </a>
+                    </div>
+                  </>
+                ) : (
+                  <p className="text-purdue-gray-500">Loading system status...</p>
+                )}
+              </Card>
+            </div>
+          </div>
+        )}
+
         <div className="text-center">
-          {isAuthenticated ? (
-            <Button to="/dashboard" variant="action">
-              Go to Dashboard
-            </Button>
-          ) : (
+          {!isAuthenticated && (
             <Button to="/login" variant="action">
               Get Started
             </Button>
@@ -94,7 +223,7 @@ docker-compose up`}
           />
           <p className="mt-4 text-sm text-purdue-gray-600">
             Visit <span className="text-data bg-purdue-gray-100 px-2 py-1 rounded">localhost:5173</span> for the frontend
-            and <span className="text-data bg-purdue-gray-100 px-2 py-1 rounded">localhost:8000/api</span> for the API
+            and <span className="text-data bg-purdue-gray-100 px-2 py-1 rounded">localhost:5173/api</span> for the API
           </p>
         </div>
       </div>

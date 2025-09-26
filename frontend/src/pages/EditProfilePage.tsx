@@ -29,7 +29,7 @@ export default function EditProfilePage() {
       apiClient.patch<User>('/auth/user/', data),
     onSuccess: (updatedUser) => {
       queryClient.setQueryData(['currentUser'], updatedUser)
-      navigate('/dashboard')
+      navigate('/profile')
     },
     onError: (error: unknown) => {
       const err = error as { response?: { data?: Record<string, string> } }
@@ -141,7 +141,7 @@ export default function EditProfilePage() {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => navigate('/dashboard')}
+                onClick={() => navigate('/profile')}
               >
                 Cancel
               </Button>

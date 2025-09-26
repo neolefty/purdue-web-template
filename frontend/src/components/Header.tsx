@@ -18,8 +18,7 @@ interface HeaderProps {
 
 export default function Header({
   navItems = [
-    { to: '/', label: 'Home' },
-    { to: '/dashboard', label: 'Dashboard', requiresAuth: true }
+    { to: '/', label: 'Home' }
   ],
   logoSrc = '/purdue-logo.svg',
   logoAlt = 'Purdue University',
@@ -80,12 +79,17 @@ export default function Header({
             </div>
           </div>
 
-          <div className="flex items-center space-x-6">
+          <div className="flex items-center space-x-8">
             {isAuthenticated ? (
               <>
-                <span className="text-purdue-gray-600 text-sm">
+                <NavLink
+                  to="/profile"
+                  className={({ isActive }) =>
+                    `nav-link ${isActive ? 'nav-link-active' : ''} text-purdue-black font-acumin font-medium text-base`
+                  }
+                >
                   Welcome, {user?.first_name || user?.username}
-                </span>
+                </NavLink>
                 <Button
                   onClick={handleLogout}
                   disabled={logout.isPending}
