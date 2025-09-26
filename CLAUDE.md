@@ -122,3 +122,67 @@ For complete Purdue brand guidelines, see: https://marcom.purdue.edu/
 - **Never reveal user existence**: Return generic messages for login/reset failures
 - **Auth-aware features**: Check `settings.AUTH_METHOD` before allowing password operations
 - **Email backends**: Development uses console backend, production uses SMTP
+
+## Layout Components
+
+The template includes standardized layout components for consistent page structure:
+
+### PageLayout
+Wraps page content with consistent container and padding.
+```tsx
+<PageLayout width="default">  // default | wide | full
+  {/* Page content */}
+</PageLayout>
+```
+
+### PageHeader
+Standardized page title with optional actions.
+```tsx
+<PageHeader
+  title="Page Title"
+  subtitle="Optional subtitle"
+  action={<Button>Action</Button>}
+/>
+```
+
+### SearchBar
+Reusable search input with consistent styling.
+```tsx
+<SearchBar
+  value={searchTerm}
+  onChange={setSearchTerm}
+  placeholder="Search..."
+  rightContent={<span>Results: 10</span>}
+/>
+```
+
+### TableContainer
+Wrapper for tables with consistent overflow handling and empty states.
+```tsx
+<TableContainer
+  isEmpty={data.length === 0}
+  emptyMessage="No data found"
+>
+  <table>{/* Table content */}</table>
+</TableContainer>
+```
+
+### Usage Example
+```tsx
+function MyListPage() {
+  return (
+    <PageLayout width="default">
+      <PageHeader
+        title="My Items"
+        action={<Button>Add Item</Button>}
+      />
+      <Card className="mb-6">
+        <SearchBar value={search} onChange={setSearch} />
+      </Card>
+      <TableContainer isEmpty={items.length === 0}>
+        <table>{/* Custom table */}</table>
+      </TableContainer>
+    </PageLayout>
+  )
+}
+```

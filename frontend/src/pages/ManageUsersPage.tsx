@@ -6,6 +6,10 @@ import StatusBadge from '@/components/StatusBadge'
 import Button from '@/components/Button'
 import UserModal from '@/components/UserModal'
 import ConfirmDialog from '@/components/ConfirmDialog'
+import PageLayout from '@/components/PageLayout'
+import PageHeader from '@/components/PageHeader'
+import SearchBar from '@/components/SearchBar'
+import TableContainer from '@/components/TableContainer'
 
 export default function ManageUsersPage() {
   const { user: currentUser } = useAuth()
@@ -27,14 +31,12 @@ export default function ManageUsersPage() {
 
   if (!isAdmin) {
     return (
-      <div className="container-app py-12">
-        <div className="max-w-4xl mx-auto">
-          <Card>
-            <h2 className="text-xl font-semibold text-red-800 mb-2">Access Denied</h2>
-            <p className="text-red-600">You must be an administrator to access this page.</p>
-          </Card>
-        </div>
-      </div>
+      <PageLayout>
+        <Card>
+          <h2 className="text-xl font-semibold text-red-800 mb-2">Access Denied</h2>
+          <p className="text-red-600">You must be an administrator to access this page.</p>
+        </Card>
+      </PageLayout>
     )
   }
 
@@ -81,80 +83,78 @@ export default function ManageUsersPage() {
 
   if (error) {
     return (
-      <div className="container-app py-12">
-        <div className="max-w-4xl mx-auto">
-          <Card>
-            <p className="text-red-600">Error loading users. Please try again later.</p>
-          </Card>
-        </div>
-      </div>
+      <PageLayout>
+        <Card>
+          <p className="text-red-600">Error loading users. Please try again later.</p>
+        </Card>
+      </PageLayout>
     )
   }
 
   return (
-    <div className="container-app py-12">
-      <div className="max-w-6xl mx-auto">
-        <h1 className="text-3xl text-headline mb-8">Manage Users</h1>
+    <PageLayout>
+      <PageHeader
+        title="Manage Users"
+        action={
+          <Button onClick={handleCreateUser} variant="primary">
+            Add New User
+          </Button>
+        }
+      />
 
-        {successMessage && (
-          <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-md">
-            <p className="text-green-800">{successMessage}</p>
-          </div>
-        )}
+      {successMessage && (
+        <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-md">
+          <p className="text-green-800">{successMessage}</p>
+        </div>
+      )}
 
-        <Card className="mb-6">
-          <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-            <div className="flex-1 w-full md:w-auto">
-              <input
-                type="text"
-                placeholder="Search users..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full px-4 py-2 border border-purdue-gray-300 rounded-md focus:ring-2 focus:ring-purdue-gold focus:border-transparent"
-              />
+      <Card className="mb-6">
+        <SearchBar
+          value={searchTerm}
+          onChange={setSearchTerm}
+          placeholder="Search users..."
+          rightContent={
+            <div className="text-sm text-purdue-gray-600">
+              Total users: {users.length}
             </div>
-            <div className="flex items-center gap-4">
-              <Button onClick={handleCreateUser} size="sm">
-                Add New User
-              </Button>
-              <div className="text-sm text-purdue-gray-600">
-                Total users: {users.length}
-              </div>
-            </div>
-          </div>
+          }
+        />
+      </Card>
+
+      {isLoading ? (
+        <Card>
+          <p className="text-purdue-gray-500">Loading users...</p>
         </Card>
-
-        {isLoading ? (
-          <Card>
-            <p className="text-purdue-gray-500">Loading users...</p>
-          </Card>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-purdue-gray-200">
-              <thead className="bg-purdue-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-purdue-gray-500 uppercase tracking-wider">
-                    User
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-purdue-gray-500 uppercase tracking-wider">
-                    Email
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-purdue-gray-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-purdue-gray-500 uppercase tracking-wider">
-                    Role
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-purdue-gray-500 uppercase tracking-wider">
-                    Joined
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-purdue-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-purdue-gray-200">
-                {filteredUsers?.map((user) => (
+      ) : (
+        <TableContainer
+          isEmpty={filteredUsers?.length === 0}
+          emptyMessage="No users found matching your search."
+        >
+          <table className="min-w-full divide-y divide-purdue-gray-200">
+            <thead className="bg-purdue-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-purdue-gray-500 uppercase tracking-wider">
+                  User
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-purdue-gray-500 uppercase tracking-wider">
+                  Email
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-purdue-gray-500 uppercase tracking-wider">
+                  Status
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-purdue-gray-500 uppercase tracking-wider">
+                  Role
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-purdue-gray-500 uppercase tracking-wider">
+                  Joined
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-purdue-gray-500 uppercase tracking-wider">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-purdue-gray-200">
+              {filteredUsers?.map((user) => (
                   <tr key={user.id} className="hover:bg-purdue-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div>
@@ -226,18 +226,11 @@ export default function ManageUsersPage() {
                       </div>
                     </td>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-
-            {filteredUsers?.length === 0 && (
-              <div className="p-8 text-center text-purdue-gray-500">
-                No users found matching your search.
-              </div>
-            )}
-          </div>
-        )}
-      </div>
+              ))}
+            </tbody>
+          </table>
+        </TableContainer>
+      )}
 
       <UserModal
         isOpen={modalOpen}
@@ -275,6 +268,6 @@ export default function ManageUsersPage() {
         variant="danger"
         isLoading={deleteUser.isPending}
       />
-    </div>
+    </PageLayout>
   )
 }

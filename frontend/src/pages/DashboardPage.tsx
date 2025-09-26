@@ -5,6 +5,8 @@ import Card from '@/components/Card'
 import Button from '@/components/Button'
 import InfoList from '@/components/InfoList'
 import StatusBadge from '@/components/StatusBadge'
+import PageLayout from '@/components/PageLayout'
+import PageHeader from '@/components/PageHeader'
 
 interface HealthCheck {
   status: string
@@ -29,9 +31,8 @@ export default function DashboardPage() {
   })
 
   return (
-    <div className="container-app py-12">
-      <div className="max-w-6xl mx-auto">
-        <h1 className="text-3xl text-headline mb-8">Dashboard</h1>
+    <PageLayout>
+      <PageHeader title="Dashboard" />
 
         <div className="grid md:grid-cols-2 gap-6">
           <Card subtitle="User Information">
@@ -105,7 +106,6 @@ export default function DashboardPage() {
             </p>
           </Card>
         </div>
-      </div>
-    </div>
+    </PageLayout>
   )
 }
