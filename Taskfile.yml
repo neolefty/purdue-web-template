@@ -113,6 +113,16 @@ tasks:
     cmds:
       - docker compose exec frontend sh
 
+  shell_plus:
+    desc: Interactive Django management console
+    cmds:
+      - docker compose exec backend python manage.py shell_plus
+
+  console:
+    desc: Alias for shell_plus
+    cmds:
+      - task: shell_plus
+
   migrate:
     desc: Run Django migrations
     cmds:
