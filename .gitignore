@@ -52,6 +52,7 @@ logs
 
 # Docker
 *.pid
+.postgres-data/
 
 # SAML certificates (keep these secret!)
 backend/saml/*.key
