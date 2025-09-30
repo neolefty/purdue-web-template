@@ -1,5 +1,9 @@
 # Django React Template for Purdue Web Applications
 
+Deployed here: https://django-template-qa.ag.purdue.edu/ (requires WebVPN 2 or Ag IT Devs VPN). Production deployment comming soon!
+
+---
+
 This is a starter template for web applications that can be easily hosted and maintained at Purdue, with Purdue authentication and branding, using:
 
 - [Django](https://www.djangoproject.com/) (server – written in Python)
