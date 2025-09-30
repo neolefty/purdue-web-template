@@ -22,7 +22,7 @@ Together, they enable modern web applications that can start simple, grow in com
 ### Decision Makers
 - Purdue branding and visual standards
 - Proven technology stack approved for use on campus
-- Supports authentication via [Purdue career accounts](https://it.purdue.edu/services/career-account.php)
+- _(Coming soon:)_ Supports authentication via [Purdue career accounts](https://it.purdue.edu/services/career-account.php)
 
 ### Developers & Researchers
 A solid foundation for developers and researchers:
