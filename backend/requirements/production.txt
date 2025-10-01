@@ -7,7 +7,7 @@ celery==5.4.0
 django-redis==5.4.0
 
 # Monitoring
-sentry-sdk==2.19.2
+sentry-sdk==2.20.0
 django-prometheus==2.3.1
 
 # Database connection pooling
