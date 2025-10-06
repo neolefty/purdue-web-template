@@ -11,6 +11,7 @@ export interface User {
   is_staff?: boolean
   is_superuser?: boolean
   date_joined: string
+  last_login: string | null
 }
 
 export interface AuthConfig {
