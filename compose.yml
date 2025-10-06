@@ -2,7 +2,7 @@ services:
   db:
     image: postgres:17-alpine
     ports:
-      - "${POSTGRES_PORT:-5432}:5432"
+      - "${DB_HOST_PORT:-5432}:5432"
     environment:
       POSTGRES_DB: ${DB_NAME:-purdue_app}
       POSTGRES_USER: ${DB_USER:-postgres}
@@ -45,7 +45,7 @@ services:
       - DB_USER=${DB_USER:-postgres}
       - DB_PASSWORD=${DB_PASSWORD:-postgres}
       - DB_HOST=${DB_HOST:-db}
-      - DB_PORT=${DB_PORT:-5432}
+      - DB_PORT=5432
       - AUTH_METHOD=${AUTH_METHOD:-email}
       - DEFAULT_SUPERUSER_PASSWORD=${DEFAULT_SUPERUSER_PASSWORD:-admin123}
       - REDIS_URL=${REDIS_URL:-redis://redis:6379/0}
