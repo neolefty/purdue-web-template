@@ -23,6 +23,22 @@ export default function ManageUsersPage() {
   const [successMessage, setSuccessMessage] = useState('')
   const [userToDelete, setUserToDelete] = useState<UserListItem | null>(null)
 
+  const formatLastLogin = (lastLogin: string | null) => {
+    if (!lastLogin) return 'Never logged in'
+    const date = new Date(lastLogin)
+    const now = new Date()
+    const diffMs = now.getTime() - date.getTime()
+    const diffMins = Math.floor(diffMs / 60000)
+    const diffHours = Math.floor(diffMs / 3600000)
+    const diffDays = Math.floor(diffMs / 86400000)
+
+    if (diffMins < 1) return 'Just now'
+    if (diffMins < 60) return `${diffMins}m ago`
+    if (diffHours < 24) return `${diffHours}h ago`
+    if (diffDays < 7) return `${diffDays}d ago`
+    return date.toLocaleDateString()
+  }
+
   // Ensure users is always an array
   const users = Array.isArray(usersResponse) ? usersResponse : []
 
@@ -176,16 +192,21 @@ export default function ManageUsersPage() {
                       />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex gap-2">
-                        {user.is_superuser && (
-                          <StatusBadge status="Super Admin" variant="info" />
-                        )}
-                        {user.is_staff && !user.is_superuser && (
-                          <StatusBadge status="Staff" variant="info" />
-                        )}
-                        {!user.is_staff && !user.is_superuser && (
-                          <StatusBadge status="User" />
-                        )}
+                      <div>
+                        <div className="flex gap-2 mb-1">
+                          {user.is_superuser && (
+                            <StatusBadge status="Super Admin" variant="info" />
+                          )}
+                          {user.is_staff && !user.is_superuser && (
+                            <StatusBadge status="Staff" variant="info" />
+                          )}
+                          {!user.is_staff && !user.is_superuser && (
+                            <StatusBadge status="User" />
+                          )}
+                        </div>
+                        <div className={`text-xs ${user.last_login ? 'text-purdue-gray-500' : 'text-purdue-gray-400 italic'}`}>
+                          {formatLastLogin(user.last_login)}
+                        </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-purdue-gray-500">
