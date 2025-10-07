@@ -243,7 +243,7 @@ The app uses a `.env` file. It's auto-generated on first deployment, but you can
 # Replace {instance} with your actual instance name
 cp ~/source/django-react-template/.env.production.example /opt/apps/template-{instance}/.env
 
-# Edit to set your domain (this automatically configures CORS, CSRF, etc.)
+# Edit to set your domain (this automatically configures CORS, CSRF, email links, etc.)
 nano /opt/apps/template-{instance}/.env
 # Change: SITE_DOMAIN=your-app.purdue.edu
 ```

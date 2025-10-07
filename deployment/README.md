@@ -54,9 +54,8 @@ Moving towards modern cloud-native deployment:
    # Edit with your specific settings:
    vim /opt/apps/template/.env
    # - Update SECRET_KEY with a secure random value
-   # - Set ALLOWED_HOSTS to your domain
+   # - Set SITE_DOMAIN to your domain (automatically configures CORS, CSRF, email links, etc.)
    # - Configure DATABASE_ENGINE (sqlite for simple setups)
-   # - Update CORS_ALLOWED_ORIGINS and CSRF_TRUSTED_ORIGINS
    ```
 
    **⚠️ Important**: The deployment script will NOT overwrite .env files to prevent configuration loss.
