@@ -59,8 +59,6 @@ export default function UserModal({ isOpen, onClose, user, mode, currentUserId }
 
     if (!formData.username) newErrors.username = 'Username is required'
     if (!formData.email) newErrors.email = 'Email is required'
-    if (!formData.first_name) newErrors.first_name = 'First name is required'
-    if (!formData.last_name) newErrors.last_name = 'Last name is required'
 
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
@@ -140,7 +138,7 @@ export default function UserModal({ isOpen, onClose, user, mode, currentUserId }
 
             <div>
               <label className="block text-sm font-medium text-purdue-gray-700 mb-1">
-                First Name *
+                First Name
               </label>
               <input
                 type="text"
@@ -155,7 +153,7 @@ export default function UserModal({ isOpen, onClose, user, mode, currentUserId }
 
             <div>
               <label className="block text-sm font-medium text-purdue-gray-700 mb-1">
-                Last Name *
+                Last Name
               </label>
               <input
                 type="text"
