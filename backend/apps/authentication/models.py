@@ -10,8 +10,26 @@ import secrets
 from datetime import timedelta
 
 from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import UserManager as BaseUserManager
 from django.db import models
 from django.utils import timezone
+
+
+class UserManager(BaseUserManager):
+    """
+    Custom user manager to handle email verification for superusers.
+    """
+
+    def create_superuser(self, username, email=None, password=None, **extra_fields):
+        """
+        Create a superuser with email automatically verified.
+
+        Superusers created via manage.py createsuperuser should be able to
+        log in immediately without email verification, since they're created
+        by administrators with server access.
+        """
+        extra_fields.setdefault("is_email_verified", True)
+        return super().create_superuser(username, email, password, **extra_fields)
 
 
 class User(AbstractUser):
@@ -59,6 +77,9 @@ class User(AbstractUser):
     # puid = models.CharField(max_length=20, blank=True, null=True, unique=True)
     # department = models.CharField(max_length=100, blank=True)
     # career_account = models.CharField(max_length=50, blank=True)
+
+    # Use custom manager
+    objects = UserManager()
 
     class Meta:
         db_table = "auth_user"
