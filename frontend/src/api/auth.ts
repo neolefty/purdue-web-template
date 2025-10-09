@@ -101,10 +101,15 @@ export const useRegister = () => {
   return useMutation({
     mutationFn: authApi.register,
     onSuccess: (data) => {
-      // Set the user data immediately
-      queryClient.setQueryData(['currentUser'], data.user)
-      // Invalidate to ensure fresh data (session cookie is now set)
-      queryClient.invalidateQueries({ queryKey: ['currentUser'] })
+      // Only set user data if email verification is not required
+      // When verification is required, no session is created on backend
+      const requiresVerification = (data as { requires_verification?: boolean }).requires_verification
+      if (!requiresVerification) {
+        // Set the user data immediately
+        queryClient.setQueryData(['currentUser'], data.user)
+        // Invalidate to ensure fresh data (session cookie is now set)
+        queryClient.invalidateQueries({ queryKey: ['currentUser'] })
+      }
     },
   })
 }
