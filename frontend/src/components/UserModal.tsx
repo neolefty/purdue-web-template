@@ -178,14 +178,25 @@ export default function UserModal({ isOpen, onClose, user, mode, currentUserId }
           )}
 
           <div className="mt-6 space-y-3">
+            {mode === 'edit' && user?.id === currentUserId && (
+              <div className="p-3 bg-purdue-gray-50 border border-purdue-gray-300 rounded-md mb-3">
+                <p className="text-sm text-purdue-gray-700">
+                  <strong>Note:</strong> You cannot modify your own permissions or account status. Ask another administrator for assistance.
+                </p>
+              </div>
+            )}
+
             <label className="flex items-center">
               <input
                 type="checkbox"
                 checked={formData.is_active}
                 onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
-                className="mr-2"
+                disabled={mode === 'edit' && user?.id === currentUserId}
+                className="mr-2 disabled:opacity-50 disabled:cursor-not-allowed"
               />
-              <span className="text-sm text-purdue-gray-700">Active Account</span>
+              <span className={`text-sm ${mode === 'edit' && user?.id === currentUserId ? 'text-purdue-gray-500' : 'text-purdue-gray-700'}`}>
+                Active Account
+              </span>
             </label>
 
             <label className="flex items-center">
@@ -193,9 +204,12 @@ export default function UserModal({ isOpen, onClose, user, mode, currentUserId }
                 type="checkbox"
                 checked={formData.is_staff}
                 onChange={(e) => setFormData({ ...formData, is_staff: e.target.checked })}
-                className="mr-2"
+                disabled={mode === 'edit' && user?.id === currentUserId}
+                className="mr-2 disabled:opacity-50 disabled:cursor-not-allowed"
               />
-              <span className="text-sm text-purdue-gray-700">Staff Status (Can access admin features)</span>
+              <span className={`text-sm ${mode === 'edit' && user?.id === currentUserId ? 'text-purdue-gray-500' : 'text-purdue-gray-700'}`}>
+                Staff Status (Can access admin features)
+              </span>
             </label>
 
             <label className="flex items-center">
@@ -203,9 +217,12 @@ export default function UserModal({ isOpen, onClose, user, mode, currentUserId }
                 type="checkbox"
                 checked={formData.is_superuser}
                 onChange={(e) => setFormData({ ...formData, is_superuser: e.target.checked })}
-                className="mr-2"
+                disabled={mode === 'edit' && user?.id === currentUserId}
+                className="mr-2 disabled:opacity-50 disabled:cursor-not-allowed"
               />
-              <span className="text-sm text-purdue-gray-700">Superuser Status (Full system access)</span>
+              <span className={`text-sm ${mode === 'edit' && user?.id === currentUserId ? 'text-purdue-gray-500' : 'text-purdue-gray-700'}`}>
+                Superuser Status (Full system access)
+              </span>
             </label>
 
             {mode === 'edit' && (

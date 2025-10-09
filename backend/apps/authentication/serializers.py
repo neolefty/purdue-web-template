@@ -34,33 +34,36 @@ class UserSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         """
-        Override update to add validation for is_email_verified changes.
-        Only staff/superuser can modify is_email_verified, and only for other users.
+        Override update to prevent users from modifying their own permissions and status.
+        Only staff/superuser can modify these fields, and only for other users.
         """
-        # Check if is_email_verified is being changed (not just included)
-        if (
-            "is_email_verified" in validated_data
-            and validated_data["is_email_verified"] != instance.is_email_verified
-        ):
-            request = self.context.get("request")
+        request = self.context.get("request")
 
-            # Security checks
-            if not request or not request.user:
-                raise serializers.ValidationError(
-                    {"is_email_verified": "Authentication required to modify verification."}
-                )
+        # List of protected fields that users cannot modify for themselves
+        protected_fields = ["is_email_verified", "is_active", "is_staff", "is_superuser"]
 
-            # Only staff/superuser can modify email verification
-            if not (request.user.is_staff or request.user.is_superuser):
-                raise serializers.ValidationError(
-                    {"is_email_verified": "Only administrators can modify verification."}
-                )
+        # Check if user is trying to modify their own protected fields
+        if request and request.user and request.user.id == instance.id:
+            for field in protected_fields:
+                if field in validated_data and validated_data[field] != getattr(instance, field):
+                    field_name = field.replace("_", " ").title()
+                    raise serializers.ValidationError(
+                        {field: f"You cannot modify your own {field_name.lower()}."}
+                    )
 
-            # Users cannot verify themselves
-            if request.user.id == instance.id:
-                raise serializers.ValidationError(
-                    {"is_email_verified": "You cannot modify your own verification status."}
-                )
+        # Additional validation for protected fields when modifying other users
+        for field in protected_fields:
+            if field in validated_data and validated_data[field] != getattr(instance, field):
+                if not request or not request.user:
+                    raise serializers.ValidationError(
+                        {field: "Authentication required to modify this field."}
+                    )
+
+                # Only staff/superuser can modify these fields
+                if not (request.user.is_staff or request.user.is_superuser):
+                    raise serializers.ValidationError(
+                        {field: "Only administrators can modify this field."}
+                    )
 
         return super().update(instance, validated_data)
 
