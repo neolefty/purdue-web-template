@@ -1,47 +1,28 @@
-import { useState } from 'react'
 import { useNavigate, Navigate, Link } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { useAuth } from '@/hooks/useAuth'
-import { useLogin, useRegister, LoginCredentials, RegisterData } from '@/api/auth'
+import { useLogin, LoginCredentials } from '@/api/auth'
 
 export default function LoginPage() {
   const navigate = useNavigate()
   const { isAuthenticated, authConfig } = useAuth()
-  const [isRegisterMode, setIsRegisterMode] = useState(false)
-  const [verificationSent, setVerificationSent] = useState(false)
 
   const login = useLogin()
-  const register = useRegister()
 
   const {
     register: registerField,
     handleSubmit,
     formState: { errors },
-    watch,
-  } = useForm<LoginCredentials & RegisterData>()
+  } = useForm<LoginCredentials>()
 
   if (isAuthenticated) {
     return <Navigate to="/" replace />
   }
 
-  const onSubmit = (data: LoginCredentials & RegisterData) => {
-    if (isRegisterMode) {
-      register.mutate(data, {
-        onSuccess: (response) => {
-          // Check if email verification is required
-          const requiresVerification = (response as { requires_verification?: boolean }).requires_verification
-          if (requiresVerification) {
-            setVerificationSent(true)
-          } else {
-            navigate('/')
-          }
-        },
-      })
-    } else {
-      login.mutate({ username_or_email: data.username_or_email, password: data.password }, {
-        onSuccess: () => navigate('/'),
-      })
-    }
+  const onSubmit = (data: LoginCredentials) => {
+    login.mutate(data, {
+      onSuccess: () => navigate('/'),
+    })
   }
 
   if (authConfig?.auth_method === 'saml') {
@@ -65,138 +46,31 @@ export default function LoginPage() {
     )
   }
 
-  if (verificationSent) {
-    return (
-      <div className="container-app py-12">
-        <div className="max-w-md mx-auto">
-          <div className="card">
-            <h2 className="text-2xl font-heading font-bold mb-6 text-green-600">
-              Check Your Email
-            </h2>
-            <p className="text-purdue-gray-700 mb-4">
-              Thank you for registering! We've sent a verification email to your email address.
-            </p>
-            <p className="text-purdue-gray-600 mb-6">
-              Please check your inbox and click the verification link to activate your account.
-            </p>
-            <Link to="/login" className="btn-primary w-full text-center block">
-              Back to Login
-            </Link>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
   return (
     <div className="container-app py-12">
       <div className="max-w-md mx-auto">
         <div className="card">
-          <h2 className="text-2xl font-heading font-bold mb-6">
-            {isRegisterMode ? 'Create Account' : 'Login'}
-          </h2>
+          <h2 className="text-2xl font-heading font-bold mb-6">Login</h2>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            {isRegisterMode && (
-              <>
-                <div>
-                  <label htmlFor="username" className="label">
-                    Username
-                  </label>
-                  <input
-                    {...registerField('username', {
-                      required: 'Username is required',
-                      minLength: {
-                        value: 3,
-                        message: 'Username must be at least 3 characters',
-                      },
-                    })}
-                    type="text"
-                    id="username"
-                    autoComplete="username"
-                    className="input"
-                    placeholder="johndoe"
-                  />
-                  {errors.username && (
-                    <p className="text-red-500 text-sm mt-1">{errors.username.message}</p>
-                  )}
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label htmlFor="first_name" className="label">
-                      First Name
-                    </label>
-                    <input
-                      {...registerField('first_name')}
-                      type="text"
-                      id="first_name"
-                      autoComplete="given-name"
-                      className="input"
-                      placeholder="John"
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="last_name" className="label">
-                      Last Name
-                    </label>
-                    <input
-                      {...registerField('last_name')}
-                      type="text"
-                      id="last_name"
-                      autoComplete="family-name"
-                      className="input"
-                      placeholder="Doe"
-                    />
-                  </div>
-                </div>
-              </>
-            )}
-
-            {isRegisterMode ? (
-              <div>
-                <label htmlFor="email" className="label">
-                  Email
-                </label>
-                <input
-                  {...registerField('email', {
-                    required: 'Email is required',
-                    pattern: {
-                      value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                      message: 'Invalid email address',
-                    },
-                  })}
-                  type="email"
-                  id="email"
-                  autoComplete="email"
-                  className="input"
-                  placeholder="john@purdue.edu"
-                />
-                {errors.email && (
-                  <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
-                )}
-              </div>
-            ) : (
-              <div>
-                <label htmlFor="username_or_email" className="label">
-                  Username or Email
-                </label>
-                <input
-                  {...registerField('username_or_email', {
-                    required: 'Username or email is required',
-                  })}
-                  type="text"
-                  id="username_or_email"
-                  autoComplete="username email"
-                  className="input"
-                  placeholder="johndoe or john@purdue.edu"
-                />
-                {errors.username_or_email && (
-                  <p className="text-red-500 text-sm mt-1">{errors.username_or_email.message}</p>
-                )}
-              </div>
-            )}
+            <div>
+              <label htmlFor="username_or_email" className="label">
+                Username or Email
+              </label>
+              <input
+                {...registerField('username_or_email', {
+                  required: 'Username or email is required',
+                })}
+                type="text"
+                id="username_or_email"
+                autoComplete="username email"
+                className="input"
+                placeholder="johndoe or john@purdue.edu"
+              />
+              {errors.username_or_email && (
+                <p className="text-red-500 text-sm mt-1">{errors.username_or_email.message}</p>
+              )}
+            </div>
 
             <div>
               <label htmlFor="password" className="label">
@@ -205,61 +79,30 @@ export default function LoginPage() {
               <input
                 {...registerField('password', {
                   required: 'Password is required',
-                  minLength: {
-                    value: 8,
-                    message: 'Password must be at least 8 characters',
-                  },
                 })}
                 type="password"
                 id="password"
-                autoComplete={isRegisterMode ? "new-password" : "current-password"}
+                autoComplete="current-password"
                 className="input"
                 placeholder="••••••••"
               />
               {errors.password && (
                 <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>
               )}
-              {!isRegisterMode && (
-                <div className="mt-2 text-right">
-                  <Link
-                    to="/forgot-password"
-                    className="text-sm text-purdue-gold-dark hover:text-purdue-gold"
-                  >
-                    Forgot password?
-                  </Link>
-                </div>
-              )}
+              <div className="mt-2 text-right">
+                <Link
+                  to="/forgot-password"
+                  className="text-sm text-purdue-gold-dark hover:text-purdue-gold"
+                >
+                  Forgot password?
+                </Link>
+              </div>
             </div>
 
-            {isRegisterMode && (
-              <div>
-                <label htmlFor="password_confirm" className="label">
-                  Confirm Password
-                </label>
-                <input
-                  {...registerField('password_confirm', {
-                    required: 'Please confirm your password',
-                    validate: (value) =>
-                      value === watch('password') || 'Passwords do not match',
-                  })}
-                  type="password"
-                  id="password_confirm"
-                  autoComplete="new-password"
-                  className="input"
-                  placeholder="••••••••"
-                />
-                {errors.password_confirm && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.password_confirm.message}
-                  </p>
-                )}
-              </div>
-            )}
-
-            {(login.error || register.error) && (
+            {login.error && (
               <div className="bg-red-50 text-red-700 p-3 rounded-md text-sm">
                 {(() => {
-                  const error = login.error || register.error
+                  const error = login.error
                   if (!error) return 'An error occurred'
 
                   // Check if we have field-specific errors in the response
@@ -288,27 +131,21 @@ export default function LoginPage() {
 
             <button
               type="submit"
-              disabled={login.isPending || register.isPending}
+              disabled={login.isPending}
               className="btn-primary w-full"
             >
-              {login.isPending || register.isPending
-                ? 'Processing...'
-                : isRegisterMode
-                ? 'Create Account'
-                : 'Login'}
+              {login.isPending ? 'Logging in...' : 'Login'}
             </button>
           </form>
 
           {authConfig?.allow_registration && (
             <div className="mt-6 text-center">
-              <button
-                onClick={() => setIsRegisterMode(!isRegisterMode)}
+              <Link
+                to="/register"
                 className="text-sm text-purdue-gold-dark hover:text-purdue-gold"
               >
-                {isRegisterMode
-                  ? 'Already have an account? Login'
-                  : "Don't have an account? Register"}
-              </button>
+                Don't have an account? Register
+              </Link>
             </div>
           )}
         </div>

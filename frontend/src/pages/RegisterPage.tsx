@@ -1,0 +1,249 @@
+import { useState } from 'react'
+import { useNavigate, Navigate, Link } from 'react-router-dom'
+import { useForm } from 'react-hook-form'
+import { useAuth } from '@/hooks/useAuth'
+import { useRegister, RegisterData } from '@/api/auth'
+
+export default function RegisterPage() {
+  const navigate = useNavigate()
+  const { isAuthenticated, authConfig } = useAuth()
+  const [verificationSent, setVerificationSent] = useState(false)
+
+  const register = useRegister()
+
+  const {
+    register: registerField,
+    handleSubmit,
+    formState: { errors },
+    watch,
+  } = useForm<RegisterData>()
+
+  if (isAuthenticated) {
+    return <Navigate to="/" replace />
+  }
+
+  // If registration is disabled, redirect to login
+  if (authConfig && !authConfig.allow_registration) {
+    return <Navigate to="/login" replace />
+  }
+
+  const onSubmit = (data: RegisterData) => {
+    register.mutate(data, {
+      onSuccess: (response) => {
+        // Check if email verification is required
+        const requiresVerification = (response as { requires_verification?: boolean }).requires_verification
+        if (requiresVerification) {
+          setVerificationSent(true)
+        } else {
+          navigate('/')
+        }
+      },
+    })
+  }
+
+  if (verificationSent) {
+    return (
+      <div className="container-app py-12">
+        <div className="max-w-md mx-auto">
+          <div className="card">
+            <h2 className="text-2xl font-heading font-bold mb-6 text-green-600">
+              Check Your Email
+            </h2>
+            <p className="text-purdue-gray-700 mb-4">
+              Thank you for registering! We've sent a verification email to your email address.
+            </p>
+            <p className="text-purdue-gray-600 mb-6">
+              Please check your inbox and click the verification link to activate your account.
+            </p>
+            <Link to="/login" className="btn-primary w-full text-center block">
+              Back to Login
+            </Link>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="container-app py-12">
+      <div className="max-w-md mx-auto">
+        <div className="card">
+          <h2 className="text-2xl font-heading font-bold mb-6">
+            Create Account
+          </h2>
+
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <div>
+              <label htmlFor="username" className="label">
+                Username
+              </label>
+              <input
+                {...registerField('username', {
+                  required: 'Username is required',
+                  minLength: {
+                    value: 3,
+                    message: 'Username must be at least 3 characters',
+                  },
+                })}
+                type="text"
+                id="username"
+                autoComplete="username"
+                className="input"
+                placeholder="johndoe"
+              />
+              {errors.username && (
+                <p className="text-red-500 text-sm mt-1">{errors.username.message}</p>
+              )}
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="first_name" className="label">
+                  First Name
+                </label>
+                <input
+                  {...registerField('first_name')}
+                  type="text"
+                  id="first_name"
+                  autoComplete="given-name"
+                  className="input"
+                  placeholder="John"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="last_name" className="label">
+                  Last Name
+                </label>
+                <input
+                  {...registerField('last_name')}
+                  type="text"
+                  id="last_name"
+                  autoComplete="family-name"
+                  className="input"
+                  placeholder="Doe"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="email" className="label">
+                Email
+              </label>
+              <input
+                {...registerField('email', {
+                  required: 'Email is required',
+                  pattern: {
+                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                    message: 'Invalid email address',
+                  },
+                })}
+                type="email"
+                id="email"
+                autoComplete="email"
+                className="input"
+                placeholder="john@purdue.edu"
+              />
+              {errors.email && (
+                <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
+              )}
+            </div>
+
+            <div>
+              <label htmlFor="password" className="label">
+                Password
+              </label>
+              <input
+                {...registerField('password', {
+                  required: 'Password is required',
+                  minLength: {
+                    value: 8,
+                    message: 'Password must be at least 8 characters',
+                  },
+                })}
+                type="password"
+                id="password"
+                autoComplete="new-password"
+                className="input"
+                placeholder="••••••••"
+              />
+              {errors.password && (
+                <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>
+              )}
+            </div>
+
+            <div>
+              <label htmlFor="password_confirm" className="label">
+                Confirm Password
+              </label>
+              <input
+                {...registerField('password_confirm', {
+                  required: 'Please confirm your password',
+                  validate: (value) =>
+                    value === watch('password') || 'Passwords do not match',
+                })}
+                type="password"
+                id="password_confirm"
+                autoComplete="new-password"
+                className="input"
+                placeholder="••••••••"
+              />
+              {errors.password_confirm && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.password_confirm.message}
+                </p>
+              )}
+            </div>
+
+            {register.error && (
+              <div className="bg-red-50 text-red-700 p-3 rounded-md text-sm">
+                {(() => {
+                  const error = register.error
+                  if (!error) return 'An error occurred'
+
+                  // Check if we have field-specific errors in the response
+                  const errorData = (error as { response?: { data?: Record<string, unknown> } })?.response?.data
+                  if (errorData && typeof errorData === 'object') {
+                    // Format field-specific errors
+                    const messages = Object.entries(errorData)
+                      .map(([field, value]) => {
+                        // Handle non_field_errors specially
+                        if (field === 'non_field_errors') {
+                          return Array.isArray(value) ? value.join(', ') : value
+                        }
+                        // For field-specific errors, make the field name user-friendly
+                        const fieldName = field.charAt(0).toUpperCase() + field.slice(1).replace(/_/g, ' ')
+                        const message = Array.isArray(value) ? value.join(', ') : value
+                        return `${fieldName}: ${message}`
+                      })
+                      .join('. ')
+                    return messages || error.message || 'An error occurred'
+                  }
+
+                  return error.message || 'An error occurred'
+                })()}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={register.isPending}
+              className="btn-primary w-full"
+            >
+              {register.isPending ? 'Creating Account...' : 'Create Account'}
+            </button>
+          </form>
+
+          <div className="mt-6 text-center">
+            <Link
+              to="/login"
+              className="text-sm text-purdue-gold-dark hover:text-purdue-gold"
+            >
+              Already have an account? Login
+            </Link>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
