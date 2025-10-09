@@ -34,11 +34,17 @@ class AuthenticationTestCase(APITestCase):
             first_name=self.user_data["first_name"],
             last_name=self.user_data["last_name"],
         )
+        # Verify email for testing purposes
+        self.user.is_email_verified = True
+        self.user.save()
 
     def test_login_with_valid_credentials(self):
         """Test login with correct credentials."""
         url = "/api/auth/login/"
-        data = {"email": self.user_data["email"], "password": self.user_data["password"]}
+        data = {
+            "username_or_email": self.user_data["email"],
+            "password": self.user_data["password"],
+        }
         response = self.client.post(url, data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -49,7 +55,7 @@ class AuthenticationTestCase(APITestCase):
     def test_login_with_invalid_credentials(self):
         """Test login with incorrect password."""
         url = "/api/auth/login/"
-        data = {"email": self.user_data["email"], "password": "WrongPassword"}
+        data = {"username_or_email": self.user_data["email"], "password": "WrongPassword"}
         response = self.client.post(url, data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -74,7 +80,10 @@ class AuthenticationTestCase(APITestCase):
         """Test getting current user info when authenticated."""
         # First login (session-based auth)
         login_url = "/api/auth/login/"
-        login_data = {"email": self.user_data["email"], "password": self.user_data["password"]}
+        login_data = {
+            "username_or_email": self.user_data["email"],
+            "password": self.user_data["password"],
+        }
         login_response = self.client.post(login_url, login_data, format="json")
 
         self.assertEqual(login_response.status_code, status.HTTP_200_OK)
@@ -110,10 +119,15 @@ class ExampleModelTestCase(APITestCase):
         self.user = User.objects.create_user(
             username="testuser", email="testuser@purdue.edu", password="TestPass123!"
         )
+        # Verify email for testing purposes
+        self.user.is_email_verified = True
+        self.user.save()
         # Login with session auth
         login_url = "/api/auth/login/"
         login_response = self.client.post(
-            login_url, {"email": "testuser@purdue.edu", "password": "TestPass123!"}, format="json"
+            login_url,
+            {"username_or_email": "testuser@purdue.edu", "password": "TestPass123!"},
+            format="json",
         )
         # Session should be active after login
         self.assertEqual(login_response.status_code, status.HTTP_200_OK)
@@ -188,12 +202,15 @@ class PermissionTestCase(APITestCase):
     def test_authenticated_can_access_protected_endpoint(self):
         """Test that authenticated users can access protected endpoints."""
         # Create and login user
-        User.objects.create_user(
+        user = User.objects.create_user(
             username="authtest", email="authtest@purdue.edu", password="TestPass123!"
         )
+        # Verify email for testing purposes
+        user.is_email_verified = True
+        user.save()
         login_response = self.client.post(
             "/api/auth/login/",
-            {"email": "authtest@purdue.edu", "password": "TestPass123!"},
+            {"username_or_email": "authtest@purdue.edu", "password": "TestPass123!"},
             format="json",
         )
         # Verify login was successful
