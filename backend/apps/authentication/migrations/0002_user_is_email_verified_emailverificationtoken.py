@@ -5,6 +5,12 @@ from django.conf import settings
 from django.db import migrations, models
 
 
+def verify_existing_users(apps, schema_editor):
+    """Mark all existing users as email verified to avoid locking them out."""
+    User = apps.get_model("authentication", "User")
+    User.objects.all().update(is_email_verified=True)
+
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -20,6 +26,7 @@ class Migration(migrations.Migration):
                 help_text="Designates whether this user has verified their email address.",
             ),
         ),
+        migrations.RunPython(verify_existing_users, reverse_code=migrations.RunPython.noop),
         migrations.CreateModel(
             name="EmailVerificationToken",
             fields=[
