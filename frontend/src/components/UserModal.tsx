@@ -13,7 +13,7 @@ export default function UserModal({ isOpen, onClose, user, mode }: UserModalProp
   const createUser = useCreateUser()
   const updateUser = useUpdateUser()
 
-  const [formData, setFormData] = useState<CreateUserData>({
+  const [formData, setFormData] = useState<CreateUserData & { is_email_verified?: boolean }>({
     username: '',
     email: '',
     first_name: '',
@@ -21,6 +21,7 @@ export default function UserModal({ isOpen, onClose, user, mode }: UserModalProp
     is_active: true,
     is_staff: false,
     is_superuser: false,
+    is_email_verified: false,
   })
 
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -35,6 +36,7 @@ export default function UserModal({ isOpen, onClose, user, mode }: UserModalProp
         is_active: user.is_active,
         is_staff: user.is_staff,
         is_superuser: user.is_superuser,
+        is_email_verified: user.is_email_verified,
       })
     } else {
       setFormData({
@@ -45,6 +47,7 @@ export default function UserModal({ isOpen, onClose, user, mode }: UserModalProp
         is_active: true,
         is_staff: false,
         is_superuser: false,
+        is_email_verified: false,
       })
     }
     setErrors({})
@@ -80,6 +83,7 @@ export default function UserModal({ isOpen, onClose, user, mode }: UserModalProp
           is_active: formData.is_active,
           is_staff: formData.is_staff,
           is_superuser: formData.is_superuser,
+          is_email_verified: formData.is_email_verified,
         }
         await updateUser.mutateAsync({ id: user.id, data: updateData })
         onClose()
@@ -202,6 +206,18 @@ export default function UserModal({ isOpen, onClose, user, mode }: UserModalProp
               />
               <span className="text-sm text-purdue-gray-700">Superuser Status (Full system access)</span>
             </label>
+
+            {mode === 'edit' && (
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={formData.is_email_verified}
+                  onChange={(e) => setFormData({ ...formData, is_email_verified: e.target.checked })}
+                  className="mr-2"
+                />
+                <span className="text-sm text-purdue-gray-700">Email Verified (Skip email verification requirement)</span>
+              </label>
+            )}
           </div>
 
           <div className="flex justify-end gap-3 mt-6">

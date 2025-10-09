@@ -30,7 +30,36 @@ class UserSerializer(serializers.ModelSerializer):
             "date_joined",
             "last_login",
         )
-        read_only_fields = ("id", "is_email_verified", "date_joined", "last_login")
+        read_only_fields = ("id", "date_joined", "last_login")
+
+    def update(self, instance, validated_data):
+        """
+        Override update to add validation for is_email_verified changes.
+        Only staff/superuser can modify is_email_verified, and only for other users.
+        """
+        # Check if is_email_verified is being changed
+        if "is_email_verified" in validated_data:
+            request = self.context.get("request")
+
+            # Security checks
+            if not request or not request.user:
+                raise serializers.ValidationError(
+                    {"is_email_verified": "Authentication required to modify verification."}
+                )
+
+            # Only staff/superuser can modify email verification
+            if not (request.user.is_staff or request.user.is_superuser):
+                raise serializers.ValidationError(
+                    {"is_email_verified": "Only administrators can modify verification."}
+                )
+
+            # Users cannot verify themselves
+            if request.user.id == instance.id:
+                raise serializers.ValidationError(
+                    {"is_email_verified": "You cannot modify your own email verification status."}
+                )
+
+        return super().update(instance, validated_data)
 
 
 class LoginSerializer(serializers.Serializer):
