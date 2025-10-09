@@ -8,6 +8,7 @@ export default function LoginPage() {
   const navigate = useNavigate()
   const { isAuthenticated, authConfig } = useAuth()
   const [isRegisterMode, setIsRegisterMode] = useState(false)
+  const [verificationSent, setVerificationSent] = useState(false)
 
   const login = useLogin()
   const register = useRegister()
@@ -26,7 +27,15 @@ export default function LoginPage() {
   const onSubmit = (data: LoginCredentials & RegisterData) => {
     if (isRegisterMode) {
       register.mutate(data, {
-        onSuccess: () => navigate('/'),
+        onSuccess: (response) => {
+          // Check if email verification is required
+          const requiresVerification = (response as { requires_verification?: boolean }).requires_verification
+          if (requiresVerification) {
+            setVerificationSent(true)
+          } else {
+            navigate('/')
+          }
+        },
       })
     } else {
       login.mutate({ username_or_email: data.username_or_email, password: data.password }, {
@@ -50,6 +59,29 @@ export default function LoginPage() {
             >
               Login with Purdue Account
             </a>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (verificationSent) {
+    return (
+      <div className="container-app py-12">
+        <div className="max-w-md mx-auto">
+          <div className="card">
+            <h2 className="text-2xl font-heading font-bold mb-6 text-green-600">
+              Check Your Email
+            </h2>
+            <p className="text-purdue-gray-700 mb-4">
+              Thank you for registering! We've sent a verification email to your email address.
+            </p>
+            <p className="text-purdue-gray-600 mb-6">
+              Please check your inbox and click the verification link to activate your account.
+            </p>
+            <Link to="/login" className="btn-primary w-full text-center block">
+              Back to Login
+            </Link>
           </div>
         </div>
       </div>

@@ -9,6 +9,7 @@ import ChangePasswordPage from './pages/ChangePasswordPage'
 import ManageUsersPage from './pages/ManageUsersPage'
 import PasswordResetPage from './pages/PasswordResetPage'
 import PasswordResetRequestPage from './pages/PasswordResetRequestPage'
+import VerifyEmailPage from './pages/VerifyEmailPage'
 import ProtectedRoute from './components/ProtectedRoute'
 
 function App() {
@@ -21,6 +22,7 @@ function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/forgot-password" element={<PasswordResetRequestPage />} />
             <Route path="/reset-password/:uid/:token" element={<PasswordResetPage />} />
+            <Route path="/verify-email/:token" element={<VerifyEmailPage />} />
             <Route
               path="/profile"
               element={

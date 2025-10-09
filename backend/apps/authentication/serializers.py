@@ -26,10 +26,11 @@ class UserSerializer(serializers.ModelSerializer):
             "is_active",
             "is_staff",
             "is_superuser",
+            "is_email_verified",
             "date_joined",
             "last_login",
         )
-        read_only_fields = ("id", "date_joined", "last_login")
+        read_only_fields = ("id", "is_email_verified", "date_joined", "last_login")
 
 
 class LoginSerializer(serializers.Serializer):
@@ -68,6 +69,15 @@ class LoginSerializer(serializers.Serializer):
             if not user.is_active:
                 raise serializers.ValidationError(
                     "Your account has been disabled. Please contact support."
+                )
+
+            # Check email verification if required
+            from django.conf import settings
+
+            if settings.REQUIRE_EMAIL_VERIFICATION and not user.is_email_verified:
+                raise serializers.ValidationError(
+                    "Please verify your email address before logging in. "
+                    "Check your email for the verification link."
                 )
 
             attrs["user"] = user
@@ -141,6 +151,50 @@ class PasswordResetRequestSerializer(serializers.Serializer):
         # We don't want to reveal if an email exists or not for security
         # So we always return success even if the email doesn't exist
         return value
+
+
+class EmailVerificationSerializer(serializers.Serializer):
+    """
+    Serializer for email verification with token
+    """
+
+    token = serializers.CharField(required=True)
+
+    def validate_token(self, value):
+        from .models import EmailVerificationToken
+
+        try:
+            token_obj = EmailVerificationToken.objects.get(token=value)
+            if not token_obj.is_valid():
+                raise serializers.ValidationError(
+                    "This verification link has expired or been used."
+                )
+            self.context["token_obj"] = token_obj
+            return value
+        except EmailVerificationToken.DoesNotExist:
+            raise serializers.ValidationError("Invalid verification link.")
+
+
+class ResendVerificationSerializer(serializers.Serializer):
+    """
+    Serializer for resending verification email
+    """
+
+    email = serializers.EmailField(required=True)
+
+    def validate_email(self, value):
+        try:
+            user = User.objects.get(email=value)
+            if user.is_email_verified:
+                raise serializers.ValidationError("This email is already verified.")
+            self.context["user"] = user
+            return value
+        except User.DoesNotExist:
+            # Don't reveal if email exists or not for security
+            raise serializers.ValidationError(
+                "If an account with that email exists and is unverified, "
+                "a verification email has been sent."
+            )
 
 
 class AdminUserCreateSerializer(serializers.ModelSerializer):

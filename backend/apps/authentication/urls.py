@@ -20,6 +20,9 @@ urlpatterns = [
     path(
         "password-reset-confirm/", views.password_reset_confirm_view, name="password-reset-confirm"
     ),
+    # Email verification endpoints
+    path("verify-email/", views.verify_email_view, name="verify-email"),
+    path("resend-verification/", views.resend_verification_view, name="resend-verification"),
     # User management endpoints (admin only)
     path("users/", views.UserListView.as_view(), name="user-list"),
     path("users/<int:pk>/", views.UserDetailView.as_view(), name="user-detail"),

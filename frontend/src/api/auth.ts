@@ -10,6 +10,7 @@ export interface User {
   is_active: boolean
   is_staff?: boolean
   is_superuser?: boolean
+  is_email_verified: boolean
   date_joined: string
   last_login: string | null
 }
@@ -18,6 +19,7 @@ export interface AuthConfig {
   auth_method: 'email' | 'saml'
   saml_login_url: string | null
   allow_registration: boolean
+  require_email_verification: boolean
 }
 
 export interface LoginCredentials {
@@ -53,6 +55,12 @@ const authApi = {
 
   changePassword: (data: { old_password: string; new_password: string }) =>
     apiClient.post('/auth/change-password/', data),
+
+  verifyEmail: (token: string) =>
+    apiClient.post<{ message: string }>('/auth/verify-email/', { token }),
+
+  resendVerification: (email: string) =>
+    apiClient.post<{ message: string }>('/auth/resend-verification/', { email }),
 }
 
 // React Query hooks
@@ -119,5 +127,23 @@ export const useLogout = () => {
 export const useChangePassword = () => {
   return useMutation({
     mutationFn: authApi.changePassword,
+  })
+}
+
+export const useVerifyEmail = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: authApi.verifyEmail,
+    onSuccess: () => {
+      // Invalidate current user to refresh verification status
+      queryClient.invalidateQueries({ queryKey: ['currentUser'] })
+    },
+  })
+}
+
+export const useResendVerification = () => {
+  return useMutation({
+    mutationFn: authApi.resendVerification,
   })
 }

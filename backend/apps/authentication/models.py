@@ -6,8 +6,12 @@ Even though we're not adding fields initially, having a custom User model
 from the start is a Django best practice that makes future changes much easier.
 """
 
+import secrets
+from datetime import timedelta
+
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.utils import timezone
 
 
 class User(AbstractUser):
@@ -45,6 +49,12 @@ class User(AbstractUser):
         },
     )
 
+    # Email verification
+    is_email_verified = models.BooleanField(
+        default=False,
+        help_text="Designates whether this user has verified their email address.",
+    )
+
     # Optional: Add Purdue-specific fields here in the future
     # puid = models.CharField(max_length=20, blank=True, null=True, unique=True)
     # department = models.CharField(max_length=100, blank=True)
@@ -74,3 +84,48 @@ class User(AbstractUser):
         Falls back to username if first_name is not set.
         """
         return self.first_name or self.username
+
+
+class EmailVerificationToken(models.Model):
+    """
+    Token for email verification.
+    Tokens are single-use and expire after 24 hours.
+    """
+
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="email_verification_tokens",
+    )
+    token = models.CharField(max_length=64, unique=True, db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+    is_used = models.BooleanField(default=False)
+
+    class Meta:
+        db_table = "auth_email_verification_token"
+        verbose_name = "Email Verification Token"
+        verbose_name_plural = "Email Verification Tokens"
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"Verification token for {self.user.username}"
+
+    def save(self, *args, **kwargs):
+        """Generate token and expiry on creation."""
+        if not self.token:
+            self.token = secrets.token_urlsafe(32)
+        if not self.expires_at:
+            self.expires_at = timezone.now() + timedelta(hours=24)
+        super().save(*args, **kwargs)
+
+    def is_valid(self):
+        """Check if token is valid (not expired and not used)."""
+        return not self.is_used and timezone.now() < self.expires_at
+
+    @classmethod
+    def create_for_user(cls, user):
+        """Create a new verification token for a user."""
+        # Invalidate any existing unused tokens
+        cls.objects.filter(user=user, is_used=False).update(is_used=True)
+        return cls.objects.create(user=user)

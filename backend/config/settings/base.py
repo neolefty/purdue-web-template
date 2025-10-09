@@ -15,6 +15,7 @@ env = environ.Env(
     DEBUG=(bool, False),
     DATABASE_ENGINE=(str, "postgresql"),
     AUTH_METHOD=(str, "email"),  # 'saml' or 'email'
+    REQUIRE_EMAIL_VERIFICATION=(bool, False),  # Require email verification for new accounts
 )
 
 # Read .env file if it exists
@@ -188,6 +189,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Authentication backends
 AUTH_METHOD = env("AUTH_METHOD")
+REQUIRE_EMAIL_VERIFICATION = env("REQUIRE_EMAIL_VERIFICATION")
 AUTHENTICATION_BACKENDS = []
 
 if AUTH_METHOD == "saml":

@@ -14,13 +14,15 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 
-from .models import User
+from .models import EmailVerificationToken, User
 from .serializers import (
     AdminUserCreateSerializer,
+    EmailVerificationSerializer,
     LoginSerializer,
     PasswordChangeSerializer,
     PasswordResetRequestSerializer,
     RegisterSerializer,
+    ResendVerificationSerializer,
     UserSerializer,
 )
 
@@ -86,12 +88,69 @@ def register_view(request):
     serializer = RegisterSerializer(data=request.data)
     if serializer.is_valid():
         user = serializer.save()
-        login(request, user)
-        user_serializer = UserSerializer(user)
-        return Response(
-            {"user": user_serializer.data, "message": "Registration successful"},
-            status=status.HTTP_201_CREATED,
-        )
+
+        # Handle email verification
+        if settings.REQUIRE_EMAIL_VERIFICATION:
+            # Create verification token
+            token = EmailVerificationToken.create_for_user(user)
+
+            # Build verification URL
+            verification_url = f"{settings.FRONTEND_URL}/verify-email/{token.token}/"
+
+            # Send verification email
+            from django.core.mail import send_mail
+
+            subject = "Verify Your Email Address"
+            message = f"""
+Hello {user.first_name or user.username},
+
+Thank you for creating an account! Please verify your email address by clicking the link below:
+
+{verification_url}
+
+This link will expire in 24 hours.
+
+If you did not create this account, please ignore this email.
+
+Best regards,
+The Team
+            """
+
+            try:
+                send_mail(
+                    subject,
+                    message,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [user.email],
+                    fail_silently=False,
+                )
+                logger.info(f"Verification email sent to {user.email}")
+            except Exception as e:
+                logger.error(f"Failed to send verification email to {user.email}: {e}")
+
+            # Don't log user in, return message about verification
+            user_serializer = UserSerializer(user)
+            return Response(
+                {
+                    "user": user_serializer.data,
+                    "message": (
+                        "Registration successful. "
+                        "Please check your email to verify your account."
+                    ),
+                    "requires_verification": True,
+                },
+                status=status.HTTP_201_CREATED,
+            )
+        else:
+            # Auto-verify and log in
+            user.is_email_verified = True
+            user.save()
+            login(request, user)
+            user_serializer = UserSerializer(user)
+            return Response(
+                {"user": user_serializer.data, "message": "Registration successful"},
+                status=status.HTTP_201_CREATED,
+            )
     logger.error(f"Registration validation failed: {serializer.errors}")
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -252,6 +311,93 @@ def password_reset_confirm_view(request):
     return Response({"message": "Password reset successful"})
 
 
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def verify_email_view(request):
+    """
+    Verify email address with token
+    """
+    serializer = EmailVerificationSerializer(data=request.data)
+    if serializer.is_valid():
+        token_obj = serializer.context["token_obj"]
+        user = token_obj.user
+
+        # Mark email as verified
+        user.is_email_verified = True
+        user.save()
+
+        # Mark token as used
+        token_obj.is_used = True
+        token_obj.save()
+
+        logger.info(f"Email verified for user {user.username}")
+
+        return Response({"message": "Email verified successfully"})
+
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def resend_verification_view(request):
+    """
+    Resend email verification link
+    """
+    serializer = ResendVerificationSerializer(data=request.data)
+    if serializer.is_valid():
+        user = serializer.context.get("user")
+
+        if user:
+            # Create new verification token
+            token = EmailVerificationToken.create_for_user(user)
+
+            # Build verification URL
+            verification_url = f"{settings.FRONTEND_URL}/verify-email/{token.token}/"
+
+            # Send email
+            from django.core.mail import send_mail
+
+            subject = "Verify Your Email Address"
+            message = f"""
+Hello {user.first_name or user.username},
+
+Please verify your email address by clicking the link below:
+
+{verification_url}
+
+This link will expire in 24 hours.
+
+If you did not create this account, please ignore this email.
+
+Best regards,
+The Team
+            """
+
+            try:
+                send_mail(
+                    subject,
+                    message,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [user.email],
+                    fail_silently=False,
+                )
+                logger.info(f"Verification email sent to {user.email}")
+            except Exception as e:
+                logger.error(f"Failed to send verification email to {user.email}: {e}")
+
+        # Always return success to prevent email enumeration
+        return Response(
+            {
+                "message": (
+                    "If an account with that email exists and is unverified, "
+                    "a verification email has been sent."
+                )
+            }
+        )
+
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 @api_view(["GET"])
 @permission_classes([AllowAny])
 def auth_config_view(request):
@@ -263,6 +409,7 @@ def auth_config_view(request):
             "auth_method": settings.AUTH_METHOD,
             "saml_login_url": "/saml/login/" if settings.AUTH_METHOD == "saml" else None,
             "allow_registration": settings.AUTH_METHOD != "saml",
+            "require_email_verification": settings.REQUIRE_EMAIL_VERIFICATION,
         }
     )
 
