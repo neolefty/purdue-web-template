@@ -37,8 +37,11 @@ class UserSerializer(serializers.ModelSerializer):
         Override update to add validation for is_email_verified changes.
         Only staff/superuser can modify is_email_verified, and only for other users.
         """
-        # Check if is_email_verified is being changed
-        if "is_email_verified" in validated_data:
+        # Check if is_email_verified is being changed (not just included)
+        if (
+            "is_email_verified" in validated_data
+            and validated_data["is_email_verified"] != instance.is_email_verified
+        ):
             request = self.context.get("request")
 
             # Security checks
@@ -56,7 +59,7 @@ class UserSerializer(serializers.ModelSerializer):
             # Users cannot verify themselves
             if request.user.id == instance.id:
                 raise serializers.ValidationError(
-                    {"is_email_verified": "You cannot modify your own email verification status."}
+                    {"is_email_verified": "You cannot modify your own verification status."}
                 )
 
         return super().update(instance, validated_data)

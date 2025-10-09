@@ -7,9 +7,10 @@ interface UserModalProps {
   onClose: (wasCreated?: boolean) => void
   user?: UserListItem | null
   mode: 'create' | 'edit'
+  currentUserId?: number
 }
 
-export default function UserModal({ isOpen, onClose, user, mode }: UserModalProps) {
+export default function UserModal({ isOpen, onClose, user, mode, currentUserId }: UserModalProps) {
   const createUser = useCreateUser()
   const updateUser = useUpdateUser()
 
@@ -208,15 +209,25 @@ export default function UserModal({ isOpen, onClose, user, mode }: UserModalProp
             </label>
 
             {mode === 'edit' && (
-              <label className="flex items-center">
-                <input
-                  type="checkbox"
-                  checked={formData.is_email_verified}
-                  onChange={(e) => setFormData({ ...formData, is_email_verified: e.target.checked })}
-                  className="mr-2"
-                />
-                <span className="text-sm text-purdue-gray-700">Email Verified (Skip email verification requirement)</span>
-              </label>
+              <div>
+                <label className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={formData.is_email_verified}
+                    onChange={(e) => setFormData({ ...formData, is_email_verified: e.target.checked })}
+                    disabled={user?.id === currentUserId}
+                    className="mr-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  />
+                  <span className={`text-sm ${user?.id === currentUserId ? 'text-purdue-gray-500' : 'text-purdue-gray-700'}`}>
+                    Email Verified (Skip email verification requirement)
+                  </span>
+                </label>
+                {user?.id === currentUserId && (
+                  <p className="text-xs text-purdue-gray-500 mt-1 ml-6">
+                    You cannot modify your own email verification status
+                  </p>
+                )}
+              </div>
             )}
           </div>
 

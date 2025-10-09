@@ -273,6 +273,7 @@ export default function ManageUsersPage() {
         }}
         user={selectedUser}
         mode={modalMode}
+        currentUserId={currentUser?.id}
       />
 
       <ConfirmDialog
