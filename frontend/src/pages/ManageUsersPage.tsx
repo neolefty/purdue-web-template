@@ -182,8 +182,17 @@ export default function ManageUsersPage() {
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-purdue-gray-900">
-                      {user.email}
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div>
+                        <div className="text-sm text-purdue-gray-900">
+                          {user.email}
+                        </div>
+                        {!user.is_email_verified && (
+                          <div className="text-xs text-purdue-gray-400 italic">
+                            Unverified
+                          </div>
+                        )}
+                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <StatusBadge
