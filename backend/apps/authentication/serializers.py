@@ -219,6 +219,9 @@ class AdminUserCreateSerializer(serializers.ModelSerializer):
         # Create user without password
         user = User.objects.create(**validated_data)
         user.set_unusable_password()
+        # Auto-verify email since admin is creating the user and providing the email
+        # The password reset email will confirm they have access to the inbox
+        user.is_email_verified = True
         user.save()
 
         # Send password reset email
