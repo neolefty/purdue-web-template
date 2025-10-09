@@ -36,6 +36,20 @@ DEBUG = env("DEBUG")
 # Site domain configuration - allows deriving other settings from a single domain
 SITE_DOMAIN = env("SITE_DOMAIN", default=None)
 
+# Site name for emails and branding
+# If not set, derives from SITE_DOMAIN by taking the part before the first dot,
+# replacing dashes with spaces, and capitalizing words
+# Example: "django-template-dev.ag.purdue.edu" -> "Django Template Dev"
+if env("SITE_NAME", default=None):
+    SITE_NAME = env.str("SITE_NAME")
+elif SITE_DOMAIN:
+    # Extract subdomain part before first dot
+    subdomain = SITE_DOMAIN.split(".")[0]
+    # Replace dashes and underscores with spaces, capitalize each word
+    SITE_NAME = subdomain.replace("-", " ").replace("_", " ").title()
+else:
+    SITE_NAME = "Django Template"
+
 # ALLOWED_HOSTS can be explicitly set or derived from SITE_DOMAIN
 if env("ALLOWED_HOSTS", default=None):
     ALLOWED_HOSTS = env.list("ALLOWED_HOSTS")

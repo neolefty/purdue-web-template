@@ -113,7 +113,7 @@ This link will expire in 24 hours.
 If you did not create this account, please ignore this email.
 
 Best regards,
-The Team
+The {settings.SITE_NAME} Team
             """
 
             try:
@@ -243,7 +243,7 @@ This link will expire in 24 hours.
 If you did not request this password reset, please ignore this email.
 
 Best regards,
-The Team
+The {settings.SITE_NAME} Team
             """
 
             try:
@@ -370,7 +370,7 @@ This link will expire in 24 hours.
 If you did not create this account, please ignore this email.
 
 Best regards,
-The Team
+The {settings.SITE_NAME} Team
             """
 
             try:

@@ -238,15 +238,18 @@ class AdminUserCreateSerializer(serializers.ModelSerializer):
         # Send email
         subject = "Welcome - Set Your Password"
         message = f"""
-        Hello {user.first_name or user.username},
+Hello {user.first_name or user.username},
 
-        An account has been created for you. Please set your password by clicking the link below:
+An account has been created for you. Please set your password by clicking the link below:
 
-        {reset_url}
+{reset_url}
 
-        This link will expire in 24 hours.
+This link will expire in 24 hours.
 
-        If you did not expect this email, please ignore it.
+If you did not expect this email, please ignore it.
+
+Best regards,
+The {settings.SITE_NAME} Team
         """
 
         try:
