@@ -12,7 +12,7 @@ import SearchBar from '@/components/SearchBar'
 import TableContainer from '@/components/TableContainer'
 
 export default function ManageUsersPage() {
-  const { user: currentUser } = useAuth()
+  const { user: currentUser, authConfig } = useAuth()
   const { data: usersResponse, isLoading, error } = useUsers()
   const updateUser = useUpdateUser()
   const deleteUser = useDeleteUser()
@@ -187,7 +187,7 @@ export default function ManageUsersPage() {
                         <div className="text-sm text-purdue-gray-900">
                           {user.email}
                         </div>
-                        {!user.is_email_verified && (
+                        {authConfig?.require_email_verification && !user.is_email_verified && (
                           <div className="text-xs text-purdue-gray-400 italic">
                             Unverified
                           </div>
@@ -274,6 +274,7 @@ export default function ManageUsersPage() {
         user={selectedUser}
         mode={modalMode}
         currentUserId={currentUser?.id}
+        requireEmailVerification={authConfig?.require_email_verification}
       />
 
       <ConfirmDialog

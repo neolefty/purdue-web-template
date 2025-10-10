@@ -8,9 +8,10 @@ interface UserModalProps {
   user?: UserListItem | null
   mode: 'create' | 'edit'
   currentUserId?: number
+  requireEmailVerification?: boolean
 }
 
-export default function UserModal({ isOpen, onClose, user, mode, currentUserId }: UserModalProps) {
+export default function UserModal({ isOpen, onClose, user, mode, currentUserId, requireEmailVerification }: UserModalProps) {
   const createUser = useCreateUser()
   const updateUser = useUpdateUser()
 
@@ -223,7 +224,7 @@ export default function UserModal({ isOpen, onClose, user, mode, currentUserId }
               </span>
             </label>
 
-            {mode === 'edit' && (
+            {mode === 'edit' && requireEmailVerification && (
               <div>
                 <label className="flex items-center">
                   <input
@@ -234,7 +235,7 @@ export default function UserModal({ isOpen, onClose, user, mode, currentUserId }
                     className="mr-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   />
                   <span className={`text-sm ${user?.id === currentUserId ? 'text-purdue-gray-500' : 'text-purdue-gray-700'}`}>
-                    Email Verified (Skip email verification requirement)
+                    Email Verified
                   </span>
                 </label>
                 {user?.id === currentUserId && (
