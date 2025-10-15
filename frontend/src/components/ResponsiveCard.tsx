@@ -6,6 +6,14 @@ interface MetadataItem {
   className?: string
 }
 
+interface ActionConfig {
+  key: string
+  label: string
+  onClick: () => void
+  variant: 'primary' | 'secondary' | 'danger'
+  disabled?: boolean
+}
+
 interface ResponsiveCardProps {
   /** Primary content shown on the left side */
   children: ReactNode
@@ -14,7 +22,7 @@ interface ResponsiveCardProps {
   /** Metadata items shown below badges (bottom-right on wide cards) */
   metadata?: MetadataItem[]
   /** Action buttons shown at the bottom */
-  actions?: ReactNode[]
+  actions?: ActionConfig[]
   /** Additional CSS classes for the card container */
   className?: string
 }
@@ -65,7 +73,26 @@ export default function ResponsiveCard({
       {/* Action Buttons */}
       {actions.length > 0 && (
         <div className="flex flex-wrap gap-2 pt-3 border-t border-purdue-gray-200">
-          {actions}
+          {actions.map((action) => {
+            // Determine button styling based on variant
+            const buttonClass =
+              action.variant === 'primary'
+                ? 'flex-1 min-w-[100px] px-4 py-2 text-sm font-medium text-white bg-purdue-gold hover:bg-purdue-gold-dark rounded focus:outline-none focus:ring-2 focus:ring-purdue-gold'
+                : action.variant === 'danger'
+                ? 'flex-1 min-w-[100px] px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded focus:outline-none focus:ring-2 focus:ring-red-500'
+                : 'flex-1 min-w-[100px] px-4 py-2 text-sm font-medium text-purdue-gray-700 bg-purdue-gray-100 hover:bg-purdue-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-purdue-gray-400'
+
+            return (
+              <button
+                key={action.key}
+                onClick={action.onClick}
+                disabled={action.disabled}
+                className={`${buttonClass} disabled:opacity-50 disabled:cursor-not-allowed`}
+              >
+                {action.label}
+              </button>
+            )
+          })}
         </div>
       )}
     </div>
