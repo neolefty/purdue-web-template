@@ -68,7 +68,7 @@
 
   /* Component styles */
   .btn {
-    @apply inline-flex items-center justify-center px-4 py-2 font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2;
+    @apply inline-flex items-center justify-center px-5 py-3 font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 min-h-[44px];
   }
 
   .btn-primary {
@@ -92,9 +92,9 @@
     @apply font-united font-black uppercase tracking-wider px-10 py-4;
   }
 
-  /* Small button variant */
+  /* Small button variant - on mobile still maintains 44px touch target */
   .btn-sm {
-    @apply px-4 py-2 text-sm;
+    @apply px-4 py-2 text-sm min-h-[44px];
   }
 
   /* Navigation link with Purdue-style hover animation */
