@@ -46,10 +46,10 @@ export default function ResponsiveCard({
 
           {/* Right: Badges and Metadata (shown on wider cards) */}
           {(badges.length > 0 || metadata.length > 0) && (
-            <div className="min-[500px]:text-right min-[500px]:ml-4">
+            <div className="min-[500px]:text-right min-[500px]:ml-4 min-[500px]:max-w-md">
               {/* Badges */}
               {badges.length > 0 && (
-                <div className="flex flex-wrap gap-2 mb-2 min-[500px]:justify-end">
+                <div className="flex flex-wrap gap-2 mb-2 min-[500px]:justify-end overflow-hidden">
                   {badges}
                 </div>
               )}

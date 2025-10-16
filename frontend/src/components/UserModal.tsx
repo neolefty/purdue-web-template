@@ -169,8 +169,8 @@ export default function UserModal({ isOpen, onClose, user, mode, currentUserId, 
           </div>
 
           {mode === 'create' && (
-            <div className="mt-4 p-3 bg-purdue-blue-50 border border-purdue-blue-200 rounded-md">
-              <p className="text-sm text-purdue-blue-800">
+            <div className="mt-4 p-3 bg-purdue-gold bg-opacity-10 border border-purdue-gold border-opacity-30 rounded-md">
+              <p className="text-sm text-purdue-gray-800">
                 <strong>Note:</strong> The new user will receive an email with instructions to set their password.
               </p>
             </div>

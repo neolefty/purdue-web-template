@@ -42,7 +42,7 @@ export default function ConfirmDialog({
     },
     info: {
       buttonVariant: 'primary' as const,
-      warningClass: 'text-blue-600'
+      warningClass: 'text-purdue-gray-700'
     }
   }
 

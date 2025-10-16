@@ -76,6 +76,50 @@ Use semantic classes like `text-headline`, `text-stat`, `text-article` instead o
 
 For complete Purdue brand guidelines, see: https://marcom.purdue.edu/
 
+### Purdue Brand Colors & UI Guidelines
+
+**IMPORTANT**: Purdue's official brand has **NO BLUE** colors. Never use blue in UI elements.
+
+#### Available Color Palette
+The project uses colors defined in `frontend/tailwind.config.js`:
+```typescript
+purdue: {
+  gold: '#CEB888',        // Primary brand color
+  'gold-light': '#DACC9F',
+  'gold-dark': '#B59D6B',
+  aged: '#8E6F3E',        // Supporting brown
+  'aged-dark': '#6b5530',
+  gray: {50...900}        // Full gray scale
+}
+```
+
+**Note**: Only use color classes that exist in tailwind.config.js. Classes like `purdue-blue-*`, `purdue-green-*`, or `purdue-gold-600` do not exist and will fail silently.
+
+#### Action Button Color Standards
+For consistency across applications:
+
+1. **Access/View Actions** (gray or aged brown):
+   - Preview, View, Download, Open
+   - Example: `className="text-purdue-gray-700 hover:text-purdue-gray-900"`
+   - With aged: `className="text-purdue-aged hover:text-purdue-aged-dark"`
+
+2. **Modification Actions** (black):
+   - Edit, Make Public/Private, Activate/Deactivate, Make Staff
+   - Example: `className="text-purdue-gray-900 hover:text-black"`
+
+3. **Destructive Actions** (red):
+   - Delete, Remove
+   - Example: `className="text-red-600 hover:text-red-900"`
+
+#### Component Color Usage
+- **Info messages**: Use `bg-purdue-gold bg-opacity-10` with `text-purdue-gray-800`
+- **Status badges**:
+  - Success: `bg-green-100 text-green-800`
+  - Error: `bg-red-100 text-red-800`
+  - Warning: `bg-yellow-100 text-yellow-800`
+  - Info: `bg-purdue-gold bg-opacity-20 text-purdue-gray-800`
+- **Disabled states**: Use gray tones with `disabled:opacity-50 disabled:cursor-not-allowed`
+
 ## Important Patterns
 
 ### Authentication Flow
