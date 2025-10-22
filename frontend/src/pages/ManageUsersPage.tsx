@@ -237,6 +237,7 @@ export default function ManageUsersPage() {
               onClick: () => handleToggleActive(user),
               variant: 'secondary',
               disabled: user.id === currentUser?.id,
+              priority: 'low',
             },
           ]
 
@@ -247,6 +248,7 @@ export default function ManageUsersPage() {
               onClick: () => handleToggleStaff(user),
               variant: 'secondary',
               disabled: user.id === currentUser?.id,
+              priority: 'low',
             })
           }
 
@@ -256,6 +258,7 @@ export default function ManageUsersPage() {
               label: 'Delete',
               onClick: () => setUserToDelete(user),
               variant: 'danger',
+              priority: 'low',
             })
           }
 
