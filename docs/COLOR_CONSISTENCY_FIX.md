@@ -1,396 +1,153 @@
-# Color Consistency Fix Plan
+# Purdue Brand Color Compliance
 
-**Target**: Upstream template project at `git@github.itap.purdue.edu:AgIT/django-react-template.git`
+**Purpose**: Document this template's adherence to Purdue brand guidelines and identify where we deviate from official brand colors for UX reasons.
 
-**Purpose**: Remove non-existent color classes and Purdue brand violations (blue colors)
-
-**Context**: Purdue's official brand guidelines (https://marcom.purdue.edu/our-brand/visual-identity/) do not include blue. The template currently uses both standard blue colors and non-existent `purdue-blue-*`, `purdue-green-*`, and `purdue-gold-600/800` classes that are not defined in tailwind.config.js.
+**Reference**: [Purdue Brand Guidelines - Visual Identity](https://marcom.purdue.edu/our-brand/visual-identity/)
 
 ---
 
-## Summary of Issues
+## Current State Summary
 
-### 1. Non-existent Tailwind Classes
-The following classes are used but **not defined** in `frontend/tailwind.config.js`:
-- `purdue-blue-50`, `purdue-blue-200`, `purdue-blue-600`, `purdue-blue-800`
-- `purdue-green-600`, `purdue-green-800`
-- `purdue-gold-600`, `purdue-gold-800`
+### ✅ Compliant with Purdue Brand
 
-These cause Tailwind to silently ignore them, resulting in fallback to default styles.
+1. **No blue colors**: All blue colors removed (blue was not an official Purdue color)
+2. **Official Purdue colors defined** in `frontend/tailwind.config.js`:
+   ```typescript
+   purdue: {
+     gold: '#CEB888',        // Primary Boilermaker Gold
+     'gold-light': '#DACC9F',
+     'gold-dark': '#B59D6B',
+     black: '#000000',
+     aged: '#8E6F3E',        // Supporting brown
+     'aged-dark': '#6b5530',
+     gray: {50...900}        // Full grayscale
+   }
+   ```
+3. **Action buttons follow semantic standards**:
+   - Access/View: Gray or aged brown (`text-purdue-gray-700 hover:text-purdue-gray-900`)
+   - Modifications: Black (`text-purdue-gray-900 hover:text-black`)
+   - Destructive: Red (`text-red-600 hover:text-red-900`)
+4. **Info messages**: Use Purdue gold (`bg-purdue-gold bg-opacity-10`)
 
-### 2. Purdue Brand Violations
-Using blue colors (`blue-*` and `purdue-blue-*`) violates Purdue brand guidelines.
+### ⚠️ Deviations from Purdue Brand (Conscious UX Choices)
 
-### 3. Files Affected
-```
-frontend/src/components/ConfirmDialog.tsx:45
-frontend/src/components/StatusBadge.tsx:14
-frontend/src/components/UserModal.tsx:172-173
-frontend/src/pages/ManageUsersPage.tsx:228,235,243
-```
+**Rationale**: Following universal UX color conventions for better usability and accessibility. Green/red/yellow are not official Purdue colors but provide strong visual affordance for status indicators.
 
----
-
-## Recommended Action Button Color Standards
-
-For semantic consistency across all applications using this template:
-
-1. **Access/View Actions** (reading, viewing, downloading):
-   - Color: Aged brown or standard gray
-   - Use case: Preview, View, Download, Open
-   - Implementation: `text-purdue-gray-700 hover:text-purdue-gray-900`
-
-2. **Modification Actions** (editing, state changes):
-   - Color: Black/dark gray
-   - Use case: Edit, Make Public/Private, Activate/Deactivate, Make Staff
-   - Implementation: `text-purdue-gray-900 hover:text-black`
-
-3. **Destructive Actions** (deleting, removing):
-   - Color: Red
-   - Use case: Delete, Remove
-   - Implementation: `text-red-600 hover:text-red-900`
-
-**Note**: Individual projects may extend the palette (e.g., adding `purdue.aged: '#8E6F3E'` for a distinct brown tone) while maintaining these semantic patterns.
-
----
-
-## Implementation Plan
-
-### Step 1: Update Tailwind Configuration (Optional Enhancement)
-
-**File**: `frontend/tailwind.config.js`
-
-**Action**: Add aged brown colors to palette for projects that want a distinct color for access actions.
-
-```typescript
-purdue: {
-  gold: '#CEB888',
-  'gold-light': '#DACC9F',
-  'gold-dark': '#B59D6B',
-  black: '#000000',
-  // ADD THESE:
-  aged: '#8E6F3E',      // Supporting brown for links/buttons
-  'aged-dark': '#6b5530',
-  gray: {
-    // ... existing gray scale
-  },
-}
-```
-
-**Rationale**: This provides a semantically distinct color for access/view actions. Projects can use this or skip it and use gray tones instead.
-
-**Status**: [ ] Complete
-
----
-
-### Step 2: Fix ConfirmDialog Component
-
-**File**: `frontend/src/components/ConfirmDialog.tsx`
-
-**Line**: 45
-
-**Current**:
-```typescript
-info: {
-  buttonVariant: 'primary' as const,
-  warningClass: 'text-blue-600'
-}
-```
-
-**Change to**:
-```typescript
-info: {
-  buttonVariant: 'primary' as const,
-  warningClass: 'text-purdue-gray-700'
-}
-```
-
-**Rationale**: Removes blue color. Info messages are not critical warnings, so using a softer gray tone is appropriate. If aged brown was added to config, `text-purdue-aged` would also work.
-
-**Status**: [ ] Complete
-
----
-
-### Step 3: Fix StatusBadge Component
-
-**File**: `frontend/src/components/StatusBadge.tsx`
-
-**Line**: 14
-
-**Current**:
+#### 1. Status Badges
+**File**: `frontend/src/components/StatusBadge.tsx` (lines 11-14)
 ```typescript
 const variantClasses = {
-  success: 'bg-green-100 text-green-800',
-  error: 'bg-red-100 text-red-800',
-  warning: 'bg-yellow-100 text-yellow-800',
-  info: 'bg-blue-100 text-blue-800'
+  success: 'bg-green-100 text-green-800',      // ⚠️ Green (non-brand)
+  error: 'bg-red-100 text-red-800',            // ⚠️ Red (non-brand)
+  warning: 'bg-yellow-100 text-yellow-800',    // ⚠️ Yellow (non-brand)
+  info: 'bg-purdue-gold bg-opacity-20 text-purdue-gray-800'  // ✅ Brand-compliant
 }
 ```
 
-**Change to**:
+**Used in**:
+- `frontend/src/pages/ManageUsersPage.tsx:180` - Active/inactive user status
+- `frontend/src/pages/ProfilePage.tsx:100` - "Active" badge
+- `frontend/src/pages/HomePage.tsx:152` - Health check status
+
+#### 2. Card Badge Colors
+**File**: `frontend/src/components/Card.tsx` (lines 8, 24)
 ```typescript
-const variantClasses = {
-  success: 'bg-green-100 text-green-800',
-  error: 'bg-red-100 text-red-800',
-  warning: 'bg-yellow-100 text-yellow-800',
-  info: 'bg-purdue-gold bg-opacity-20 text-purdue-gray-800'
-}
+badgeColor?: 'gold' | 'green' | 'red'  // ⚠️ Allows green and red (non-brand)
+// ...
+green: 'text-green-600'  // ⚠️ Green option
 ```
 
-**Rationale**: Uses Purdue gold for info badges instead of blue. The opacity creates a subtle background that doesn't overwhelm.
+#### 3. Success Message Boxes
+Green backgrounds for success messages:
 
-**Status**: [ ] Complete
+**File**: `frontend/src/pages/ManageUsersPage.tsx` (lines 122-123)
+```typescript
+<div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-md">
+  <p className="text-green-800">
+```
+
+**File**: `frontend/src/pages/ChangePasswordPage.tsx` (lines 80-81)
+```typescript
+<div className="p-4 bg-green-50 border border-green-200 rounded-md">
+  <p className="text-sm text-green-800">
+```
+
+**File**: `frontend/src/pages/VerifyEmailPage.tsx` (lines 62, 117-118)
+```typescript
+<h1 className="text-3xl font-bold text-green-600">Email Verified!</h1>
+// ...
+<div className="p-4 bg-green-50 border border-green-200 rounded-md">
+  <p className="text-sm text-green-600">
+```
+
+**File**: `frontend/src/pages/PasswordResetRequestPage.tsx` (line 34)
+```typescript
+<h1 className="text-3xl font-bold text-green-600">Check Your Email</h1>
+```
+
+**File**: `frontend/src/pages/PasswordResetPage.tsx` (line 54)
+```typescript
+<h1 className="text-3xl font-bold text-green-600">Password Reset Successful!</h1>
+```
+
+**File**: `frontend/src/pages/RegisterPage.tsx` (line 49)
+```typescript
+<h1 className="text-3xl font-bold text-green-600">Check Your Email</h1>
+```
 
 ---
 
-### Step 4: Fix UserModal Component
+## If You Want Strict Brand Compliance
 
-**File**: `frontend/src/components/UserModal.tsx`
+To replace all non-brand colors with Purdue palette, search for and replace:
 
-**Lines**: 172-173
-
-**Current**:
-```typescript
-{mode === 'create' && (
-  <div className="mt-4 p-3 bg-purdue-blue-50 border border-purdue-blue-200 rounded-md">
-    <p className="text-sm text-purdue-blue-800">
-      <strong>Note:</strong> The new user will receive an email with instructions to set their password.
-    </p>
-  </div>
-)}
+### Find All Green Usage
+```bash
+git grep -n "green-\|text-green\|bg-green\|border-green" -- 'frontend/src/**/*.tsx'
 ```
 
-**Change to**:
-```typescript
-{mode === 'create' && (
-  <div className="mt-4 p-3 bg-purdue-gold bg-opacity-10 border border-purdue-gold border-opacity-30 rounded-md">
-    <p className="text-sm text-purdue-gray-800">
-      <strong>Note:</strong> The new user will receive an email with instructions to set their password.
-    </p>
-  </div>
-)}
+### Find All Red Usage (excluding destructive actions which should stay red)
+```bash
+git grep -n "red-\|text-red\|bg-red\|border-red" -- 'frontend/src/**/*.tsx'
 ```
 
-**Rationale**:
-- Removes non-existent `purdue-blue-*` classes
-- Uses Purdue gold for informational messages
-- Opacity creates subtle highlighting without overwhelming the form
+### Find All Yellow Usage
+```bash
+git grep -n "yellow-\|text-yellow\|bg-yellow\|border-yellow" -- 'frontend/src/**/*.tsx'
+```
 
-**Status**: [ ] Complete
+### Suggested Brand-Compliant Replacements
+
+| Current (UX Convention) | Strict Brand Alternative |
+|------------------------|-------------------------|
+| `bg-green-100 text-green-800` | `bg-purdue-gold bg-opacity-20 text-purdue-gray-900` |
+| `text-green-600` | `text-purdue-gold-dark` or `text-purdue-aged` |
+| `bg-yellow-100 text-yellow-800` | `bg-purdue-aged bg-opacity-20 text-purdue-gray-900` |
+| `bg-red-100 text-red-800` | Keep for errors (universally understood) |
+| `text-red-600` | Keep for destructive actions |
+
+**Note**: Changing success indicators from green to gold will be less intuitive for users but fully brand-compliant.
 
 ---
 
-### Step 5: Fix ManageUsersPage Action Buttons
+## Verification Commands
 
-**File**: `frontend/src/pages/ManageUsersPage.tsx`
-
-**Lines**: 228, 235, 243
-
-**Current** (Edit button, line ~228):
-```typescript
-<button
-  className="text-purdue-blue-600 hover:text-purdue-blue-800"
->
-  Edit
-</button>
+Confirm no blue colors remain:
+```bash
+git grep -n "blue-\|text-blue\|bg-blue\|border-blue\|purdue-blue" -- 'frontend/src/**/*.tsx' 'frontend/src/**/*.ts'
+# Should return: 0 results ✅
 ```
 
-**Current** (Activate/Deactivate button, line ~235):
-```typescript
-<button
-  className="text-purdue-green-600 hover:text-purdue-green-800 disabled:opacity-50 disabled:cursor-not-allowed"
->
-  {user.is_active ? 'Deactivate' : 'Activate'}
-</button>
+Confirm no non-existent color classes:
+```bash
+git grep -n "purdue-green-\|purdue-gold-[0-9]" -- 'frontend/src/**/*.tsx' 'frontend/src/**/*.ts'
+# Should return: 0 results ✅
 ```
-
-**Current** (Make Staff button, line ~243):
-```typescript
-<button
-  className="text-purdue-gold-600 hover:text-purdue-gold-800 disabled:opacity-50 disabled:cursor-not-allowed"
->
-  {user.is_staff ? 'Remove Staff' : 'Make Staff'}
-</button>
-```
-
-**Change all to** (black for modifications):
-```typescript
-// Edit button
-<button
-  className="text-purdue-gray-900 hover:text-black"
->
-  Edit
-</button>
-
-// Activate/Deactivate button
-<button
-  className="text-purdue-gray-900 hover:text-black disabled:opacity-50 disabled:cursor-not-allowed"
->
-  {user.is_active ? 'Deactivate' : 'Activate'}
-</button>
-
-// Make Staff button
-<button
-  className="text-purdue-gray-900 hover:text-black disabled:opacity-50 disabled:cursor-not-allowed"
->
-  {user.is_staff ? 'Remove Staff' : 'Make Staff'}
-</button>
-```
-
-**Rationale**:
-- Removes non-existent `purdue-blue-*`, `purdue-green-*`, `purdue-gold-600/800` classes
-- Uses semantic color: black for all modification actions (Edit, Activate, Make Staff)
-- Provides visual consistency with other modification actions across the app
-- Maintains disabled state styling
-
-**Status**: [ ] Complete
-
----
-
-### Step 6: Verification
-
-After implementing all fixes:
-
-1. **Grep check for blue colors**:
-   ```bash
-   git grep -n "blue-\d\+\|text-blue\|bg-blue\|border-blue\|purdue-blue" -- 'frontend/src/**/*.tsx' 'frontend/src/**/*.ts'
-   ```
-   Should return: **0 results**
-
-2. **Grep check for non-existent purdue colors**:
-   ```bash
-   git grep -n "purdue-green-\|purdue-gold-[0-9]" -- 'frontend/src/**/*.tsx' 'frontend/src/**/*.ts'
-   ```
-   Should return: **0 results**
-
-3. **TypeScript check**:
-   ```bash
-   docker compose exec frontend npm run type-check
-   ```
-   Should pass with no errors.
-
-4. **Linting check**:
-   ```bash
-   docker compose exec frontend npm run lint
-   ```
-   Should pass with no errors.
-
-**Status**: [ ] Complete
-
----
-
-### Step 7: Update CLAUDE.md Documentation
-
-**File**: `CLAUDE.md`
-
-**Action**: Add a new section after "Typography & Branding" and before "Important Patterns".
-
-**Add**:
-```markdown
-### Purdue Brand Colors & UI Guidelines
-
-**IMPORTANT**: Purdue's official brand has **NO BLUE** colors. Never use blue in UI elements.
-
-#### Available Color Palette
-The project uses colors defined in `frontend/tailwind.config.js`:
-```typescript
-purdue: {
-  gold: '#CEB888',        // Primary brand color
-  'gold-light': '#DACC9F',
-  'gold-dark': '#B59D6B',
-  aged: '#8E6F3E',        // Supporting brown (if added)
-  'aged-dark': '#6b5530',
-  gray: {50...900}        // Full gray scale
-}
-```
-
-**Note**: Only use color classes that exist in tailwind.config.js. Classes like `purdue-blue-*`, `purdue-green-*`, or `purdue-gold-600` do not exist and will fail silently.
-
-#### Action Button Color Standards
-For consistency across applications:
-
-1. **Access/View Actions** (gray or aged brown):
-   - Preview, View, Download, Open
-   - Example: `className="text-purdue-gray-700 hover:text-purdue-gray-900"`
-   - With aged: `className="text-purdue-aged hover:text-purdue-aged-dark"`
-
-2. **Modification Actions** (black):
-   - Edit, Make Public/Private, Activate/Deactivate, Make Staff
-   - Example: `className="text-purdue-gray-900 hover:text-black"`
-
-3. **Destructive Actions** (red):
-   - Delete, Remove
-   - Example: `className="text-red-600 hover:text-red-900"`
-
-#### Component Color Usage
-- **Info messages**: Use `bg-purdue-gold bg-opacity-10` with `text-purdue-gray-800`
-- **Status badges**:
-  - Success: `bg-green-100 text-green-800`
-  - Error: `bg-red-100 text-red-800`
-  - Warning: `bg-yellow-100 text-yellow-800`
-  - Info: `bg-purdue-gold bg-opacity-20 text-purdue-gray-800`
-- **Disabled states**: Use gray tones with `disabled:opacity-50 disabled:cursor-not-allowed`
-```
-
-**Rationale**: Documents the color standards so future work maintains consistency.
-
-**Status**: [ ] Complete
-
----
-
-## Quick Implementation Guide for Claude
-
-If you're Claude Code working on this template, here's how to implement:
-
-1. **Read this file** to understand the context
-2. **Work through Steps 1-7** in order, marking each as complete
-3. **Run verification** to confirm all blues are removed
-4. **Commit changes** with message:
-   ```
-   Fix color consistency: remove blues and non-existent classes
-
-   - Remove all blue colors per Purdue brand guidelines
-   - Replace non-existent purdue-blue-*, purdue-green-*, purdue-gold-600/800 classes
-   - Standardize action button colors: gray for mods, red for delete
-   - Add aged brown to palette (optional enhancement)
-   - Document color standards in CLAUDE.md
-
-   Refs: https://marcom.purdue.edu/our-brand/visual-identity/
-   ```
-
----
-
-## Notes for Downstream Projects
-
-Projects that have already forked from this template (like IoT Root) should:
-
-1. **Wait for this fix** to be merged to template main
-2. **Merge from upstream** using:
-   ```bash
-   git fetch template main
-   git merge template/main
-   ```
-3. **Preserve custom colors** if they've added their own (like `purdue.aged`)
-4. **Review conflicts** carefully - prioritize:
-   - Project-specific business logic over template infrastructure
-   - Purdue brand compliance over convenience
-   - Semantic consistency over individual preferences
-
----
-
-## Success Criteria
-
-- [ ] Zero blue colors in codebase
-- [ ] Zero non-existent color classes
-- [ ] All action buttons follow semantic color standards
-- [ ] TypeScript and ESLint pass
-- [ ] CLAUDE.md documents color usage
-- [ ] Downstream projects can merge cleanly
 
 ---
 
 ## References
 
-- Purdue Brand Guidelines: https://marcom.purdue.edu/our-brand/visual-identity/
-- Tailwind Opacity Utilities: https://tailwindcss.com/docs/background-opacity
-- Project tailwind.config.js: `frontend/tailwind.config.js`
+- [Purdue Visual Identity Guidelines](https://marcom.purdue.edu/our-brand/visual-identity/)
+- Project Tailwind Config: `frontend/tailwind.config.js`
+- Color usage documented in: `CLAUDE.md` (Purdue Brand Colors & UI Guidelines section)
