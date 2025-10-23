@@ -8,8 +8,8 @@ The PostgreSQL port has been exposed in `compose.yml` and a project config file 
 
 ## What's Done
 
-- ✅ Added PostgreSQL port mapping to `compose.yml` (configurable via `DB_HOST_PORT`, defaults to 5432)
-- ✅ Created `.mcp.json` with project MCP configuration (configured for port 5433 to avoid conflicts)
+- ✅ Added PostgreSQL port mapping to `compose.yml` (configurable via `DB_HOST_PORT` in `.env`)
+- ✅ Created `.mcp.json` with project MCP configuration using port 5433
 
 ## What's Left to Do
 
@@ -59,7 +59,7 @@ From `.env` file:
 - **User**: `postgres`
 - **Password**: `postgres`
 - **Host**: `localhost`
-- **Port**: `5433` (configurable via `DB_HOST_PORT` in `.env`, defaults to 5432)
+- **Port**: Default is 5432, but change `DB_HOST_PORT` in `.env` to 5433 if port 5432 is already in use
 
 ## Testing
 

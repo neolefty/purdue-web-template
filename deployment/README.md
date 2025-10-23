@@ -7,7 +7,7 @@ This directory contains deployment configurations for different environments and
 ```
 deployment/
 ├── gitops-lite.sh      # Main deployment script (no sudo needed!)
-├── NEW-SERVER-SETUP.md # Complete guide for setting up QA/Prod servers
+├── new-server-setup.md # Complete guide for setting up QA/Prod servers
 ├── configs/            # Environment configuration files
 ├── systemd/            # Systemd service files
 ├── templates/          # Configuration templates
@@ -173,11 +173,9 @@ docker compose -f docker-compose.hot-reload.yml up
 
 ### Legacy (For Reference)
 - `legacy/deploy.sh` - Old deployment method (kept for reference)
-- `DEPLOYMENT-DETAILED.md` - Documentation for the old method
 
 ### Future (In Progress)
 - `future-k8s/` - Kubernetes manifests (coming soon)
-- GitHub Actions workflows (in `.github/workflows/`)
 
 ## Important Notes
 

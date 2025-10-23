@@ -11,7 +11,7 @@ This is a starter template for web applications that can be easily hosted and ma
 
 Together, they enable modern web applications that can start simple, grow in complexity with your needs, and are well-supported by AI coding assistants.
 
-**Note**: This is an early-stage template that will evolve based on feedback and real-world use. The authors welcome comments, [contributions](https://github.itap.purdue.edu/agit/django-react-template/pulls), and ticket requests — see [Support](#support) below.
+**Note**: This is an early-stage template that will evolve based on feedback and real-world use. The authors welcome comments, [contributions](https://github.itap.purdue.edu/AgIT/django-react-template/pulls), and ticket requests — see [Support](#support) below.
 
 ![Template Screenshot](docs/images/template-screenshot.png)
 
@@ -22,7 +22,7 @@ Together, they enable modern web applications that can start simple, grow in com
 ### Decision Makers
 - Purdue branding and visual standards
 - Proven technology stack approved for use on campus
-- _Coming soon:_ Supports authentication via [Purdue career accounts](https://it.purdue.edu/services/career-account.php)
+- Authentication via [Purdue career accounts](https://it.purdue.edu/services/career-account.php) (SAML integrated but not tested or deployed)
 
 ### Developers & Researchers
 A solid foundation for developers and researchers:
@@ -46,7 +46,7 @@ A solid foundation for developers and researchers:
 
 1. Clone the repository:
 ```bash
-git clone https://github.itap.purdue.edu/wbbaker/django-react-template
+git clone https://github.itap.purdue.edu/AgIT/django-react-template
 cd django-react-template
 ```
 
@@ -132,11 +132,7 @@ The template includes a `CLAUDE.md` file that provides context to AI assistants 
 ### Starting Fresh
 Need to reset everything and start over?
 ```bash
-# Linux/Mac:
 ./reset-project.sh
-
-# Windows:
-reset-project.bat
 ```
 </details>
 
@@ -210,14 +206,14 @@ django-react-template/
 │   │   ├── pages/        # Page components
 │   │   └── styles/       # CSS files
 │   └── package.json      # Node dependencies
-├── compose.yml          # Development environment
-└── docker-compose.hot-reload.yml  # Gunicorn hot-reload testing
+└── compose.yml            # Development environment
 ```
 
 ## Features
 
 - **Django 5.1** backend with REST API
 - **React 18** frontend with TypeScript
+- **Responsive design** for mobile and tablet
 - **Multiple database support** (PostgreSQL, MySQL, MS SQL, Oracle, SQLite)
 - **Dual authentication** modes (Purdue SAML SSO / Email)
 - **TailwindCSS** with Purdue branding
@@ -279,10 +275,11 @@ Both modes use the same API interface, making development easier.
 
 ### Adding Purdue SAML
 
+**Note**: SAML integration is implemented but not yet tested in production.
+
 1. Apply for SAML access through the [Purdue Authentication Options](https://www.purdue.edu/securepurdue/identity-access/authentication-options.php) page
 2. Once approved, obtain SAML certificates and metadata URL from Purdue IT
-3. Place certificates in `backend/saml/`
-4. Update SAML settings in `.env`:
+3. Update SAML settings in `.env`:
    ```bash
    AUTH_METHOD=saml
    SAML_ENTITY_ID=https://yourapp.purdue.edu/saml/metadata/
@@ -514,10 +511,10 @@ If you encounter CORS errors:
 3. Restart the backend service
 
 ### Authentication Issues
-For SAML authentication problems:
-1. Verify SAML certificates are in place
-2. Check metadata URL is accessible
-3. Ensure entity ID matches Purdue's configuration
+For SAML authentication problems (SAML not yet tested in production):
+1. Check metadata URL is accessible
+2. Ensure entity ID matches Purdue's configuration
+3. Verify SAML settings in `.env`
 
 ### Container Issues
 If Docker containers won't start:
@@ -531,7 +528,6 @@ If Docker containers won't start:
 - No server-side rendering (affects SEO, initial load)
 - Requires knowledge of both Python and JavaScript
 - Still experimental, not battle-tested
-- Limited mobile app support
 
 ## Future Options
 

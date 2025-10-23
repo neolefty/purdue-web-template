@@ -20,7 +20,7 @@ This guide walks you through transforming the django-react-template into your ow
 
 ### Fork on GitHub (Recommended)
 ```bash
-# 1. Go to: https://github.itap.purdue.edu/wbbaker/django-react-template
+# 1. Go to: https://github.itap.purdue.edu/AgIT/django-react-template
 # 2. Click "Fork" button
 # 3. Name it something like "lab-inventory" or "research-portal"
 # 4. Clone YOUR fork:
@@ -383,7 +383,7 @@ YOUR-APP-NAME/
 ├── frontend/         # React (TypeScript) - User interface
 │   ├── src/          # Your React code
 │   └── package.json  # npm packages
-└── docker-compose.yml # Development environment
+└── compose.yml       # Development environment
 ```
 
 ### Where to Add Code

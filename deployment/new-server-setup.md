@@ -117,7 +117,7 @@ chmod g+s /opt/apps/template-{instance}  # Ensure new files inherit group
 cd ~
 mkdir -p source
 cd source
-git clone https://github.com/yourorg/django-react-template
+git clone https://github.itap.purdue.edu/AgIT/django-react-template
 cd django-react-template
 ```
 
