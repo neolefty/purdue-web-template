@@ -1,6 +1,7 @@
 import { ReactNode } from 'react'
 import ResponsiveCard from './ResponsiveCard'
 import TableContainer from './TableContainer'
+import ActionMenu from './ActionMenu'
 
 export interface ActionConfig {
   /** Unique key for the action */
@@ -13,6 +14,8 @@ export interface ActionConfig {
   variant: 'primary' | 'secondary' | 'danger'
   /** Whether the action is disabled */
   disabled?: boolean
+  /** Priority level - 'normal' (default) always visible in table view, 'low' goes in menu */
+  priority?: 'normal' | 'low'
 }
 
 export interface ColumnConfig<T> {
@@ -157,27 +160,49 @@ export default function ResponsiveDataView<T>({
                   ))}
                   {getActions && (
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
-                      <div className="flex gap-4 justify-end">
-                        {getActions(item).map((action) => {
-                          // Determine text color based on variant
-                          const colorClass =
-                            action.variant === 'danger'
-                              ? 'text-red-600 hover:text-red-900'
-                              : action.variant === 'primary'
-                              ? 'text-purdue-gray-900 hover:text-black'
-                              : 'text-purdue-gray-700 hover:text-purdue-gray-900'
+                      <div className="flex gap-4 justify-end items-center">
+                        {(() => {
+                          const allActions = getActions(item)
+                          // Split actions by priority (default to 'normal' if not specified)
+                          const normalActions = allActions.filter(a => a.priority !== 'low')
+                          const lowActions = allActions.filter(a => a.priority === 'low')
 
                           return (
-                            <button
-                              key={action.key}
-                              onClick={action.onClick}
-                              disabled={action.disabled}
-                              className={`${colorClass} disabled:opacity-50 disabled:cursor-not-allowed`}
-                            >
-                              {action.label}
-                            </button>
+                            <>
+                              {/* Normal priority actions - always visible */}
+                              {normalActions.map((action) => {
+                                // Determine text color based on variant
+                                // primary: Modification actions (Edit, Make Public) → black
+                                // secondary: Read-only actions (View, Download, Preview) → purdue-aged
+                                // danger: Destructive actions (Delete) → red
+                                const colorClass =
+                                  action.variant === 'danger'
+                                    ? 'text-red-600 hover:text-red-900'
+                                    : action.variant === 'primary'
+                                    ? 'text-purdue-gray-900 hover:text-black'
+                                    : 'text-purdue-aged hover:text-purdue-aged-dark'
+
+                                return (
+                                  <button
+                                    key={action.key}
+                                    onClick={action.onClick}
+                                    disabled={action.disabled}
+                                    className={`${colorClass} disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center h-5`}
+                                  >
+                                    {action.label}
+                                  </button>
+                                )
+                              })}
+
+                              {/* Low priority actions - in menu, or spacer to maintain alignment */}
+                              {lowActions.length > 0 ? (
+                                <ActionMenu actions={lowActions} />
+                              ) : (
+                                <div className="w-5" aria-hidden="true" />
+                              )}
+                            </>
                           )
-                        })}
+                        })()}
                       </div>
                     </td>
                   )}
