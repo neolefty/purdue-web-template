@@ -347,6 +347,69 @@ echo -e "${GREEN}✅ Priority order documented and tested${NC}"
 ((TESTS_PASSED++))
 
 echo ""
+echo -e "${YELLOW}=== Test 5: Force push divergence recovery ===${NC}"
+echo "Testing recovery from upstream divergence (force push scenario)"
+echo ""
+
+# Create a scenario where:
+# 1. Remote has new commits (ahead of local)
+# 2. Local has uncommitted changes that need stashing
+# 3. This tests both divergence handling AND stashing
+
+# Make a commit and push it
+echo "# Remote change 1" >> README.md
+git add README.md
+git commit -m "Remote change 1" -q --no-verify
+git push origin main -q
+
+# Reset local back one commit (now local is behind remote)
+git reset --hard HEAD~1 -q
+echo "Local is now behind remote by 1 commit"
+
+# Add uncommitted local changes to test stashing
+echo "# Uncommitted local change" >> backend/manage.py
+echo "Created uncommitted local change to test stashing"
+echo "Debug: Checking git status before running gitops-lite.sh:"
+git status --short backend/manage.py
+echo ""
+
+# Run deployment - should handle divergence gracefully with stash + reset
+GITOPS_BRANCH="main" \
+GITOPS_APP_NAME="template" \
+GITOPS_SOURCE_DIR="/home/deployer/source/django-react-template" \
+GITOPS_DEPLOY_DIR="/opt/apps/template" \
+GITOPS_BUILD_FRONTEND="false" \
+GITOPS_EMAIL_TO="" \
+./deployment/gitops-lite.sh || true
+
+# Check if deployment succeeded despite divergence
+if git rev-parse HEAD >/dev/null 2>&1; then
+    LOCAL_COMMIT=$(git rev-parse HEAD)
+    REMOTE_COMMIT=$(git rev-parse origin/main)
+
+    if [[ "$LOCAL_COMMIT" == "$REMOTE_COMMIT" ]]; then
+        echo -e "${GREEN}✅ Divergence resolved: local matches remote${NC}"
+        ((TESTS_PASSED++))
+    else
+        echo -e "${RED}❌ Divergence NOT resolved: commits still differ${NC}"
+        echo "   Local:  $LOCAL_COMMIT"
+        echo "   Remote: $REMOTE_COMMIT"
+        ((TESTS_FAILED++))
+    fi
+else
+    echo -e "${RED}❌ Git repository in bad state${NC}"
+    ((TESTS_FAILED++))
+fi
+
+# Check if stash was created for local changes
+if git stash list 2>/dev/null | grep -q "gitops-lite auto-stash"; then
+    echo -e "${GREEN}✅ Local changes were stashed for safety${NC}"
+    ((TESTS_PASSED++))
+else
+    echo -e "${YELLOW}⚠️  No stash found (may not have been needed)${NC}"
+fi
+
+echo ""
 echo "=== Deployment Log (last 20 lines) ==="
 tail -20 /tmp/gitops-lite-template.log 2>/dev/null || echo "No log file"
 

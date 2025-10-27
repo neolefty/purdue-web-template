@@ -234,9 +234,32 @@ DEPLOYMENT_OCCURRED=true
 # Only log when we're actually doing something
 if [ "$CURRENT" != "$REMOTE" ]; then
     log "[$BRANCH → $APP_NAME] New commits detected: $(echo $CURRENT | cut -c1-7)..$(echo $REMOTE | cut -c1-7)"
-    # Capture git pull errors and log them before exiting
-    if ! git pull origin $BRANCH 2>&1 | tee -a "$LOG_FILE"; then
-        log "❌ Git pull failed - check for conflicts or other git issues above"
+
+    # Check for local changes and stash them for safety
+    # Debug: Check what changes exist
+    MODIFIED_FILES=$(git diff-index --name-only HEAD -- 2>/dev/null || true)
+    UNTRACKED_FILES=$(git ls-files --others --exclude-standard 2>/dev/null || true)
+
+    if ! git diff-index --quiet HEAD -- 2>/dev/null || [ -n "$UNTRACKED_FILES" ]; then
+        log "⚠️  Local changes detected - stashing for safety..."
+        if [ -n "$MODIFIED_FILES" ]; then
+            log "   Modified files: $MODIFIED_FILES"
+        fi
+        if [ -n "$UNTRACKED_FILES" ]; then
+            log "   Untracked files: $UNTRACKED_FILES"
+        fi
+        STASH_MSG="gitops-lite auto-stash before deployment at $(date '+%Y-%m-%d %H:%M:%S')"
+        if git stash push -u -m "$STASH_MSG" 2>&1 | tee -a "$LOG_FILE"; then
+            log "✓ Local changes stashed (recoverable with 'git stash list')"
+        else
+            log "⚠️  Could not stash changes - proceeding with reset anyway"
+        fi
+    fi
+
+    # Force reset to remote (handles force pushes and ensures clean state)
+    log "Syncing to remote branch..."
+    if ! git reset --hard origin/$BRANCH 2>&1 | tee -a "$LOG_FILE"; then
+        log "❌ Git reset failed - check for git issues above"
         exit 2
     fi
     CURRENT=$REMOTE  # Update current to the new version
