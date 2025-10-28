@@ -249,7 +249,7 @@ if [ "$CURRENT" != "$REMOTE" ]; then
             log "   Untracked files: $UNTRACKED_FILES"
         fi
         STASH_MSG="gitops-lite auto-stash before deployment at $(date '+%Y-%m-%d %H:%M:%S')"
-        if git stash push -u -m "$STASH_MSG" 2>&1 | tee -a "$LOG_FILE"; then
+        if git stash push --include-untracked -u -m "$STASH_MSG" 2>&1 | tee -a "$LOG_FILE"; then
             log "✓ Local changes stashed (recoverable with 'git stash list')"
         else
             log "⚠️  Could not stash changes - proceeding with reset anyway"
