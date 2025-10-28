@@ -44,6 +44,37 @@ Create a dashboard for administrators:
 
 ## Low Priority / Nice to Have
 
+### Tailwind CSS 4 Migration
+**Status:** Idea
+**Effort:** Medium
+
+Migrate from Tailwind 3.x to 4.x:
+
+- [ ] Migrate theme configuration from JavaScript to CSS-based system
+- [ ] Convert custom Purdue color definitions to new CSS variable format
+- [ ] Update font family configuration for new architecture
+- [ ] Update PostCSS configuration for @tailwindcss/postcss
+- [ ] Test all components and pages with new Tailwind engine
+- [ ] Update documentation for new configuration approach
+
+**Note:** Tailwind 4 is a complete architectural rewrite. Current custom theme (Purdue colors, fonts, spacing) needs careful migration testing.
+
+### React 19 Upgrade
+**Status:** Idea
+**Effort:** Small-Medium
+
+Upgrade to React 19 with new compiler:
+
+- [ ] Update React and React DOM to version 19
+- [ ] Update @types/react and @types/react-dom to version 19
+- [ ] Test automatic dependency tracking (React Compiler)
+- [ ] Evaluate opt-in compiler usage for performance gains
+- [ ] Review and potentially simplify useEffect dependencies
+- [ ] Update any deprecated patterns or APIs
+- [ ] Test compatibility with React Router and React Query
+
+**Note:** React 19 introduces automatic dependency tracking. Dependency arrays become optional but can still be manually specified when needed.
+
 ### Bulk User Operations
 **Status:** Idea
 **Effort:** Medium
