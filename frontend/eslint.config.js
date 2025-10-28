@@ -25,6 +25,8 @@ export default [
         console: 'readonly',
         process: 'readonly',
         HTMLButtonElement: 'readonly',
+        HTMLDivElement: 'readonly',
+        HTMLElement: 'readonly',
       },
     },
     plugins: {

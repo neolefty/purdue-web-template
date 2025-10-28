@@ -1,26 +1,26 @@
 # Core Django
-Django==5.1.4
-djangorestframework==3.15.2
-django-cors-headers==4.7.0
-django-environ==0.11.2
+Django==5.2.7
+djangorestframework==3.16.1
+django-cors-headers==4.9.0
+django-environ==0.12.0
 
 # Security & Authentication
 PyJWT==2.10.1
-cryptography==44.0.0
+cryptography==46.0.3
 python3-saml==1.16.0
 
 # API & Serialization
 drf-spectacular==0.28.0
-django-filter==24.3
+django-filter==25.2
 
 # Utilities
 python-decouple==3.8
-whitenoise==6.8.2
+whitenoise==6.11.0
 gunicorn==23.0.0
-uvicorn[standard]==0.34.0
+uvicorn[standard]==0.38.0
 
 # Database Drivers (install only what you need in production)
-psycopg2-binary==2.9.10  # PostgreSQL
-mysqlclient==2.2.6  # MySQL/MariaDB
-pyodbc==5.2.0  # MS SQL Server
-oracledb==2.5.0  # Oracle
+psycopg2-binary==2.9.11  # PostgreSQL
+mysqlclient==2.2.7  # MySQL/MariaDB
+pyodbc==5.3.0  # MS SQL Server
+oracledb==3.4.0  # Oracle
