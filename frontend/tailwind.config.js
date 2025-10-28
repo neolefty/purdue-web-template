@@ -31,15 +31,15 @@ export default {
       },
       fontFamily: {
         // Purdue brand fonts
-        'acumin': ['acumin-pro', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'],
-        'acumin-condensed': ['acumin-pro-condensed', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'],
+        'acumin': ['acumin-pro', 'Franklin Gothic', 'Arial', 'sans-serif'],
+        'acumin-condensed': ['acumin-pro-condensed', 'Franklin Gothic', 'Arial', 'sans-serif'],
         // United Sans - needs separate licensing, using Impact as fallback per brand guidelines
         'united': ['United Sans', 'Impact', 'Arial Black', 'Arial', 'sans-serif'],
         'source': ['source-serif-pro', 'Georgia', 'serif'],
         // Default font stacks
-        'sans': ['acumin-pro', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'],
+        'sans': ['acumin-pro', 'Franklin Gothic', 'Arial', 'sans-serif'],
         'serif': ['source-serif-pro', 'Georgia', 'serif'],
-        'heading': ['acumin-pro', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'],
+        'heading': ['acumin-pro', 'Franklin Gothic', 'Arial', 'sans-serif'],
         // Alternative fonts when brand fonts unavailable (per brand guide)
         'impact': ['Impact', 'Arial Black', 'Arial', 'sans-serif'],
         'franklin': ['Franklin Gothic', 'Arial', 'sans-serif'],

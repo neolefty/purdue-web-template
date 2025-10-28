@@ -69,6 +69,7 @@ Configuration is handled via environment variables in the root `.env` file. Key 
 ### Purdue Brand Fonts
 The template includes three font families configured in TailwindCSS:
 - **Acumin Pro** (default): Headlines, body text, UI elements
+  - Fallback: Franklin Gothic (recommended by Purdue web developer)
 - **United Sans** (`font-united`): Statistics, data, uppercase labels
 - **Source Serif Pro** (`font-source`): Long-form reading, articles
 
@@ -87,7 +88,7 @@ purdue: {
   gold: '#CEB888',        // Primary brand color
   'gold-light': '#DACC9F',
   'gold-dark': '#B59D6B',
-  aged: '#8E6F3E',        // Supporting brown
+  aged: '#8E6F3E',        // Supporting brown for links/buttons
   'aged-dark': '#6b5530',
   gray: {50...900}        // Full gray scale
 }
@@ -98,26 +99,30 @@ purdue: {
 #### Action Button Color Standards
 For consistency across applications:
 
-1. **Access/View Actions** (gray or aged brown):
+1. **Access/View Actions** (aged brown):
    - Preview, View, Download, Open
-   - Example: `className="text-purdue-gray-700 hover:text-purdue-gray-900"`
-   - With aged: `className="text-purdue-aged hover:text-purdue-aged-dark"`
+   - Example: `className="text-purdue-aged hover:text-purdue-aged-dark"`
 
 2. **Modification Actions** (black):
    - Edit, Make Public/Private, Activate/Deactivate, Make Staff
    - Example: `className="text-purdue-gray-900 hover:text-black"`
 
-3. **Destructive Actions** (red):
+3. **Destructive Actions** (Purdue palette recommended):
    - Delete, Remove
-   - Example: `className="text-red-600 hover:text-red-900"`
+   - **Recommended**: Use Purdue palette colors for better brand consistency
+     - Dark gold background: `bg-purdue-gold-dark text-white hover:bg-purdue-aged-dark`
+     - Or aged brown background: `bg-purdue-aged-dark text-white hover:bg-purdue-gray-900`
+   - Alternative: Red text for inline actions: `text-red-600 hover:text-red-900`
+   - Always use ConfirmDialog for destructive actions for additional safety
 
 #### Component Color Usage
 - **Info messages**: Use `bg-purdue-gold bg-opacity-10` with `text-purdue-gray-800`
-- **Status badges**:
-  - Success: `bg-green-100 text-green-800`
-  - Error: `bg-red-100 text-red-800`
+- **Status badges** (read-only status indicators):
+  - Success/Active: `bg-green-100 text-green-800`
   - Warning: `bg-yellow-100 text-yellow-800`
+  - Error/Failed: `bg-red-100 text-red-800`
   - Info: `bg-purdue-gold bg-opacity-20 text-purdue-gray-800`
+  - **Note**: Yellow, green, and red are NOT Purdue brand colors, but are acceptable for **status badges** (passive indicators) because they convey universal meaning. However, avoid these colors for **action buttons** (interactive elements) - use Purdue palette instead
 - **Disabled states**: Use gray tones with `disabled:opacity-50 disabled:cursor-not-allowed`
 
 ## Important Patterns
