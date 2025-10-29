@@ -1,0 +1,188 @@
+# Verified working example for Geddes Kubernetes cluster
+# Tested: October 28, 2025
+# Replace placeholders marked with <> before deploying
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: django-react-app
+  namespace: <your-namespace>  # e.g., beecher-sandbox
+  labels:
+    app: django-react-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: django-react-app
+  template:
+    metadata:
+      labels:
+        app: django-react-app
+    spec:
+      containers:
+      - name: backend
+        image: <your-registry>/django-backend:latest
+        ports:
+        - containerPort: 8000
+          name: http
+        # REQUIRED: All containers must specify resource limits due to ResourceQuota
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: app-secrets
+              key: database-url
+        - name: SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: app-secrets
+              key: secret-key
+        - name: DEBUG
+          value: "False"
+        - name: ALLOWED_HOSTS
+          value: "django-react-app-<your-namespace>.geddes.rcac.purdue.edu"
+        livenessProbe:
+          httpGet:
+            path: /api/health/
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /api/health/
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+
+      - name: frontend
+        image: <your-registry>/react-frontend:latest
+        ports:
+        - containerPort: 80
+          name: http
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: django-react-app
+  namespace: <your-namespace>
+  labels:
+    app: django-react-app
+spec:
+  selector:
+    app: django-react-app
+  ports:
+  - name: backend
+    port: 8000
+    targetPort: 8000
+  - name: frontend
+    port: 80
+    targetPort: 80
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: django-react-app
+  namespace: <your-namespace>
+  annotations:
+    # Optional: Add additional ingress annotations here if needed
+    # nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  # REQUIRED: Must specify 'public' for external access
+  # Without this, ingress is only accessible from Purdue network
+  ingressClassName: public
+  rules:
+  - host: django-react-app-<your-namespace>.geddes.rcac.purdue.edu
+    http:
+      paths:
+      # Frontend routes
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: django-react-app
+            port:
+              number: 80
+      # API routes (adjust based on your URL structure)
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: django-react-app
+            port:
+              number: 8000
+      - path: /admin
+        pathType: Prefix
+        backend:
+          service:
+            name: django-react-app
+            port:
+              number: 8000
+
+---
+# Secrets - Create this via kubectl, DO NOT commit actual secrets to git
+# kubectl create secret generic app-secrets \
+#   --from-literal=database-url="postgresql://user:pass@host:5432/dbname" \
+#   --from-literal=secret-key="your-django-secret-key" \
+#   --namespace=<your-namespace>
+apiVersion: v1
+kind: Secret
+metadata:
+  name: app-secrets
+  namespace: <your-namespace>
+type: Opaque
+stringData:
+  # These are example placeholders - replace with actual values or create via kubectl
+  database-url: "postgresql://user:pass@host:5432/dbname"
+  secret-key: "REPLACE-WITH-ACTUAL-SECRET-KEY"
+
+---
+# Optional: Database migration job
+# Run this once before deploying the main app
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: django-migrate
+  namespace: <your-namespace>
+spec:
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+      - name: migrate
+        image: <your-registry>/django-backend:latest
+        command: ["python", "manage.py", "migrate"]
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: app-secrets
+              key: database-url
+        - name: SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: app-secrets
+              key: secret-key
