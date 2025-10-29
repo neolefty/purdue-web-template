@@ -9,12 +9,15 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "type-check": "tsc --noEmit",
+    "validate-jsx": "node scripts/validate-jsx.js",
+    "precommit": "npm run validate-jsx && npm run type-check",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
+    "@react-google-maps/api": "^2.20.7",
     "@tanstack/react-query": "^5.90.5",
     "@tanstack/react-query-devtools": "^5.90.2",
     "clsx": "^2.1.1",

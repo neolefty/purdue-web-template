@@ -9,6 +9,33 @@
     <link rel="stylesheet" href="https://use.typekit.net/ghc8hdz.css">
     <!-- United Sans from Purdue's CDN -->
     <link rel="stylesheet" href="https://www.purdue.edu/home/wp-content/mu-plugins/boilerup-wp/unitedsans.css">
+    <style>
+      @media print {
+        body {
+          font-size: 10pt;
+          line-height: 1.3;
+        }
+        .print\:hidden {
+          display: none !important;
+        }
+        .print\:block {
+          display: block !important;
+        }
+        .print\:break-inside-avoid {
+          break-inside: avoid;
+          page-break-inside: avoid;
+        }
+        .print\:shadow-none {
+          box-shadow: none !important;
+        }
+        .print\:mt-0 {
+          margin-top: 0 !important;
+        }
+        @page {
+          margin: 0.75in;
+        }
+      }
+    </style>
   </head>
   <body>
     <div id="root"></div>

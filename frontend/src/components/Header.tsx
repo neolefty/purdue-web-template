@@ -19,7 +19,8 @@ interface HeaderProps {
 
 export default function Header({
   navItems = [
-    { to: '/', label: 'Home' }
+    { to: '/', label: 'Home' },
+    { to: '/turf-research', label: 'Turf Research', requiresAuth: true }
   ],
   logoSrc = '/purdue-logo.svg',
   logoAlt = 'Purdue University',
@@ -68,7 +69,7 @@ export default function Header({
 
   return (
     <>
-      <nav className="bg-white border-b-2 border-purdue-gray-100">
+      <nav className="bg-white border-b-2 border-purdue-gray-100 print:hidden">
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center h-20">
             <div className="flex items-center space-x-12">
