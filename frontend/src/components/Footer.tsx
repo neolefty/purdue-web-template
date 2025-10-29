@@ -14,7 +14,7 @@ export default function Footer({
   tagline = 'An equal access/equal opportunity university'
 }: FooterProps) {
   return (
-    <footer className="bg-purdue-black text-white py-12 mt-auto print:hidden">
+    <footer className="bg-purdue-black text-white py-12 mt-auto">
       <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between">
           <div className="mb-6 md:mb-0">

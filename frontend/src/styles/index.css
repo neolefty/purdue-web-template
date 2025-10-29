@@ -18,7 +18,7 @@
   }
 
   /* Default link styles - can be overridden by specific classes */
-  a:not(.nav-link):not(.btn-primary):not(.btn-secondary):not(.btn-outline):not(.btn) {
+  a:not(.nav-link):not(.btn-primary):not(.btn-secondary):not(.btn-outline) {
     @apply text-purdue-gold-dark hover:text-purdue-gold transition-colors;
   }
 }
@@ -87,9 +87,6 @@
     @apply btn bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 transition-all duration-200;
   }
 
-  .bg-purdue-gray {
-    @apply bg-purdue-gray-500
-  }
   /* Action button style (United Sans) */
   .btn-action {
     @apply font-united font-black uppercase tracking-wider px-10 py-4;
@@ -137,39 +134,5 @@
 
   .container-app {
     @apply container mx-auto px-4 sm:px-6 lg:px-8;
-  }
-}
-
-/* Print Styles */
-@media print {
-  @page {
-    margin: 1cm;
-    size: portrait;
-  }
-
-  .print\:hidden {
-    display: none !important;
-  }
-
-  .print\:block {
-    display: block !important;
-  }
-
-  .print\:shadow-none {
-    box-shadow: none !important;
-  }
-
-  .print\:mt-0 {
-    margin-top: 0 !important;
-  }
-
-  body {
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
-
-  .bg-blue-50, .bg-green-50, .bg-purple-50, .bg-yellow-50, .bg-gray-50 {
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
   }
 }

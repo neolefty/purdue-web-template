@@ -1,6 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from './contexts/AuthContext'
-import { GoogleMapsProvider } from './contexts/GoogleMapsContext'
 import Layout from './components/Layout'
 import HomePage from './pages/HomePage'
 import LoginPage from './pages/LoginPage'
@@ -13,18 +12,12 @@ import PasswordResetPage from './pages/PasswordResetPage'
 import PasswordResetRequestPage from './pages/PasswordResetRequestPage'
 import VerifyEmailPage from './pages/VerifyEmailPage'
 import ProtectedRoute from './components/ProtectedRoute'
-import PlotsPage from './pages/turf-research/PlotsPage'
-import TreatmentsPage from './pages/turf-research/TreatmentsPage'
-import TurfResearchIndexPage from './pages/turf-research/IndexPage'
-import ReportsPage from './pages/turf-research/ReportsPage'
-import PrintReportsPage from './pages/turf-research/PrintReportsPage'
 
 function App() {
   return (
     <Router>
       <AuthProvider>
-        <GoogleMapsProvider>
-          <Layout>
+        <Layout>
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<LoginPage />} />
@@ -64,60 +57,11 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            <Route
-              path="/turf-research"
-              element={
-                <ProtectedRoute>
-                  <TurfResearchIndexPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/turf-research/plots"
-              element={
-                <ProtectedRoute>
-                  <PlotsPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/turf-research/plots/:plotId/treatments"
-              element={
-                <ProtectedRoute>
-                  <TreatmentsPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/turf-research/treatments"
-              element={
-                <ProtectedRoute>
-                  <TreatmentsPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/turf-research/reports"
-              element={
-                <ProtectedRoute>
-                  <ReportsPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/turf-research/reports/print"
-              element={
-                <ProtectedRoute>
-                  <PrintReportsPage />
-                </ProtectedRoute>
-              }
-            />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Layout>
-      </GoogleMapsProvider>
-    </AuthProvider>
-  </Router>
+      </AuthProvider>
+    </Router>
   )
 }
 
