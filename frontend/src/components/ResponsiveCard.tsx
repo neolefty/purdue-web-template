@@ -50,7 +50,9 @@ export default function ResponsiveCard({
               {/* Badges */}
               {badges.length > 0 && (
                 <div className="flex flex-wrap gap-2 mb-2 min-[500px]:justify-end overflow-hidden">
-                  {badges}
+                  {badges.map((badge, index) => (
+                    <span key={index}>{badge}</span>
+                  ))}
                 </div>
               )}
 
