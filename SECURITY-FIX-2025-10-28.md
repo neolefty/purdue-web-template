@@ -7,11 +7,24 @@
 ## Quick Fix for Sysadmin
 
 **Problem**: Static files (HTML, JS, CSS, robots.txt) served by nginx are missing security headers.
-**Solution**: Add headers to nginx config at `/etc/nginx/sites-available/` or `/etc/nginx/sites-enabled/`
+**Solution**: Use nginx `include` directive to manage security headers in one place.
 
-### Headers to Add
+### Recommended Approach (Using Include)
 
-Add these to the HTTPS server block (not applicable to HTTP):
+**Step 1**: Create `/etc/nginx/custom_headers.conf` with the following content:
+
+```nginx
+# Security headers for nginx (HTTPS)
+add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+add_header X-Frame-Options "SAMEORIGIN" always;
+add_header X-Content-Type-Options "nosniff" always;
+add_header X-XSS-Protection "1; mode=block" always;
+add_header Referrer-Policy "same-origin" always;
+```
+
+**Note**: For HTTP-only configs (no HTTPS), omit the HSTS line.
+
+**Step 2**: Include in nginx config. Add these to the HTTPS server block (not applicable to HTTP):
 
 ```nginx
 # In server block, before location blocks
@@ -30,19 +43,20 @@ Typical locations needing headers:
 - Django static: `location /static/`
 - Media uploads: `location /media/`
 
-Example for a location block with caching:
+Example for a location block with caching (using include):
 ```nginx
 location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
     expires 1y;
     add_header Cache-Control "public, immutable";
-    # Re-add security headers
-    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
-    add_header X-Frame-Options "SAMEORIGIN" always;
-    add_header X-Content-Type-Options "nosniff" always;
-    add_header X-XSS-Protection "1; mode=block" always;
-    add_header Referrer-Policy "same-origin" always;
+    # Re-add security headers (nginx doesn't inherit when add_header is used)
+    include /etc/nginx/custom_headers.conf;
 }
 ```
+
+**Benefits of using include**:
+- Change headers in one place
+- Consistent across all apps on the server
+- Easier to maintain and update
 
 ### Deploy
 

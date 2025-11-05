@@ -212,6 +212,46 @@ This test validates:
 ### Local Testing (Quick Check)
 
 
+## Security Headers
+
+### Server Setup
+
+Create `/etc/nginx/custom_headers.conf`:
+
+```nginx
+add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+add_header X-Frame-Options "SAMEORIGIN" always;
+add_header X-Content-Type-Options "nosniff" always;
+add_header X-XSS-Protection "1; mode=block" always;
+add_header Referrer-Policy "same-origin" always;
+```
+
+For HTTP-only configs, omit the HSTS (Strict-Transport-Security) line.
+
+### How It Works
+
+Nginx doesn't inherit `add_header` directives into location blocks that define their own headers. The configs use `include /etc/nginx/custom_headers.conf;` in each location block that sets caching headers:
+
+```nginx
+location ~* \.(js|css|png|jpg|...)$ {
+    expires 1y;
+    add_header Cache-Control "public, immutable";
+    include /etc/nginx/custom_headers.conf;
+}
+```
+
+This centralizes header management - change `/etc/nginx/custom_headers.conf` once and it applies to all apps on the server.
+
+### Verification
+
+```bash
+curl -I https://your-domain.com/ | grep -E 'Strict-Transport|X-Frame|X-Content|X-XSS|Referrer'
+```
+
+### Optional: Content Security Policy
+
+See `deployment/CSP-GUIDANCE.md` for CSP configuration. Not required for PSS scans.
+
 ## Migration Timeline
 
 - **Now**: VM + systemd + gitops-lite.sh
