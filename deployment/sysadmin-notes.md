@@ -46,4 +46,4 @@ All five headers should appear.
 
 ## Optional: CSP
 
-See `deployment/CSP-GUIDANCE.md` for Content Security Policy configuration. Not required for PSS scans.
+See `deployment/csp-guidance.md` for Content Security Policy configuration. Not required for PSS scans.

@@ -250,7 +250,7 @@ curl -I https://your-domain.com/ | grep -E 'Strict-Transport|X-Frame|X-Content|X
 
 ### Optional: Content Security Policy
 
-See `deployment/CSP-GUIDANCE.md` for CSP configuration. Not required for PSS scans.
+See `deployment/csp-guidance.md` for CSP configuration. Not required for PSS scans.
 
 ## Migration Timeline
 
