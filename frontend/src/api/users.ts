@@ -28,7 +28,6 @@ export interface CreateUserData {
 const usersApi = {
   getUsers: async () => {
     const response = await apiClient.get<PaginatedResponse<UserListItem>>('/auth/users/')
-    console.log('Users API response:', response)
     // Return just the results array for simpler component usage
     return response.results || []
   },
