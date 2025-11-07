@@ -46,6 +46,8 @@ export interface ResponsiveDataViewProps<T> {
   getMetadata?: (item: T) => Array<{ label: string; value: string | ReactNode; className?: string }>
   /** Optional function to generate actions for each item */
   getActions?: (item: T) => ActionConfig[]
+  /** Optional function to make the entire card clickable (card view only) */
+  getItemClick?: (item: T) => (() => void) | undefined
   /** Breakpoint for switching from cards to table (default: 'lg' = 1024px) */
   breakpoint?: 'sm' | 'md' | 'lg' | 'xl'
   /** Empty state message */
@@ -64,6 +66,7 @@ export default function ResponsiveDataView<T>({
   getItemKey,
   getMetadata,
   getActions,
+  getItemClick,
   breakpoint = 'lg',
   emptyMessage = 'No data available.',
   isLoading = false,
@@ -112,6 +115,7 @@ export default function ResponsiveDataView<T>({
           const badges = badgeColumns.map((col) => col.render(item))
           const metadata = getMetadata ? getMetadata(item) : []
           const actionConfigs = getActions ? getActions(item) : []
+          const clickHandler = getItemClick ? getItemClick(item) : undefined
 
           return (
             <ResponsiveCard
@@ -119,6 +123,7 @@ export default function ResponsiveDataView<T>({
               badges={badges}
               metadata={metadata}
               actions={actionConfigs}
+              onClick={clickHandler}
             >
               {primaryColumn.render(item)}
             </ResponsiveCard>

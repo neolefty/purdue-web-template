@@ -23,6 +23,8 @@ interface ResponsiveCardProps {
   metadata?: MetadataItem[]
   /** Action buttons shown at the bottom */
   actions?: ActionConfig[]
+  /** Optional click handler for the entire card */
+  onClick?: () => void
   /** Additional CSS classes for the card container */
   className?: string
 }
@@ -32,11 +34,17 @@ export default function ResponsiveCard({
   badges = [],
   metadata = [],
   actions = [],
+  onClick,
   className = '',
 }: ResponsiveCardProps) {
+  const isClickable = !!onClick
+
   return (
     <div
-      className={`bg-white border border-purdue-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow min-[500px]:flex min-[500px]:flex-col ${className}`}
+      onClick={onClick}
+      className={`bg-white border border-purdue-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow min-[500px]:flex min-[500px]:flex-col ${
+        isClickable ? 'cursor-pointer hover:bg-purdue-gray-50' : ''
+      } ${className}`}
     >
       {/* Main Content Area */}
       <div className={actions.length > 0 ? 'mb-4' : ''}>
@@ -50,7 +58,9 @@ export default function ResponsiveCard({
               {/* Badges */}
               {badges.length > 0 && (
                 <div className="flex flex-wrap gap-2 mb-2 min-[500px]:justify-end overflow-hidden">
-                  {badges}
+                  {badges.map((badge, index) => (
+                    <span key={index}>{badge}</span>
+                  ))}
                 </div>
               )}
 
@@ -85,7 +95,10 @@ export default function ResponsiveCard({
             return (
               <button
                 key={action.key}
-                onClick={action.onClick}
+                onClick={(e) => {
+                  e.stopPropagation() // Prevent card click when clicking action button
+                  action.onClick()
+                }}
                 disabled={action.disabled}
                 className={`${buttonClass} disabled:opacity-50 disabled:cursor-not-allowed`}
               >
