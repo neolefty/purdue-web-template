@@ -129,7 +129,7 @@ For consistency across applications:
 
 ### Authentication Flow
 - Frontend uses `AuthContext` to manage user state
-- API calls use Axios client with automatic token handling
+- API calls use native fetch() with automatic CSRF token and session cookie handling
 - Protected routes use `ProtectedRoute` component
 
 ### Database Models
