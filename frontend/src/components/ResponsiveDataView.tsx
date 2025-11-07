@@ -169,30 +169,32 @@ export default function ResponsiveDataView<T>({
 
                           return (
                             <>
-                              {/* Normal priority actions - always visible */}
-                              {normalActions.map((action) => {
-                                // Determine text color based on variant
-                                // primary: Modification actions (Edit, Make Public) → black
-                                // secondary: Read-only actions (View, Download, Preview) → purdue-aged
-                                // danger: Destructive actions (Delete) → red
-                                const colorClass =
-                                  action.variant === 'danger'
-                                    ? 'text-red-600 hover:text-red-900'
-                                    : action.variant === 'primary'
-                                    ? 'text-purdue-gray-900 hover:text-black'
-                                    : 'text-purdue-aged hover:text-purdue-aged-dark'
+                              {/* Normal priority actions - stacked vertically on narrow table (lg), horizontal on wide (xl+) */}
+                              <div className="flex flex-col xl:flex-row gap-2 xl:gap-4">
+                                {normalActions.map((action) => {
+                                  // Determine text color based on variant
+                                  // primary: Modification actions (Edit, Make Public) → black
+                                  // secondary: Read-only actions (View, Download, Preview) → purdue-aged
+                                  // danger: Destructive actions (Delete) → red
+                                  const colorClass =
+                                    action.variant === 'danger'
+                                      ? 'text-red-600 hover:text-red-900'
+                                      : action.variant === 'primary'
+                                      ? 'text-purdue-gray-900 hover:text-black'
+                                      : 'text-purdue-aged hover:text-purdue-aged-dark'
 
-                                return (
-                                  <button
-                                    key={action.key}
-                                    onClick={action.onClick}
-                                    disabled={action.disabled}
-                                    className={`${colorClass} disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center h-5`}
-                                  >
-                                    {action.label}
-                                  </button>
-                                )
-                              })}
+                                  return (
+                                    <button
+                                      key={action.key}
+                                      onClick={action.onClick}
+                                      disabled={action.disabled}
+                                      className={`${colorClass} disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center h-5`}
+                                    >
+                                      {action.label}
+                                    </button>
+                                  )
+                                })}
+                              </div>
 
                               {/* Low priority actions - in menu, or spacer to maintain alignment */}
                               {lowActions.length > 0 ? (
