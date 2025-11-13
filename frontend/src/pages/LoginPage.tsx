@@ -183,7 +183,7 @@ export default function LoginPage() {
                             value={resendEmail}
                             onChange={(e) => setResendEmail(e.target.value)}
                             placeholder="your.email@purdue.edu"
-                            className="flex-1 px-3 py-1.5 border border-purdue-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-purdue-gold"
+                            className="flex-1 px-3 py-1.5 border border-purdue-gray-300 rounded-md text-sm text-black focus:outline-none focus:ring-2 focus:ring-purdue-gold"
                           />
                           <button
                             type="button"
