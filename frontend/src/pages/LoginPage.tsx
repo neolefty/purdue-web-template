@@ -1,13 +1,17 @@
 import { useNavigate, Navigate, Link } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
+import { useState } from 'react'
 import { useAuth } from '@/hooks/useAuth'
-import { useLogin, LoginCredentials } from '@/api/auth'
+import { useLogin, useResendVerification, LoginCredentials } from '@/api/auth'
 
 export default function LoginPage() {
   const navigate = useNavigate()
   const { isAuthenticated, authConfig } = useAuth()
 
   const login = useLogin()
+  const resendVerification = useResendVerification()
+  const [lastAttemptedEmail, setLastAttemptedEmail] = useState<string | null>(null)
+  const [resendSuccess, setResendSuccess] = useState(false)
 
   const {
     register: registerField,
@@ -20,9 +24,33 @@ export default function LoginPage() {
   }
 
   const onSubmit = (data: LoginCredentials) => {
+    setLastAttemptedEmail(data.username_or_email)
+    setResendSuccess(false)
     login.mutate(data, {
       onSuccess: () => navigate('/'),
     })
+  }
+
+  const handleResendVerification = () => {
+    if (!lastAttemptedEmail) return
+
+    resendVerification.mutate(lastAttemptedEmail, {
+      onSuccess: () => {
+        setResendSuccess(true)
+      },
+    })
+  }
+
+  // Check if the error is about email verification
+  const isVerificationError = () => {
+    if (!login.error) return false
+    const errorData = (login.error as { response?: { data?: Record<string, unknown> } })?.response
+      ?.data
+    if (errorData && typeof errorData === 'object') {
+      const errorMessages = Object.values(errorData).flat().join(' ').toLowerCase()
+      return errorMessages.includes('verify') && errorMessages.includes('email')
+    }
+    return false
   }
 
   if (authConfig?.auth_method === 'saml') {
@@ -101,31 +129,55 @@ export default function LoginPage() {
 
             {login.error && (
               <div className="bg-red-50 text-red-700 p-3 rounded-md text-sm">
-                {(() => {
-                  const error = login.error
-                  if (!error) return 'An error occurred'
+                <div>
+                  {(() => {
+                    const error = login.error
+                    if (!error) return 'An error occurred'
 
-                  // Check if we have field-specific errors in the response
-                  const errorData = (error as { response?: { data?: Record<string, unknown> } })?.response?.data
-                  if (errorData && typeof errorData === 'object') {
-                    // Format field-specific errors
-                    const messages = Object.entries(errorData)
-                      .map(([field, value]) => {
-                        // Handle non_field_errors specially
-                        if (field === 'non_field_errors') {
-                          return Array.isArray(value) ? value.join(', ') : value
-                        }
-                        // For field-specific errors, make the field name user-friendly
-                        const fieldName = field.charAt(0).toUpperCase() + field.slice(1).replace(/_/g, ' ')
-                        const message = Array.isArray(value) ? value.join(', ') : value
-                        return `${fieldName}: ${message}`
-                      })
-                      .join('. ')
-                    return messages || error.message || 'An error occurred'
-                  }
+                    // Check if we have field-specific errors in the response
+                    const errorData = (error as { response?: { data?: Record<string, unknown> } })
+                      ?.response?.data
+                    if (errorData && typeof errorData === 'object') {
+                      // Format field-specific errors
+                      const messages = Object.entries(errorData)
+                        .map(([field, value]) => {
+                          // Handle non_field_errors specially
+                          if (field === 'non_field_errors') {
+                            return Array.isArray(value) ? value.join(', ') : value
+                          }
+                          // For field-specific errors, make the field name user-friendly
+                          const fieldName =
+                            field.charAt(0).toUpperCase() + field.slice(1).replace(/_/g, ' ')
+                          const message = Array.isArray(value) ? value.join(', ') : value
+                          return `${fieldName}: ${message}`
+                        })
+                        .join('. ')
+                      return messages || error.message || 'An error occurred'
+                    }
 
-                  return error.message || 'An error occurred'
-                })()}
+                    return error.message || 'An error occurred'
+                  })()}
+                </div>
+                {isVerificationError() && (
+                  <div className="mt-2">
+                    <button
+                      type="button"
+                      onClick={handleResendVerification}
+                      disabled={resendVerification.isPending}
+                      className="text-purdue-aged hover:text-purdue-aged-dark underline font-medium"
+                    >
+                      {resendVerification.isPending
+                        ? 'Sending...'
+                        : 'Resend verification email'}
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {resendSuccess && (
+              <div className="bg-green-50 text-green-700 p-3 rounded-md text-sm">
+                Verification email sent! Please check your inbox.
               </div>
             )}
 
