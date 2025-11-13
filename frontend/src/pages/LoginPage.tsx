@@ -10,7 +10,8 @@ export default function LoginPage() {
 
   const login = useLogin()
   const resendVerification = useResendVerification()
-  const [lastAttemptedEmail, setLastAttemptedEmail] = useState<string | null>(null)
+  const [showResendForm, setShowResendForm] = useState(false)
+  const [resendEmail, setResendEmail] = useState('')
   const [resendSuccess, setResendSuccess] = useState(false)
 
   const {
@@ -24,19 +25,21 @@ export default function LoginPage() {
   }
 
   const onSubmit = (data: LoginCredentials) => {
-    setLastAttemptedEmail(data.username_or_email)
     setResendSuccess(false)
+    setShowResendForm(false)
     login.mutate(data, {
       onSuccess: () => navigate('/'),
     })
   }
 
   const handleResendVerification = () => {
-    if (!lastAttemptedEmail) return
+    if (!resendEmail) return
 
-    resendVerification.mutate(lastAttemptedEmail, {
+    resendVerification.mutate(resendEmail, {
       onSuccess: () => {
         setResendSuccess(true)
+        setShowResendForm(false)
+        setResendEmail('')
       },
     })
   }
@@ -159,17 +162,67 @@ export default function LoginPage() {
                   })()}
                 </div>
                 {isVerificationError() && (
-                  <div className="mt-2">
-                    <button
-                      type="button"
-                      onClick={handleResendVerification}
-                      disabled={resendVerification.isPending}
-                      className="text-purdue-aged hover:text-purdue-aged-dark underline font-medium"
-                    >
-                      {resendVerification.isPending
-                        ? 'Sending...'
-                        : 'Resend verification email'}
-                    </button>
+                  <div className="mt-3">
+                    {!showResendForm ? (
+                      <button
+                        type="button"
+                        onClick={() => setShowResendForm(true)}
+                        className="text-purdue-aged hover:text-purdue-aged-dark underline font-medium"
+                      >
+                        Resend verification email
+                      </button>
+                    ) : (
+                      <div className="space-y-2">
+                        <label htmlFor="resend-email" className="block text-sm font-medium">
+                          Enter your email address:
+                        </label>
+                        <div className="flex gap-2">
+                          <input
+                            id="resend-email"
+                            type="email"
+                            value={resendEmail}
+                            onChange={(e) => setResendEmail(e.target.value)}
+                            placeholder="your.email@purdue.edu"
+                            className="flex-1 px-3 py-1.5 border border-purdue-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-purdue-gold"
+                          />
+                          <button
+                            type="button"
+                            onClick={handleResendVerification}
+                            disabled={resendVerification.isPending || !resendEmail}
+                            className="px-3 py-1.5 bg-purdue-aged text-white rounded-md text-sm font-medium hover:bg-purdue-aged-dark disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            {resendVerification.isPending ? 'Sending...' : 'Send'}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setShowResendForm(false)
+                              setResendEmail('')
+                            }}
+                            className="px-3 py-1.5 bg-purdue-gray-200 text-purdue-gray-700 rounded-md text-sm font-medium hover:bg-purdue-gray-300"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                        {resendVerification.error && (
+                          <p className="text-red-700 text-sm">
+                            {(() => {
+                              const error = resendVerification.error
+                              const errorData = (
+                                error as { response?: { data?: Record<string, unknown> } }
+                              )?.response?.data
+                              if (errorData && typeof errorData === 'object') {
+                                const messages = Object.values(errorData)
+                                  .flat()
+                                  .join(', ')
+                                return messages || 'Failed to send verification email'
+                              }
+                              return 'Failed to send verification email'
+                            })()}
+                          </p>
+                        )}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
