@@ -229,8 +229,13 @@ export default function LoginPage() {
             )}
 
             {resendSuccess && (
-              <div className="bg-green-50 text-green-700 p-3 rounded-md text-sm">
-                Verification email sent! Please check your inbox.
+              <div className="bg-green-50 text-green-700 p-3 rounded-md text-sm space-y-2">
+                <p className="font-medium">If an unverified account exists with that email, we've sent a verification link.</p>
+                <div className="text-xs space-y-1">
+                  <p>• Check your inbox and spam folder</p>
+                  <p>• If you don't receive an email, the address may already be verified or not associated with an account</p>
+                  <p>• <strong>Tip:</strong> Try logging in again - if it works, your email is already verified!</p>
+                </div>
               </div>
             )}
 
