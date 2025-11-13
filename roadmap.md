@@ -109,37 +109,6 @@ Upgrade to React 19 with new compiler:
 
 ---
 
-## Completed Features
-
-### Responsive Design ✅
-**Completed:** 2025-10
-
-- Responsive navigation with mobile hamburger menu
-- Table layouts switch to card view on mobile/tablet
-- Touch-friendly button and link sizes
-- Tested across device sizes
-
-### Email Verification System ✅
-**Completed:** 2025-10-09
-
-- ✅ Token-based email verification
-- ✅ Configurable via `REQUIRE_EMAIL_VERIFICATION` env var
-- ✅ Auto-verify for superusers and admin-created users
-- ✅ Resend verification emails
-- ✅ UI adapts based on configuration
-- ✅ Force verify checkbox for admins
-
-### User Management Improvements ✅
-**Completed:** 2025-10-09
-
-- ✅ Separate `/register` and `/login` routes
-- ✅ Prevent self-modification of permissions
-- ✅ Backend validation for protected fields
-- ✅ Optional first/last name fields
-- ✅ Conditional UI based on email verification setting
-
----
-
 ## Notes
 
 - This roadmap is a living document and will be updated as priorities change

@@ -1,6 +1,6 @@
 # Django React Template for Purdue Web Applications
 
-Deployed here: https://django-template-qa.ag.purdue.edu/ (requires WebVPN 2 or Ag IT Devs VPN). Production deployment comming soon!
+Deployed here: https://django-template-qa.ag.purdue.edu/ (requires WebVPN 2 or Ag IT Devs VPN). Production deployment coming soon!
 
 ---
 
@@ -215,7 +215,7 @@ django-react-template/
 - **React 18** frontend with TypeScript
 - **Responsive design** for mobile and tablet
 - **Multiple database support** (PostgreSQL, MySQL, MS SQL, Oracle, SQLite)
-- **Dual authentication** modes (Purdue SAML SSO / Email)
+- **Dual authentication** modes (Purdue SAML SSO / Email with verification)
 - **TailwindCSS** with Purdue branding
 - **Docker Compose** for development
 - **Hot reloading** in development
