@@ -438,7 +438,8 @@ set +e
 COLLECT_EXIT=$?
 set -e
 if [ $COLLECT_EXIT -eq 0 ]; then
-    log "✓ Static files collected to $DEPLOY_DIR/backend/static"
+    STATIC_ROOT=$("$DEPLOY_DIR/venv/bin/python" manage.py shell -c "from django.conf import settings; print(settings.STATIC_ROOT)" 2>/dev/null || echo "$DEPLOY_DIR/static")
+    log "✓ Static files collected to $STATIC_ROOT"
 else
     log "⚠️ Collectstatic failed (see /tmp/collectstatic-$APP_NAME.log)"
     cat /tmp/collectstatic-$APP_NAME.log | tail -10
