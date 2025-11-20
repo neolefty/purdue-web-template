@@ -22,7 +22,7 @@ set -euo pipefail
 # Configuration with environment variable support
 BRANCH="${GITOPS_BRANCH:-main}"
 APP_NAME="${GITOPS_APP_NAME:-template}"
-SOURCE_DIR="${GITOPS_SOURCE_DIR:-$HOME/source/django-react-template}"
+SOURCE_DIR="${GITOPS_SOURCE_DIR:-$HOME/source/$APP_NAME}"
 DEPLOY_DIR="${GITOPS_DEPLOY_DIR:-/opt/apps/$APP_NAME}"
 STATE_FILE="/tmp/gitops-lite-state-$APP_NAME"
 EMAIL_STATE_FILE="/tmp/gitops-lite-email-state-$APP_NAME"
