@@ -216,6 +216,7 @@ django-react-template/
 - **Responsive design** for mobile and tablet
 - **Multiple database support** (PostgreSQL, MySQL, MS SQL, Oracle, SQLite)
 - **Dual authentication** modes (Purdue SAML SSO / Email with verification)
+- **Contact form** with spam protection and email notifications
 - **TailwindCSS** with Purdue branding
 - **Docker Compose** for development
 - **Hot reloading** in development
@@ -285,6 +286,48 @@ Both modes use the same API interface, making development easier.
    SAML_ENTITY_ID=https://yourapp.purdue.edu/saml/metadata/
    SAML_METADATA_URL=https://www.purdue.edu/apps/account/saml/metadata.xml
    ```
+</details>
+
+<details>
+<summary><b>📧 Contact Form Configuration</b></summary>
+
+The template includes a built-in contact form with spam protection and email notifications.
+
+### Features
+- Rate limiting (5 submissions per hour per IP address)
+- Audit trail in database (all submissions are saved)
+- Email notifications to configured recipient
+- Form validation and error handling
+- Responsive design
+
+### Configuration
+
+Set the recipient email in `.env`:
+```bash
+CONTACT_EMAIL=yourteam@purdue.edu
+```
+
+The contact form is accessible at `/contact` and requires no authentication. You can customize the page content by editing `frontend/src/pages/ContactPage.tsx`.
+
+### Admin Access
+
+Contact form submissions are viewable in the Django admin panel at `/admin/contact/contactmessage/`. This allows you to:
+- View all contact submissions
+- Check email delivery status
+- Filter by date and email sent status
+- Search by name, email, or content
+
+### Customizing Rate Limits
+
+Edit `backend/config/settings/base.py` to adjust throttling:
+```python
+"DEFAULT_THROTTLE_RATES": {
+    "contact": "5/hour",  # Change to "10/hour", "20/day", etc.
+}
+```
+
+For production, consider setting up email properly (see `.env.example` for SMTP settings).
+
 </details>
 
 <details>

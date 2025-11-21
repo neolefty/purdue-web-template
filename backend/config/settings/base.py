@@ -79,6 +79,7 @@ LOCAL_APPS = [
     "apps.core",
     "apps.authentication",
     "apps.api",
+    "apps.contact",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -248,6 +249,10 @@ REST_FRAMEWORK = {
         "rest_framework.filters.SearchFilter",
         "rest_framework.filters.OrderingFilter",
     ],
+    "DEFAULT_THROTTLE_RATES": {
+        "contact": "5/hour",  # Contact form: 5 submissions per hour per IP
+        "user": "100/hour",  # Authenticated users: 100 requests per hour
+    },
 }
 
 # CORS settings - can be explicitly set or derived from SITE_DOMAIN
@@ -334,6 +339,10 @@ elif EMAIL_BACKEND == "django.core.mail.backends.dummy.EmailBackend":
 # Default email addresses
 DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="noreply@purdue.edu")
 SERVER_EMAIL = env("SERVER_EMAIL", default="noreply@purdue.edu")
+
+# Contact form recipient email
+# This is where contact form submissions will be sent
+CONTACT_EMAIL = env("CONTACT_EMAIL", default=DEFAULT_FROM_EMAIL)
 
 # Optional: Email subject prefix for admin emails
 EMAIL_SUBJECT_PREFIX = env("EMAIL_SUBJECT_PREFIX", default="[Django] ")
