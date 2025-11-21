@@ -186,12 +186,15 @@ export default function HomePage() {
           </div>
         )}
 
-        <div className="text-center">
+        <div className="flex justify-center gap-4">
           {!isAuthenticated && (
             <Button to="/login" variant="action">
               Get Started
             </Button>
           )}
+          <Button to="/contact" variant="secondary">
+            Contact Us
+          </Button>
         </div>
 
         <div className="mt-12 p-8 bg-white rounded-lg shadow-sm border border-purdue-gray-100">
