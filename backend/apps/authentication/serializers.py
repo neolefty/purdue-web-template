@@ -220,16 +220,16 @@ class ResendVerificationSerializer(serializers.Serializer):
     def validate_email(self, value):
         try:
             user = User.objects.get(email=value)
-            if user.is_email_verified:
-                raise serializers.ValidationError("This email is already verified.")
-            self.context["user"] = user
+            # Only add user to context if email is NOT verified
+            # If already verified, we silently succeed (don't add user, no email sent)
+            # This prevents revealing whether email exists or verification status
+            if not user.is_email_verified:
+                self.context["user"] = user
             return value
         except User.DoesNotExist:
             # Don't reveal if email exists or not for security
-            raise serializers.ValidationError(
-                "If an account with that email exists and is unverified, "
-                "a verification email has been sent."
-            )
+            # Silently succeed - view will return generic success message
+            return value
 
 
 class AdminUserCreateSerializer(serializers.ModelSerializer):
