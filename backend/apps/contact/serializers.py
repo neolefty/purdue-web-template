@@ -19,7 +19,7 @@ class ContactMessageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ContactMessage
-        fields = ("name", "email", "subject", "message")
+        fields = ("name", "email", "subject", "message", "submitted_url")
 
     def validate_message(self, value):
         """Ensure message is not too short"""
@@ -48,9 +48,12 @@ class ContactMessageSerializer(serializers.ModelSerializer):
         return contact_message
 
     def _send_email_notification(self, contact_message):
-        """Send email notification to configured recipient"""
-        # Get recipient email from settings
+        """Send email notification to configured recipient(s)"""
+        # Get recipient email(s) from settings
         recipient_email = getattr(settings, "CONTACT_EMAIL", settings.DEFAULT_FROM_EMAIL)
+        # Ensure recipient_email is a list
+        if isinstance(recipient_email, str):
+            recipient_email = [recipient_email]
 
         # Prepare email content
         subject = f"[Contact Form] {contact_message.subject}"
@@ -68,6 +71,10 @@ Message:
 ---
 Submitted: {contact_message.created_at}
 IP Address: {contact_message.ip_address or 'N/A'}
+
+───────────────────────────────────────
+
+This message was submitted at {contact_message.submitted_url or 'Unknown URL'}
 """
 
         try:
@@ -75,7 +82,7 @@ IP Address: {contact_message.ip_address or 'N/A'}
                 subject,
                 message_body,
                 settings.DEFAULT_FROM_EMAIL,
-                [recipient_email],
+                recipient_email,
                 fail_silently=False,
             )
             contact_message.email_sent = True

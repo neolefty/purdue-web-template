@@ -340,9 +340,13 @@ elif EMAIL_BACKEND == "django.core.mail.backends.dummy.EmailBackend":
 DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="noreply@purdue.edu")
 SERVER_EMAIL = env("SERVER_EMAIL", default="noreply@purdue.edu")
 
-# Contact form recipient email
+# Contact form recipient email(s)
 # This is where contact form submissions will be sent
-CONTACT_EMAIL = env("CONTACT_EMAIL", default=DEFAULT_FROM_EMAIL)
+# Can be a single email string or a list of emails
+CONTACT_EMAIL = env.list(
+    "CONTACT_EMAIL",
+    default=["wbbaker@purdue.edu", "deshunz@purdue.edu", "brooksa@purdue.edu"],
+)
 
 # Optional: Email subject prefix for admin emails
 EMAIL_SUBJECT_PREFIX = env("EMAIL_SUBJECT_PREFIX", default="[Django] ")

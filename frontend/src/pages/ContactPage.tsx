@@ -32,7 +32,11 @@ export default function ContactPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    contactMutation.mutate(formData)
+    // Include the current URL when submitting
+    contactMutation.mutate({
+      ...formData,
+      submitted_url: window.location.href,
+    })
   }
 
   if (contactMutation.isSuccess) {

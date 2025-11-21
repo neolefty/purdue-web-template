@@ -10,6 +10,7 @@ export interface ContactFormData {
   email: string
   subject: string
   message: string
+  submitted_url?: string
 }
 
 export interface ContactResponse {

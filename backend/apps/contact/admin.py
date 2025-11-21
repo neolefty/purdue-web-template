@@ -13,8 +13,8 @@ class ContactMessageAdmin(admin.ModelAdmin):
 
     list_display = ("name", "email", "subject", "created_at", "email_sent", "ip_address")
     list_filter = ("email_sent", "created_at")
-    search_fields = ("name", "email", "subject", "message", "ip_address")
-    readonly_fields = ("created_at", "email_sent_at", "ip_address", "user_agent")
+    search_fields = ("name", "email", "subject", "message", "ip_address", "submitted_url")
+    readonly_fields = ("created_at", "email_sent_at", "ip_address", "user_agent", "submitted_url")
     date_hierarchy = "created_at"
 
     fieldsets = (
@@ -33,7 +33,7 @@ class ContactMessageAdmin(admin.ModelAdmin):
         (
             "Metadata",
             {
-                "fields": ("ip_address", "user_agent", "created_at"),
+                "fields": ("submitted_url", "ip_address", "user_agent", "created_at"),
                 "classes": ("collapse",),
             },
         ),
