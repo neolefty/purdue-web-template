@@ -12,6 +12,7 @@ export default {
           gold: '#CEB888',
           'gold-light': '#DACC9F',
           'gold-dark': '#B59D6B',
+          dust: '#EBD99F',
           black: '#000000',
           aged: '#8E6F3E',
           'aged-dark': '#6b5530',
