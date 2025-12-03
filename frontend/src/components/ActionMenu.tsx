@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
+import { MoreVerticalIcon } from './icons'
 
 interface ActionMenuItem {
   key: string
@@ -97,17 +98,7 @@ export default function ActionMenu({ actions }: ActionMenuProps) {
         className="text-purdue-gray-700 hover:text-purdue-gray-900"
         aria-label="More actions"
       >
-        <svg
-          className="h-5 w-5"
-          fill="none"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth="2"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path>
-        </svg>
+        <MoreVerticalIcon />
       </button>
 
       {/* Dropdown menu - using fixed positioning to avoid overflow clipping */}

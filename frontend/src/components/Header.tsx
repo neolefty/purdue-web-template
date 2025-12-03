@@ -3,6 +3,7 @@ import { Link, NavLink, useLocation } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { useLogout } from '@/api/auth'
 import Button from './Button'
+import { CloseIcon, ExternalLinkIcon, MenuIcon } from './icons'
 
 interface NavItem {
   to: string
@@ -138,21 +139,11 @@ export default function Header({
                 aria-label="Toggle menu"
                 aria-expanded={isMobileMenuOpen}
               >
-                <svg
-                  className="w-6 h-6"
-                  fill="none"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  {isMobileMenuOpen ? (
-                    <path d="M6 18L18 6M6 6l12 12" />
-                  ) : (
-                    <path d="M4 6h16M4 12h16M4 18h16" />
-                  )}
-                </svg>
+                {isMobileMenuOpen ? (
+                  <CloseIcon className="w-6 h-6" />
+                ) : (
+                  <MenuIcon className="w-6 h-6" />
+                )}
               </button>
             </div>
           </div>
@@ -196,9 +187,10 @@ export default function Header({
                   href="/admin/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="admin-nav-link font-acumin font-semibold text-base text-purdue-dust hover:bg-purdue-dust hover:bg-opacity-20 px-3 py-1 rounded transition-colors"
+                  className="admin-nav-link font-acumin font-semibold text-base text-purdue-dust hover:bg-purdue-dust hover:bg-opacity-20 px-3 py-1 rounded transition-colors inline-flex items-center gap-1"
                 >
                   Django Admin
+                  <ExternalLinkIcon className="w-3.5 h-3.5" />
                 </a>
               </div>
             </div>
@@ -230,17 +222,7 @@ export default function Header({
               className="p-2 text-purdue-black hover:text-purdue-gold focus:outline-none focus:ring-2 focus:ring-purdue-gold rounded"
               aria-label="Close menu"
             >
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path d="M6 18L18 6M6 6l12 12" />
-              </svg>
+              <CloseIcon className="w-6 h-6" />
             </button>
           </div>
 
@@ -307,9 +289,10 @@ export default function Header({
                     href="/admin/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="mobile-nav-link block px-6 py-3 text-base font-medium text-purdue-aged-dark hover:bg-purdue-gray-50 transition-colors"
+                    className="mobile-nav-link flex items-center gap-2 px-6 py-3 text-base font-medium text-purdue-aged-dark hover:bg-purdue-gray-50 transition-colors"
                   >
                     Django Admin
+                    <ExternalLinkIcon className="w-4 h-4 flex-shrink-0" />
                   </a>
                 </div>
               </div>

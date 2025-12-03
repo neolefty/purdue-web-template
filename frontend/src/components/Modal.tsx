@@ -1,5 +1,6 @@
 import { useEffect, useRef, type ReactNode, type MouseEvent } from 'react'
 import clsx from 'clsx'
+import { CloseIcon } from './icons'
 
 interface ModalProps {
   isOpen: boolean
@@ -96,20 +97,10 @@ export default function Modal({
             {showCloseButton && (
               <button
                 onClick={onClose}
-                className="ml-auto p-2 hover:bg-purdue-gray-100 rounded-lg transition-colors"
+                className="ml-auto p-2 hover:bg-purdue-gray-100 rounded-lg transition-colors text-purdue-gray-500"
                 aria-label="Close modal"
               >
-                <svg
-                  className="w-5 h-5 text-purdue-gray-500"
-                  fill="none"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
+                <CloseIcon />
               </button>
             )}
           </div>
