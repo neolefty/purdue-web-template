@@ -182,7 +182,7 @@ export default function Header({
                     key={item.to}
                     to={item.to}
                     className={({ isActive }) =>
-                      `font-acumin font-semibold text-base px-3 py-1 rounded transition-colors text-purdue-dust ${
+                      `admin-nav-link font-acumin font-semibold text-base px-3 py-1 rounded transition-colors text-purdue-dust ${
                         isActive
                           ? 'bg-purdue-dust bg-opacity-20'
                           : 'hover:bg-purdue-dust hover:bg-opacity-20'
@@ -196,7 +196,7 @@ export default function Header({
                   href="/admin/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="font-acumin font-semibold text-base text-purdue-dust hover:bg-purdue-dust hover:bg-opacity-20 px-3 py-1 rounded transition-colors"
+                  className="admin-nav-link font-acumin font-semibold text-base text-purdue-dust hover:bg-purdue-dust hover:bg-opacity-20 px-3 py-1 rounded transition-colors"
                 >
                   Django Admin
                 </a>
@@ -266,10 +266,10 @@ export default function Header({
                   key={item.to}
                   to={item.to}
                   className={({ isActive }) =>
-                    `block px-6 py-3 text-base font-medium transition-colors ${
+                    `mobile-nav-link block px-6 py-3 text-base transition-colors ${
                       isActive
-                        ? 'bg-purdue-gold-light text-purdue-black border-l-4 border-purdue-gold'
-                        : 'text-purdue-gray-700 hover:bg-purdue-gray-50'
+                        ? 'bg-purdue-black text-purdue-dust border-l-4 border-purdue-gold font-semibold'
+                        : 'text-purdue-aged-dark hover:bg-purdue-gray-50 font-medium'
                     }`
                   }
                   end={item.to === '/'}
@@ -293,16 +293,24 @@ export default function Header({
                       key={item.to}
                       to={item.to}
                       className={({ isActive }) =>
-                        `block px-6 py-3 text-base font-medium transition-colors ${
+                        `mobile-nav-link block px-6 py-3 text-base transition-colors ${
                           isActive
-                            ? 'bg-purdue-gold-light text-purdue-black border-l-4 border-purdue-gold'
-                            : 'text-purdue-gray-700 hover:bg-purdue-gray-50'
+                            ? 'bg-purdue-black text-purdue-dust border-l-4 border-purdue-gold font-semibold'
+                            : 'text-purdue-aged-dark hover:bg-purdue-gray-50 font-medium'
                         }`
                       }
                     >
                       {item.label}
                     </NavLink>
                   ))}
+                  <a
+                    href="/admin/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mobile-nav-link block px-6 py-3 text-base font-medium text-purdue-aged-dark hover:bg-purdue-gray-50 transition-colors"
+                  >
+                    Django Admin
+                  </a>
                 </div>
               </div>
             )}

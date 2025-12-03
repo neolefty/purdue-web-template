@@ -18,8 +18,8 @@
   }
 
   /* Default link styles - can be overridden by specific classes */
-  a:not(.nav-link):not(.btn-primary):not(.btn-secondary):not(.btn-outline) {
-    @apply text-purdue-gold-dark hover:text-purdue-gold transition-colors;
+  a:not(.nav-link):not(.mobile-nav-link):not(.admin-nav-link):not(.btn-primary):not(.btn-secondary):not(.btn-outline) {
+    @apply text-purdue-aged hover:text-purdue-gold transition-colors;
   }
 }
 
