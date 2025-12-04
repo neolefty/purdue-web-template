@@ -3,6 +3,10 @@ import { useNavigate, Navigate, Link } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { useAuth } from '@/hooks/useAuth'
 import { useRegister, RegisterData } from '@/api/auth'
+import { validationRules } from '@/utils/validation'
+import FormField from '@/components/FormField'
+import PasswordInput from '@/components/PasswordInput'
+import FormError from '@/components/FormError'
 
 export default function RegisterPage() {
   const navigate = useNavigate()
@@ -73,157 +77,63 @@ export default function RegisterPage() {
           </h2>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <div>
-              <label htmlFor="username" className="label">
-                Username
-              </label>
-              <input
-                {...registerField('username', {
-                  required: 'Username is required',
-                  minLength: {
-                    value: 3,
-                    message: 'Username must be at least 3 characters',
-                  },
-                })}
-                type="text"
-                id="username"
-                autoComplete="username"
-                className="input"
-                placeholder="johndoe"
-              />
-              {errors.username && (
-                <p className="text-red-500 text-sm mt-1">{errors.username.message}</p>
-              )}
-            </div>
+            <FormField
+              {...registerField('username', validationRules.username)}
+              label="Username"
+              type="text"
+              autoComplete="username"
+              placeholder="johndoe"
+              error={errors.username?.message}
+            />
 
             <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="first_name" className="label">
-                  First Name
-                </label>
-                <input
-                  {...registerField('first_name')}
-                  type="text"
-                  id="first_name"
-                  autoComplete="given-name"
-                  className="input"
-                  placeholder="John"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="last_name" className="label">
-                  Last Name
-                </label>
-                <input
-                  {...registerField('last_name')}
-                  type="text"
-                  id="last_name"
-                  autoComplete="family-name"
-                  className="input"
-                  placeholder="Doe"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label htmlFor="email" className="label">
-                Email
-              </label>
-              <input
-                {...registerField('email', {
-                  required: 'Email is required',
-                  pattern: {
-                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                    message: 'Invalid email address',
-                  },
-                })}
-                type="email"
-                id="email"
-                autoComplete="email"
-                className="input"
-                placeholder="john@purdue.edu"
+              <FormField
+                {...registerField('first_name')}
+                label="First Name"
+                type="text"
+                autoComplete="given-name"
+                placeholder="John"
               />
-              {errors.email && (
-                <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
-              )}
-            </div>
-
-            <div>
-              <label htmlFor="password" className="label">
-                Password
-              </label>
-              <input
-                {...registerField('password', {
-                  required: 'Password is required',
-                  minLength: {
-                    value: 8,
-                    message: 'Password must be at least 8 characters',
-                  },
-                })}
-                type="password"
-                id="password"
-                autoComplete="new-password"
-                className="input"
-                placeholder="••••••••"
+              <FormField
+                {...registerField('last_name')}
+                label="Last Name"
+                type="text"
+                autoComplete="family-name"
+                placeholder="Doe"
               />
-              {errors.password && (
-                <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>
-              )}
             </div>
 
-            <div>
-              <label htmlFor="password_confirm" className="label">
-                Confirm Password
-              </label>
-              <input
-                {...registerField('password_confirm', {
-                  required: 'Please confirm your password',
-                  validate: (value) =>
-                    value === watch('password') || 'Passwords do not match',
-                })}
-                type="password"
-                id="password_confirm"
-                autoComplete="new-password"
-                className="input"
-                placeholder="••••••••"
-              />
-              {errors.password_confirm && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.password_confirm.message}
-                </p>
-              )}
-            </div>
+            <FormField
+              {...registerField('email', validationRules.email)}
+              label="Email"
+              type="email"
+              autoComplete="email"
+              placeholder="john@purdue.edu"
+              error={errors.email?.message}
+            />
 
-            {register.error && (
-              <div className="bg-red-50 text-red-700 p-3 rounded-md text-sm">
-                {(() => {
-                  const error = register.error
-                  if (!error) return 'An error occurred'
+            <PasswordInput
+              {...registerField('password', validationRules.password)}
+              label="Password"
+              autoComplete="new-password"
+              placeholder="••••••••"
+              error={errors.password?.message}
+              showRequirements
+            />
 
-                  // Check if we have field-specific errors in the response
-                  const errorData = (error as { response?: { data?: Record<string, unknown> } })?.response?.data
-                  if (errorData && typeof errorData === 'object') {
-                    // Format field-specific errors
-                    const messages = Object.entries(errorData)
-                      .map(([field, value]) => {
-                        // Handle non_field_errors specially
-                        if (field === 'non_field_errors') {
-                          return Array.isArray(value) ? value.join(', ') : value
-                        }
-                        // For field-specific errors, make the field name user-friendly
-                        const fieldName = field.charAt(0).toUpperCase() + field.slice(1).replace(/_/g, ' ')
-                        const message = Array.isArray(value) ? value.join(', ') : value
-                        return `${fieldName}: ${message}`
-                      })
-                      .join('. ')
-                    return messages || error.message || 'An error occurred'
-                  }
+            <PasswordInput
+              {...registerField('password_confirm', {
+                required: 'Please confirm your password',
+                validate: (value) =>
+                  value === watch('password') || 'Passwords do not match',
+              })}
+              label="Confirm Password"
+              autoComplete="new-password"
+              placeholder="••••••••"
+              error={errors.password_confirm?.message}
+            />
 
-                  return error.message || 'An error occurred'
-                })()}
-              </div>
-            )}
+            <FormError error={register.error} />
 
             <button
               type="submit"

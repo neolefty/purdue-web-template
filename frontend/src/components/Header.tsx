@@ -3,7 +3,8 @@ import { Link, NavLink, useLocation } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { useLogout } from '@/api/auth'
 import Button from './Button'
-import { CloseIcon, ExternalLinkIcon, MenuIcon } from './icons'
+import { CloseIcon, MenuIcon } from './icons'
+import { AdminBar, MobileDrawer } from './header-parts'
 
 interface NavItem {
   to: string
@@ -62,7 +63,7 @@ export default function Header({
   )
 
   const adminNavItems = isAdmin ? [
-    { to: '/manage/users', label: 'Manage Users', requiresAuth: true }
+    { to: '/manage/users', label: 'Manage Users' }
   ] : []
 
   const filteredNavItems = [...regularNavItems]
@@ -151,173 +152,19 @@ export default function Header({
       </nav>
 
       {/* Desktop Admin Bar */}
-      {adminNavItems.length > 0 && (
-        <div className="hidden md:block bg-purdue-black shadow-md">
-          <div className="container mx-auto px-4">
-            <div className="flex items-center space-x-9">
-              {/* Invisible logo to match width of logo above */}
-              <div className="relative">
-                <img
-                  src={logoSrc}
-                  alt=""
-                  className="h-10 w-auto opacity-0 pointer-events-none"
-                  aria-hidden="true"
-                />
-                <span className="absolute inset-0 flex items-center justify-end text-purdue-gold font-acumin font-semibold text-sm uppercase tracking-wide">
-                  Admin
-                </span>
-              </div>
-              <div className="flex items-center space-x-2">
-                {adminNavItems.map((item) => (
-                  <NavLink
-                    key={item.to}
-                    to={item.to}
-                    className={({ isActive }) =>
-                      `admin-nav-link font-acumin font-semibold text-base px-3 py-1 rounded transition-colors text-purdue-dust ${
-                        isActive
-                          ? 'bg-purdue-dust bg-opacity-20'
-                          : 'hover:bg-purdue-dust hover:bg-opacity-20'
-                      }`
-                    }
-                  >
-                    {item.label}
-                  </NavLink>
-                ))}
-                <a
-                  href="/admin/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="admin-nav-link font-acumin font-semibold text-base text-purdue-dust hover:bg-purdue-dust hover:bg-opacity-20 px-3 py-1 rounded transition-colors inline-flex items-center gap-1"
-                >
-                  Django Admin
-                  <ExternalLinkIcon className="w-3.5 h-3.5" />
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Mobile Menu Overlay */}
-      {isMobileMenuOpen && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
-          onClick={() => setIsMobileMenuOpen(false)}
-          aria-hidden="true"
-        />
-      )}
+      <AdminBar adminNavItems={adminNavItems} logoSrc={logoSrc} />
 
       {/* Mobile Menu Drawer */}
-      <div
-        className={`fixed top-0 right-0 h-full w-80 max-w-[85vw] bg-white shadow-xl z-50 transform transition-transform duration-300 ease-in-out md:hidden ${
-          isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
-        }`}
-      >
-        <div className="flex flex-col h-full">
-          {/* Mobile Menu Header */}
-          <div className="flex justify-between items-center p-4 border-b border-purdue-gray-200">
-            <h2 className="text-lg font-bold text-purdue-black">Menu</h2>
-            <button
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="p-2 text-purdue-black hover:text-purdue-gold focus:outline-none focus:ring-2 focus:ring-purdue-gold rounded"
-              aria-label="Close menu"
-            >
-              <CloseIcon className="w-6 h-6" />
-            </button>
-          </div>
-
-          {/* Mobile Menu Content */}
-          <div className="flex-1 overflow-y-auto">
-            {/* User Info Section */}
-            {isAuthenticated && (
-              <div className="p-4 bg-purdue-gray-50 border-b border-purdue-gray-200">
-                <NavLink
-                  to="/profile"
-                  className="block text-purdue-black font-medium"
-                >
-                  {user?.first_name || user?.username}
-                </NavLink>
-                <p className="text-sm text-purdue-gray-600">{user?.email}</p>
-              </div>
-            )}
-
-            {/* Main Navigation */}
-            <div className="py-2">
-              {filteredNavItems.map((item) => (
-                <NavLink
-                  key={item.to}
-                  to={item.to}
-                  className={({ isActive }) =>
-                    `mobile-nav-link block px-6 py-3 text-base transition-colors ${
-                      isActive
-                        ? 'bg-purdue-black text-purdue-dust border-l-4 border-purdue-gold font-semibold'
-                        : 'text-purdue-aged-dark hover:bg-purdue-gray-50 font-medium'
-                    }`
-                  }
-                  end={item.to === '/'}
-                >
-                  {item.label}
-                </NavLink>
-              ))}
-            </div>
-
-            {/* Admin Section */}
-            {adminNavItems.length > 0 && (
-              <div className="border-t border-purdue-gray-200">
-                <div className="px-6 py-2 bg-purdue-gray-50">
-                  <p className="text-xs font-semibold text-purdue-gray-500 uppercase tracking-wider">
-                    Admin Tools
-                  </p>
-                </div>
-                <div className="py-2">
-                  {adminNavItems.map((item) => (
-                    <NavLink
-                      key={item.to}
-                      to={item.to}
-                      className={({ isActive }) =>
-                        `mobile-nav-link block px-6 py-3 text-base transition-colors ${
-                          isActive
-                            ? 'bg-purdue-black text-purdue-dust border-l-4 border-purdue-gold font-semibold'
-                            : 'text-purdue-aged-dark hover:bg-purdue-gray-50 font-medium'
-                        }`
-                      }
-                    >
-                      {item.label}
-                    </NavLink>
-                  ))}
-                  <a
-                    href="/admin/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mobile-nav-link flex items-center gap-2 px-6 py-3 text-base font-medium text-purdue-aged-dark hover:bg-purdue-gray-50 transition-colors"
-                  >
-                    Django Admin
-                    <ExternalLinkIcon className="w-4 h-4 flex-shrink-0" />
-                  </a>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Mobile Menu Footer */}
-          <div className="p-4 border-t border-purdue-gray-200">
-            {isAuthenticated ? (
-              <Button
-                onClick={handleLogout}
-                disabled={logout.isPending}
-                variant="secondary"
-                className="w-full"
-              >
-                {logout.isPending ? 'Logging out...' : 'Logout'}
-              </Button>
-            ) : (
-              <Link to="/login" className="btn-primary w-full text-center block">
-                Login
-              </Link>
-            )}
-          </div>
-        </div>
-      </div>
+      <MobileDrawer
+        isOpen={isMobileMenuOpen}
+        onClose={() => setIsMobileMenuOpen(false)}
+        navItems={filteredNavItems}
+        adminNavItems={adminNavItems}
+        isAuthenticated={isAuthenticated}
+        user={user ?? null}
+        onLogout={handleLogout}
+        isLoggingOut={logout.isPending}
+      />
     </>
   )
 }

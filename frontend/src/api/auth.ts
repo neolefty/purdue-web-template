@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import apiClient from './client'
+import { API_ENDPOINTS, QUERY_KEYS } from './endpoints'
 
 export interface User {
   id: number
@@ -39,34 +40,34 @@ export interface RegisterData {
 // API functions
 const authApi = {
   getConfig: () =>
-    apiClient.get<AuthConfig>('/auth/config/'),
+    apiClient.get<AuthConfig>(API_ENDPOINTS.AUTH.CONFIG),
 
   getCurrentUser: () =>
-    apiClient.get<User>('/auth/user/'),
+    apiClient.get<User>(API_ENDPOINTS.AUTH.USER),
 
   login: (credentials: LoginCredentials) =>
-    apiClient.post<{ user: User; message: string }>('/auth/login/', credentials),
+    apiClient.post<{ user: User; message: string }>(API_ENDPOINTS.AUTH.LOGIN, credentials),
 
   register: (data: RegisterData) =>
-    apiClient.post<{ user: User; message: string }>('/auth/register/', data),
+    apiClient.post<{ user: User; message: string }>(API_ENDPOINTS.AUTH.REGISTER, data),
 
   logout: () =>
-    apiClient.post('/auth/logout/'),
+    apiClient.post(API_ENDPOINTS.AUTH.LOGOUT),
 
   changePassword: (data: { old_password: string; new_password: string }) =>
-    apiClient.post('/auth/change-password/', data),
+    apiClient.post(API_ENDPOINTS.AUTH.CHANGE_PASSWORD, data),
 
   verifyEmail: (token: string) =>
-    apiClient.post<{ message: string }>('/auth/verify-email/', { token }),
+    apiClient.post<{ message: string }>(API_ENDPOINTS.AUTH.VERIFY_EMAIL, { token }),
 
   resendVerification: (email: string) =>
-    apiClient.post<{ message: string }>('/auth/resend-verification/', { email }),
+    apiClient.post<{ message: string }>(API_ENDPOINTS.AUTH.RESEND_VERIFICATION, { email }),
 }
 
 // React Query hooks
 export const useAuthConfig = () => {
   return useQuery({
-    queryKey: ['authConfig'],
+    queryKey: QUERY_KEYS.AUTH_CONFIG,
     queryFn: authApi.getConfig,
     staleTime: Infinity,
   })
@@ -74,7 +75,7 @@ export const useAuthConfig = () => {
 
 export const useCurrentUser = () => {
   return useQuery({
-    queryKey: ['currentUser'],
+    queryKey: QUERY_KEYS.CURRENT_USER,
     queryFn: authApi.getCurrentUser,
     retry: false,
     // Always attempt to fetch user - backend will return 403 if no valid session
@@ -88,9 +89,9 @@ export const useLogin = () => {
     mutationFn: authApi.login,
     onSuccess: (data) => {
       // Set the user data immediately
-      queryClient.setQueryData(['currentUser'], data.user)
+      queryClient.setQueryData(QUERY_KEYS.CURRENT_USER, data.user)
       // Invalidate to ensure fresh data (session cookie is now set)
-      queryClient.invalidateQueries({ queryKey: ['currentUser'] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.CURRENT_USER })
     },
   })
 }
@@ -106,9 +107,9 @@ export const useRegister = () => {
       const requiresVerification = (data as { requires_verification?: boolean }).requires_verification
       if (!requiresVerification) {
         // Set the user data immediately
-        queryClient.setQueryData(['currentUser'], data.user)
+        queryClient.setQueryData(QUERY_KEYS.CURRENT_USER, data.user)
         // Invalidate to ensure fresh data (session cookie is now set)
-        queryClient.invalidateQueries({ queryKey: ['currentUser'] })
+        queryClient.invalidateQueries({ queryKey: QUERY_KEYS.CURRENT_USER })
       }
     },
   })
@@ -121,7 +122,7 @@ export const useLogout = () => {
     mutationFn: authApi.logout,
     onSuccess: () => {
       // Clear user from cache immediately
-      queryClient.setQueryData(['currentUser'], null)
+      queryClient.setQueryData(QUERY_KEYS.CURRENT_USER, null)
       // Redirect to home - this will clear all client state
       // No need to invalidateQueries since we're reloading anyway
       window.location.href = '/'
@@ -142,7 +143,7 @@ export const useVerifyEmail = () => {
     mutationFn: authApi.verifyEmail,
     onSuccess: () => {
       // Invalidate current user to refresh verification status
-      queryClient.invalidateQueries({ queryKey: ['currentUser'] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.CURRENT_USER })
     },
   })
 }

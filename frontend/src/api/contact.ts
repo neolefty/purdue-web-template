@@ -4,6 +4,7 @@
 
 import { useMutation } from '@tanstack/react-query'
 import apiClient from './client'
+import { API_ENDPOINTS } from './endpoints'
 
 export interface ContactFormData {
   name: string
@@ -21,7 +22,7 @@ export interface ContactResponse {
  * Submit contact form
  */
 async function submitContactForm(data: ContactFormData): Promise<ContactResponse> {
-  return apiClient.post<ContactResponse>('/contact/', data)
+  return apiClient.post<ContactResponse>(API_ENDPOINTS.CONTACT, data)
 }
 
 /**

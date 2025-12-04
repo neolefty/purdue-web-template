@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import apiClient from './client'
+import { API_ENDPOINTS, QUERY_KEYS } from './endpoints'
 import type { User } from './auth'
 
 export interface UserListItem extends User {
@@ -27,25 +28,25 @@ export interface CreateUserData {
 // API functions
 const usersApi = {
   getUsers: async () => {
-    const response = await apiClient.get<PaginatedResponse<UserListItem>>('/auth/users/')
+    const response = await apiClient.get<PaginatedResponse<UserListItem>>(API_ENDPOINTS.AUTH.USERS)
     // Return just the results array for simpler component usage
     return response.results || []
   },
 
   createUser: (data: CreateUserData) =>
-    apiClient.post<UserListItem>('/auth/users/', data),
+    apiClient.post<UserListItem>(API_ENDPOINTS.AUTH.USERS, data),
 
   updateUser: (id: number, data: Partial<UserListItem>) =>
-    apiClient.patch<UserListItem>(`/auth/users/${id}/`, data),
+    apiClient.patch<UserListItem>(API_ENDPOINTS.AUTH.USER_DETAIL(id), data),
 
   deleteUser: (id: number) =>
-    apiClient.delete(`/auth/users/${id}/`),
+    apiClient.delete(API_ENDPOINTS.AUTH.USER_DETAIL(id)),
 }
 
 // React Query hooks
 export const useUsers = () => {
   return useQuery({
-    queryKey: ['users'],
+    queryKey: QUERY_KEYS.USERS,
     queryFn: usersApi.getUsers,
   })
 }
@@ -57,7 +58,7 @@ export const useUpdateUser = () => {
     mutationFn: ({ id, data }: { id: number; data: Partial<UserListItem> }) =>
       usersApi.updateUser(id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['users'] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.USERS })
     },
   })
 }
@@ -68,7 +69,7 @@ export const useCreateUser = () => {
   return useMutation({
     mutationFn: usersApi.createUser,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['users'] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.USERS })
     },
   })
 }
@@ -79,7 +80,7 @@ export const useDeleteUser = () => {
   return useMutation({
     mutationFn: usersApi.deleteUser,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['users'] })
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.USERS })
     },
   })
 }

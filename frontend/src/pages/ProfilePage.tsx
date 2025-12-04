@@ -1,4 +1,5 @@
 import { useAuth } from '@/hooks/useAuth'
+import { formatRelativeDate } from '@/utils/date'
 import Card from '@/components/Card'
 import Button from '@/components/Button'
 import InfoList from '@/components/InfoList'
@@ -21,18 +22,6 @@ export default function ProfilePage() {
     { action: 'Logged in', timestamp: new Date(Date.now() - 172800000).toISOString() },
     { action: 'Password changed', timestamp: new Date(Date.now() - 604800000).toISOString() },
   ]
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString)
-    const now = new Date()
-    const diff = now.getTime() - date.getTime()
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24))
-
-    if (days === 0) return 'Today'
-    if (days === 1) return 'Yesterday'
-    if (days < 7) return `${days} days ago`
-    return date.toLocaleDateString()
-  }
 
   return (
     <PageLayout>
@@ -76,7 +65,7 @@ export default function ProfilePage() {
                     )}
                   </div>
                   <span className="text-sm text-purdue-gray-500">
-                    {formatDate(activity.timestamp)}
+                    {formatRelativeDate(activity.timestamp)}
                   </span>
                 </div>
               ))}

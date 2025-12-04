@@ -98,35 +98,18 @@ def register_view(request):
             verification_url = f"{settings.FRONTEND_URL}/verify-email/{token.token}/"
 
             # Send verification email
-            from django.core.mail import send_mail
+            from apps.core.email import send_templated_email
 
-            subject = "Verify Your Email Address"
-            message = f"""
-Hello {user.first_name or user.username},
-
-Thank you for creating an account! Please verify your email address by clicking the link below:
-
-{verification_url}
-
-This link will expire in 24 hours.
-
-If you did not create this account, please ignore this email.
-
-Best regards,
-The {settings.SITE_NAME} Team
-            """
-
-            try:
-                send_mail(
-                    subject,
-                    message,
-                    settings.DEFAULT_FROM_EMAIL,
-                    [user.email],
-                    fail_silently=False,
-                )
-                logger.info(f"Verification email sent to {user.email}")
-            except Exception as e:
-                logger.error(f"Failed to send verification email to {user.email}: {e}")
+            send_templated_email(
+                "verification",
+                user.email,
+                {
+                    "name": user.first_name or user.username,
+                    "username": user.username,
+                    "verification_url": verification_url,
+                },
+                fail_silently=True,
+            )
 
             # Don't log user in, return message about verification
             user_serializer = UserSerializer(user)
@@ -219,9 +202,10 @@ def password_reset_request_view(request):
 
             # Generate reset token and uid
             from django.contrib.auth.tokens import default_token_generator
-            from django.core.mail import send_mail
             from django.utils.encoding import force_bytes
             from django.utils.http import urlsafe_base64_encode
+
+            from apps.core.email import send_templated_email
 
             uid = urlsafe_base64_encode(force_bytes(user.pk))
             token = default_token_generator.make_token(user)
@@ -230,34 +214,16 @@ def password_reset_request_view(request):
             reset_url = f"{settings.FRONTEND_URL}/reset-password/{uid}/{token}/"
 
             # Send email
-            subject = "Password Reset Request"
-            message = f"""
-Hello {user.first_name or user.username},
-
-You have requested a password reset. Please click the link below to reset your password:
-
-{reset_url}
-
-This link will expire in 24 hours.
-
-If you did not request this password reset, please ignore this email.
-
-Best regards,
-The {settings.SITE_NAME} Team
-            """
-
-            try:
-                send_mail(
-                    subject,
-                    message,
-                    settings.DEFAULT_FROM_EMAIL,
-                    [user.email],
-                    fail_silently=False,
-                )
-                logger.info(f"Password reset email sent to {email}")
-            except Exception as e:
-                logger.error(f"Failed to send password reset email to {email}: {e}")
-                # Still return success to not reveal if email exists
+            send_templated_email(
+                "password_reset",
+                user.email,
+                {
+                    "name": user.first_name or user.username,
+                    "username": user.username,
+                    "reset_url": reset_url,
+                },
+                fail_silently=True,
+            )
 
         except User.DoesNotExist:
             # Don't reveal that the email doesn't exist
@@ -355,35 +321,18 @@ def resend_verification_view(request):
             verification_url = f"{settings.FRONTEND_URL}/verify-email/{token.token}/"
 
             # Send email
-            from django.core.mail import send_mail
+            from apps.core.email import send_templated_email
 
-            subject = "Verify Your Email Address"
-            message = f"""
-Hello {user.first_name or user.username},
-
-Please verify your email address by clicking the link below:
-
-{verification_url}
-
-This link will expire in 24 hours.
-
-If you did not create this account, please ignore this email.
-
-Best regards,
-The {settings.SITE_NAME} Team
-            """
-
-            try:
-                send_mail(
-                    subject,
-                    message,
-                    settings.DEFAULT_FROM_EMAIL,
-                    [user.email],
-                    fail_silently=False,
-                )
-                logger.info(f"Verification email sent to {user.email}")
-            except Exception as e:
-                logger.error(f"Failed to send verification email to {user.email}: {e}")
+            send_templated_email(
+                "verification",
+                user.email,
+                {
+                    "name": user.first_name or user.username,
+                    "username": user.username,
+                    "verification_url": verification_url,
+                },
+                fail_silently=True,
+            )
 
         # Always return success to prevent email enumeration
         return Response(

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useUsers, useUpdateUser, useDeleteUser, type UserListItem } from '@/api/users'
 import { useAuth } from '@/hooks/useAuth'
+import { formatTimeAgo } from '@/utils/date'
 import Card from '@/components/Card'
 import StatusBadge from '@/components/StatusBadge'
 import Button from '@/components/Button'
@@ -22,22 +23,6 @@ export default function ManageUsersPage() {
   const [selectedUser, setSelectedUser] = useState<UserListItem | null>(null)
   const [successMessage, setSuccessMessage] = useState('')
   const [userToDelete, setUserToDelete] = useState<UserListItem | null>(null)
-
-  const formatLastLogin = (lastLogin: string | null) => {
-    if (!lastLogin) return 'Never logged in'
-    const date = new Date(lastLogin)
-    const now = new Date()
-    const diffMs = now.getTime() - date.getTime()
-    const diffMins = Math.floor(diffMs / 60000)
-    const diffHours = Math.floor(diffMs / 3600000)
-    const diffDays = Math.floor(diffMs / 86400000)
-
-    if (diffMins < 1) return 'Just now'
-    if (diffMins < 60) return `${diffMins}m ago`
-    if (diffHours < 24) return `${diffHours}h ago`
-    if (diffDays < 7) return `${diffDays}d ago`
-    return date.toLocaleDateString()
-  }
 
   // Ensure users is always an array
   const users = Array.isArray(usersResponse) ? usersResponse : []
@@ -214,7 +199,7 @@ export default function ManageUsersPage() {
             label: 'Last login',
             value: (
               <span className={user.last_login ? '' : 'italic text-purdue-gray-400'}>
-                {formatLastLogin(user.last_login)}
+                {user.last_login ? formatTimeAgo(user.last_login) : 'Never logged in'}
               </span>
             ),
           },

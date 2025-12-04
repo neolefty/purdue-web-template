@@ -2,10 +2,14 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useChangePassword } from '@/api/auth'
+import { PASSWORD_MIN_LENGTH } from '@/utils/validation'
+import { parseApiError } from '@/utils/errors'
 import Card from '@/components/Card'
 import Button from '@/components/Button'
 import PageLayout from '@/components/PageLayout'
 import PageHeader from '@/components/PageHeader'
+import PasswordInput from '@/components/PasswordInput'
+import FormError, { FormSuccess } from '@/components/FormError'
 
 export default function ChangePasswordPage() {
   const navigate = useNavigate()
@@ -32,8 +36,8 @@ export default function ChangePasswordPage() {
     }
 
     // Validate password strength
-    if (formData.new_password.length < 8) {
-      setErrors({ new_password: 'Password must be at least 8 characters long' })
+    if (formData.new_password.length < PASSWORD_MIN_LENGTH) {
+      setErrors({ new_password: `Password must be at least ${PASSWORD_MIN_LENGTH} characters long` })
       return
     }
 
@@ -50,13 +54,11 @@ export default function ChangePasswordPage() {
           }, 2000)
         },
         onError: (error: unknown) => {
-          const err = error as { response?: { data?: string | Record<string, string> } }
-          if (err.response?.data) {
-            if (typeof err.response.data === 'string') {
-              setErrors({ non_field_errors: err.response.data })
-            } else {
-              setErrors(err.response.data)
-            }
+          const parsedErrors = parseApiError(error)
+          if (Object.keys(parsedErrors).length > 0) {
+            setErrors(parsedErrors)
+          } else {
+            setErrors({ non_field_errors: 'An error occurred' })
           }
         }
       }
@@ -77,72 +79,44 @@ export default function ChangePasswordPage() {
 
         <Card>
           {success ? (
-            <div className="p-4 bg-green-50 border border-green-200 rounded-md">
-              <p className="text-green-800">Password changed successfully! Redirecting...</p>
-            </div>
+            <FormSuccess message="Password changed successfully! Redirecting..." />
           ) : (
             <form onSubmit={handleSubmit} className="space-y-6">
-              <div>
-                <label htmlFor="old_password" className="block text-sm font-medium text-purdue-gray-700 mb-2">
-                  Current Password
-                </label>
-                <input
-                  type="password"
-                  id="old_password"
-                  name="old_password"
-                  value={formData.old_password}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-purdue-gray-300 rounded-md focus:ring-2 focus:ring-purdue-gold focus:border-transparent"
-                  required
-                />
-                {errors.old_password && (
-                  <p className="mt-1 text-sm text-red-600">{errors.old_password}</p>
-                )}
-              </div>
+              <PasswordInput
+                id="old_password"
+                name="old_password"
+                label="Current Password"
+                value={formData.old_password}
+                onChange={handleChange}
+                error={errors.old_password}
+                required
+              />
 
-              <div>
-                <label htmlFor="new_password" className="block text-sm font-medium text-purdue-gray-700 mb-2">
-                  New Password
-                </label>
-                <input
-                  type="password"
-                  id="new_password"
-                  name="new_password"
-                  value={formData.new_password}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-purdue-gray-300 rounded-md focus:ring-2 focus:ring-purdue-gold focus:border-transparent"
-                  required
-                />
-                {errors.new_password && (
-                  <p className="mt-1 text-sm text-red-600">{errors.new_password}</p>
-                )}
-                <p className="mt-1 text-xs text-purdue-gray-500">
-                  Password must be at least 8 characters long
-                </p>
-              </div>
+              <PasswordInput
+                id="new_password"
+                name="new_password"
+                label="New Password"
+                value={formData.new_password}
+                onChange={handleChange}
+                error={errors.new_password}
+                showRequirements
+                required
+              />
 
-              <div>
-                <label htmlFor="confirm_password" className="block text-sm font-medium text-purdue-gray-700 mb-2">
-                  Confirm New Password
-                </label>
-                <input
-                  type="password"
-                  id="confirm_password"
-                  name="confirm_password"
-                  value={formData.confirm_password}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-purdue-gray-300 rounded-md focus:ring-2 focus:ring-purdue-gold focus:border-transparent"
-                  required
-                />
-                {errors.confirm_password && (
-                  <p className="mt-1 text-sm text-red-600">{errors.confirm_password}</p>
-                )}
-              </div>
+              <PasswordInput
+                id="confirm_password"
+                name="confirm_password"
+                label="Confirm New Password"
+                value={formData.confirm_password}
+                onChange={handleChange}
+                error={errors.confirm_password}
+                required
+              />
 
               {errors.non_field_errors && (
-                <div className="p-4 bg-red-50 border border-red-200 rounded-md">
-                  <p className="text-sm text-red-600">{errors.non_field_errors}</p>
-                </div>
+                <FormError error={null}>
+                  {errors.non_field_errors}
+                </FormError>
               )}
 
               <div className="flex gap-4">
