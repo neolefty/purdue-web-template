@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useCreateUser, useUpdateUser, type UserListItem, type CreateUserData } from '@/api/users'
 import Modal, { ModalBody, ModalFooter } from './Modal'
 import FormField from './FormField'
+import Checkbox from './Checkbox'
 import Button from './Button'
 
 interface UserModalProps {
@@ -160,65 +161,35 @@ export default function UserModal({ isOpen, onClose, user, mode, currentUserId, 
               </div>
             )}
 
-            <label className="flex items-center">
-              <input
-                type="checkbox"
-                checked={formData.is_active}
-                onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
-                disabled={isEditingSelf}
-                className="mr-2 disabled:opacity-50 disabled:cursor-not-allowed"
-              />
-              <span className={`text-sm ${isEditingSelf ? 'text-purdue-gray-500' : 'text-purdue-gray-700'}`}>
-                Active Account
-              </span>
-            </label>
+            <Checkbox
+              label="Active Account"
+              checked={formData.is_active}
+              onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
+              disabled={isEditingSelf}
+            />
 
-            <label className="flex items-center">
-              <input
-                type="checkbox"
-                checked={formData.is_staff}
-                onChange={(e) => setFormData({ ...formData, is_staff: e.target.checked })}
-                disabled={isEditingSelf}
-                className="mr-2 disabled:opacity-50 disabled:cursor-not-allowed"
-              />
-              <span className={`text-sm ${isEditingSelf ? 'text-purdue-gray-500' : 'text-purdue-gray-700'}`}>
-                Staff Status (Can access admin features)
-              </span>
-            </label>
+            <Checkbox
+              label="Staff Status (Can access admin features)"
+              checked={formData.is_staff}
+              onChange={(e) => setFormData({ ...formData, is_staff: e.target.checked })}
+              disabled={isEditingSelf}
+            />
 
-            <label className="flex items-center">
-              <input
-                type="checkbox"
-                checked={formData.is_superuser}
-                onChange={(e) => setFormData({ ...formData, is_superuser: e.target.checked })}
-                disabled={isEditingSelf}
-                className="mr-2 disabled:opacity-50 disabled:cursor-not-allowed"
-              />
-              <span className={`text-sm ${isEditingSelf ? 'text-purdue-gray-500' : 'text-purdue-gray-700'}`}>
-                Superuser Status (Full system access)
-              </span>
-            </label>
+            <Checkbox
+              label="Superuser Status (Full system access)"
+              checked={formData.is_superuser}
+              onChange={(e) => setFormData({ ...formData, is_superuser: e.target.checked })}
+              disabled={isEditingSelf}
+            />
 
             {mode === 'edit' && requireEmailVerification && (
-              <div>
-                <label className="flex items-center">
-                  <input
-                    type="checkbox"
-                    checked={formData.is_email_verified}
-                    onChange={(e) => setFormData({ ...formData, is_email_verified: e.target.checked })}
-                    disabled={isEditingSelf}
-                    className="mr-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                  />
-                  <span className={`text-sm ${isEditingSelf ? 'text-purdue-gray-500' : 'text-purdue-gray-700'}`}>
-                    Email Verified
-                  </span>
-                </label>
-                {isEditingSelf && (
-                  <p className="text-xs text-purdue-gray-500 mt-1 ml-6">
-                    You cannot modify your own email verification status
-                  </p>
-                )}
-              </div>
+              <Checkbox
+                label="Email Verified"
+                checked={formData.is_email_verified}
+                onChange={(e) => setFormData({ ...formData, is_email_verified: e.target.checked })}
+                disabled={isEditingSelf}
+                hint={isEditingSelf ? "You cannot modify your own email verification status" : undefined}
+              />
             )}
           </div>
         </ModalBody>
