@@ -80,18 +80,22 @@ export default function ProfilePage() {
               items={[
                 {
                   label: 'Account Type',
-                  value: user?.is_staff ?
-                    <StatusBadge status="Admin" variant="info" /> :
-                    <StatusBadge status="Regular" />
+                  value: (
+                    <div className="flex flex-row gap-2 mt-1">
+                      {user?.is_staff && <StatusBadge status="Staff" variant="info" />}
+                      {user?.is_superuser && <StatusBadge status="Admin" variant="info" />}
+                      {!user?.is_staff && !user?.is_superuser && <StatusBadge status="Regular" />}
+                    </div>
+                  ),
                 },
                 {
                   label: 'Status',
-                  value: <StatusBadge status="Active" variant="success" />
+                  value: <StatusBadge status="Active" variant="success" />,
                 },
                 {
                   label: 'Email Verified',
-                  value: '✅ Verified'
-                }
+                  value: '✅ Verified',
+                },
               ]}
             />
           </Card>
