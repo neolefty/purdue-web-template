@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import apiClient from './client'
 import { API_ENDPOINTS, QUERY_KEYS } from './endpoints'
+import { createMutation, createSimpleMutation } from './mutations'
 
 export interface User {
   id: number
@@ -130,26 +131,6 @@ export const useLogout = () => {
   })
 }
 
-export const useChangePassword = () => {
-  return useMutation({
-    mutationFn: authApi.changePassword,
-  })
-}
-
-export const useVerifyEmail = () => {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: authApi.verifyEmail,
-    onSuccess: () => {
-      // Invalidate current user to refresh verification status
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.CURRENT_USER })
-    },
-  })
-}
-
-export const useResendVerification = () => {
-  return useMutation({
-    mutationFn: authApi.resendVerification,
-  })
-}
+export const useChangePassword = createSimpleMutation(authApi.changePassword)
+export const useVerifyEmail = createMutation(authApi.verifyEmail, { invalidates: QUERY_KEYS.CURRENT_USER })
+export const useResendVerification = createSimpleMutation(authApi.resendVerification)

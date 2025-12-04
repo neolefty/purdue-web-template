@@ -1,6 +1,7 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import apiClient from './client'
 import { API_ENDPOINTS, QUERY_KEYS } from './endpoints'
+import { createMutation } from './mutations'
 import type { User } from './auth'
 
 export interface UserListItem extends User {
@@ -36,7 +37,7 @@ const usersApi = {
   createUser: (data: CreateUserData) =>
     apiClient.post<UserListItem>(API_ENDPOINTS.AUTH.USERS, data),
 
-  updateUser: (id: number, data: Partial<UserListItem>) =>
+  updateUser: ({ id, data }: { id: number; data: Partial<UserListItem> }) =>
     apiClient.patch<UserListItem>(API_ENDPOINTS.AUTH.USER_DETAIL(id), data),
 
   deleteUser: (id: number) =>
@@ -51,36 +52,6 @@ export const useUsers = () => {
   })
 }
 
-export const useUpdateUser = () => {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: ({ id, data }: { id: number; data: Partial<UserListItem> }) =>
-      usersApi.updateUser(id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.USERS })
-    },
-  })
-}
-
-export const useCreateUser = () => {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: usersApi.createUser,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.USERS })
-    },
-  })
-}
-
-export const useDeleteUser = () => {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: usersApi.deleteUser,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.USERS })
-    },
-  })
-}
+export const useUpdateUser = createMutation(usersApi.updateUser, { invalidates: QUERY_KEYS.USERS })
+export const useCreateUser = createMutation(usersApi.createUser, { invalidates: QUERY_KEYS.USERS })
+export const useDeleteUser = createMutation(usersApi.deleteUser, { invalidates: QUERY_KEYS.USERS })
