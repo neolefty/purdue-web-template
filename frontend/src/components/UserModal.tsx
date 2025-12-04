@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useCreateUser, useUpdateUser, type UserListItem, type CreateUserData } from '@/api/users'
+import Modal, { ModalBody, ModalFooter } from './Modal'
+import FormField from './FormField'
 import Button from './Button'
 
 interface UserModalProps {
@@ -96,76 +98,49 @@ export default function UserModal({ isOpen, onClose, user, mode, currentUserId, 
     }
   }
 
-  if (!isOpen) return null
+  const isEditingSelf = mode === 'edit' && user?.id === currentUserId
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg p-4 md:p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <h2 className="text-xl md:text-2xl font-semibold mb-4">
-          {mode === 'create' ? 'Create New User' : 'Edit User'}
-        </h2>
-
-        <form onSubmit={handleSubmit}>
+    <Modal
+      isOpen={isOpen}
+      onClose={() => onClose()}
+      title={mode === 'create' ? 'Create New User' : 'Edit User'}
+      size="md"
+    >
+      <form onSubmit={handleSubmit}>
+        <ModalBody>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-purdue-gray-700 mb-1">
-                Username *
-              </label>
-              <input
-                type="text"
-                value={formData.username}
-                onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                className="w-full px-3 py-2 border border-purdue-gray-300 rounded-md focus:ring-2 focus:ring-purdue-gold focus:border-transparent"
-              />
-              {errors.username && (
-                <p className="text-red-500 text-sm mt-1">{errors.username}</p>
-              )}
-            </div>
+            <FormField
+              label="Username *"
+              type="text"
+              value={formData.username}
+              onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+              error={errors.username}
+            />
 
-            <div>
-              <label className="block text-sm font-medium text-purdue-gray-700 mb-1">
-                Email *
-              </label>
-              <input
-                type="email"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="w-full px-3 py-2 border border-purdue-gray-300 rounded-md focus:ring-2 focus:ring-purdue-gold focus:border-transparent"
-              />
-              {errors.email && (
-                <p className="text-red-500 text-sm mt-1">{errors.email}</p>
-              )}
-            </div>
+            <FormField
+              label="Email *"
+              type="email"
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              error={errors.email}
+            />
 
-            <div>
-              <label className="block text-sm font-medium text-purdue-gray-700 mb-1">
-                First Name
-              </label>
-              <input
-                type="text"
-                value={formData.first_name}
-                onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
-                className="w-full px-3 py-2 border border-purdue-gray-300 rounded-md focus:ring-2 focus:ring-purdue-gold focus:border-transparent"
-              />
-              {errors.first_name && (
-                <p className="text-red-500 text-sm mt-1">{errors.first_name}</p>
-              )}
-            </div>
+            <FormField
+              label="First Name"
+              type="text"
+              value={formData.first_name}
+              onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
+              error={errors.first_name}
+            />
 
-            <div>
-              <label className="block text-sm font-medium text-purdue-gray-700 mb-1">
-                Last Name
-              </label>
-              <input
-                type="text"
-                value={formData.last_name}
-                onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
-                className="w-full px-3 py-2 border border-purdue-gray-300 rounded-md focus:ring-2 focus:ring-purdue-gold focus:border-transparent"
-              />
-              {errors.last_name && (
-                <p className="text-red-500 text-sm mt-1">{errors.last_name}</p>
-              )}
-            </div>
+            <FormField
+              label="Last Name"
+              type="text"
+              value={formData.last_name}
+              onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
+              error={errors.last_name}
+            />
           </div>
 
           {mode === 'create' && (
@@ -177,7 +152,7 @@ export default function UserModal({ isOpen, onClose, user, mode, currentUserId, 
           )}
 
           <div className="mt-6 space-y-3">
-            {mode === 'edit' && user?.id === currentUserId && (
+            {isEditingSelf && (
               <div className="p-3 bg-purdue-gray-50 border border-purdue-gray-300 rounded-md mb-3">
                 <p className="text-sm text-purdue-gray-700">
                   <strong>Note:</strong> You cannot modify your own permissions or account status. Ask another administrator for assistance.
@@ -190,10 +165,10 @@ export default function UserModal({ isOpen, onClose, user, mode, currentUserId, 
                 type="checkbox"
                 checked={formData.is_active}
                 onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
-                disabled={mode === 'edit' && user?.id === currentUserId}
+                disabled={isEditingSelf}
                 className="mr-2 disabled:opacity-50 disabled:cursor-not-allowed"
               />
-              <span className={`text-sm ${mode === 'edit' && user?.id === currentUserId ? 'text-purdue-gray-500' : 'text-purdue-gray-700'}`}>
+              <span className={`text-sm ${isEditingSelf ? 'text-purdue-gray-500' : 'text-purdue-gray-700'}`}>
                 Active Account
               </span>
             </label>
@@ -203,10 +178,10 @@ export default function UserModal({ isOpen, onClose, user, mode, currentUserId, 
                 type="checkbox"
                 checked={formData.is_staff}
                 onChange={(e) => setFormData({ ...formData, is_staff: e.target.checked })}
-                disabled={mode === 'edit' && user?.id === currentUserId}
+                disabled={isEditingSelf}
                 className="mr-2 disabled:opacity-50 disabled:cursor-not-allowed"
               />
-              <span className={`text-sm ${mode === 'edit' && user?.id === currentUserId ? 'text-purdue-gray-500' : 'text-purdue-gray-700'}`}>
+              <span className={`text-sm ${isEditingSelf ? 'text-purdue-gray-500' : 'text-purdue-gray-700'}`}>
                 Staff Status (Can access admin features)
               </span>
             </label>
@@ -216,10 +191,10 @@ export default function UserModal({ isOpen, onClose, user, mode, currentUserId, 
                 type="checkbox"
                 checked={formData.is_superuser}
                 onChange={(e) => setFormData({ ...formData, is_superuser: e.target.checked })}
-                disabled={mode === 'edit' && user?.id === currentUserId}
+                disabled={isEditingSelf}
                 className="mr-2 disabled:opacity-50 disabled:cursor-not-allowed"
               />
-              <span className={`text-sm ${mode === 'edit' && user?.id === currentUserId ? 'text-purdue-gray-500' : 'text-purdue-gray-700'}`}>
+              <span className={`text-sm ${isEditingSelf ? 'text-purdue-gray-500' : 'text-purdue-gray-700'}`}>
                 Superuser Status (Full system access)
               </span>
             </label>
@@ -231,14 +206,14 @@ export default function UserModal({ isOpen, onClose, user, mode, currentUserId, 
                     type="checkbox"
                     checked={formData.is_email_verified}
                     onChange={(e) => setFormData({ ...formData, is_email_verified: e.target.checked })}
-                    disabled={user?.id === currentUserId}
+                    disabled={isEditingSelf}
                     className="mr-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   />
-                  <span className={`text-sm ${user?.id === currentUserId ? 'text-purdue-gray-500' : 'text-purdue-gray-700'}`}>
+                  <span className={`text-sm ${isEditingSelf ? 'text-purdue-gray-500' : 'text-purdue-gray-700'}`}>
                     Email Verified
                   </span>
                 </label>
-                {user?.id === currentUserId && (
+                {isEditingSelf && (
                   <p className="text-xs text-purdue-gray-500 mt-1 ml-6">
                     You cannot modify your own email verification status
                   </p>
@@ -246,24 +221,24 @@ export default function UserModal({ isOpen, onClose, user, mode, currentUserId, 
               </div>
             )}
           </div>
+        </ModalBody>
 
-          <div className="flex justify-end gap-3 mt-6">
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() => onClose()}
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              disabled={createUser.isPending || updateUser.isPending}
-            >
-              {createUser.isPending || updateUser.isPending ? 'Saving...' : mode === 'create' ? 'Create User' : 'Update User'}
-            </Button>
-          </div>
-        </form>
-      </div>
-    </div>
+        <ModalFooter className="flex justify-end gap-3">
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={() => onClose()}
+          >
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            disabled={createUser.isPending || updateUser.isPending}
+          >
+            {createUser.isPending || updateUser.isPending ? 'Saving...' : mode === 'create' ? 'Create User' : 'Update User'}
+          </Button>
+        </ModalFooter>
+      </form>
+    </Modal>
   )
 }
