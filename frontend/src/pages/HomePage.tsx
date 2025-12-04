@@ -94,7 +94,7 @@ export default function HomePage() {
                   items={[
                     {
                       label: 'Account Type',
-                      value: user && 'is_staff' in user && ((user as { is_staff?: boolean; is_superuser?: boolean }).is_staff || (user as { is_staff?: boolean; is_superuser?: boolean }).is_superuser) ?
+                      value: user?.is_staff || user?.is_superuser ?
                         <StatusBadge status="Admin" variant="info" /> :
                         <StatusBadge status="User" />
                     },

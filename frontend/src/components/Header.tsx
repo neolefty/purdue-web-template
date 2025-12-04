@@ -32,9 +32,7 @@ export default function Header({
   const location = useLocation()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
-  // Check if user is admin (staff or superuser)
-  type UserWithStaff = { is_staff?: boolean; is_superuser?: boolean }
-  const isAdmin = user && 'is_staff' in user && ((user as UserWithStaff).is_staff || (user as UserWithStaff).is_superuser)
+  const isAdmin = user?.is_staff || user?.is_superuser
 
   // Close mobile menu on route change
   useEffect(() => {

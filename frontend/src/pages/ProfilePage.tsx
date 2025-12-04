@@ -80,7 +80,7 @@ export default function ProfilePage() {
               items={[
                 {
                   label: 'Account Type',
-                  value: user && 'is_staff' in user && (user as { is_staff?: boolean }).is_staff ?
+                  value: user?.is_staff ?
                     <StatusBadge status="Admin" variant="info" /> :
                     <StatusBadge status="Regular" />
                 },

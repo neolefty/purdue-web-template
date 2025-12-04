@@ -28,7 +28,7 @@ export default function ManageUsersPage() {
   const users = Array.isArray(usersResponse) ? usersResponse : []
 
   // Check if current user is admin
-  const isAdmin = currentUser && 'is_staff' in currentUser && (currentUser as { is_staff?: boolean }).is_staff
+  const isAdmin = currentUser?.is_staff || currentUser?.is_superuser
 
   if (!isAdmin) {
     return (
