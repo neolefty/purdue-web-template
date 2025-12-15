@@ -12,6 +12,9 @@ export interface ContactFormData {
   subject: string
   message: string
   submitted_url?: string
+  // Spam protection fields
+  website?: string // Honeypot field - should always be empty
+  form_loaded_at?: number // Timestamp when form was loaded
 }
 
 export interface ContactResponse {

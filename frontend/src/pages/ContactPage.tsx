@@ -15,6 +15,10 @@ export default function ContactPage() {
     message: '',
   })
 
+  // Spam protection: track when form was loaded and honeypot field
+  const [formLoadedAt] = useState(() => Date.now())
+  const [honeypot, setHoneypot] = useState('')
+
   const contactMutation = useContactForm()
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -33,10 +37,13 @@ export default function ContactPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Include the current URL when submitting
+    // Include the current URL and spam protection fields when submitting
     contactMutation.mutate({
       ...formData,
       submitted_url: window.location.href,
+      // Spam protection fields
+      website: honeypot, // Honeypot field - should be empty
+      form_loaded_at: formLoadedAt, // Timestamp when form was loaded
     })
   }
 
@@ -116,6 +123,30 @@ export default function ContactPage() {
                   className="w-full px-3 py-2 border border-purdue-gray-300 rounded-md focus:ring-2 focus:ring-purdue-gold focus:border-transparent"
                   required
                   placeholder="your.email@example.com"
+                />
+              </div>
+
+              {/* Honeypot field - hidden from humans, attractive to bots */}
+              <div
+                aria-hidden="true"
+                style={{
+                  position: 'absolute',
+                  left: '-9999px',
+                  top: '-9999px',
+                  opacity: 0,
+                  height: 0,
+                  overflow: 'hidden',
+                }}
+              >
+                <label htmlFor="website">Website</label>
+                <input
+                  type="text"
+                  id="website"
+                  name="website"
+                  value={honeypot}
+                  onChange={(e) => setHoneypot(e.target.value)}
+                  tabIndex={-1}
+                  autoComplete="off"
                 />
               </div>
 

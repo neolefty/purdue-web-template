@@ -2,6 +2,8 @@
 Serializers for contact app
 """
 
+import time
+
 from django.conf import settings
 from django.core.mail import send_mail
 from django.utils import timezone
@@ -10,16 +12,31 @@ from rest_framework import serializers
 
 from .models import ContactMessage
 
+# Minimum time (in seconds) that must pass between form load and submission
+MIN_SUBMISSION_TIME_SECONDS = 3
+
 
 class ContactMessageSerializer(serializers.ModelSerializer):
     """
     Serializer for contact form submissions.
-    Handles validation and email sending.
+    Handles validation, spam protection, and email sending.
     """
+
+    # Spam protection fields (write-only, not stored in DB)
+    website = serializers.CharField(required=False, allow_blank=True, write_only=True)
+    form_loaded_at = serializers.IntegerField(required=False, write_only=True)
 
     class Meta:
         model = ContactMessage
-        fields = ("name", "email", "subject", "message", "submitted_url")
+        fields = (
+            "name",
+            "email",
+            "subject",
+            "message",
+            "submitted_url",
+            "website",
+            "form_loaded_at",
+        )
 
     def validate_message(self, value):
         """Ensure message is not too short"""
@@ -27,8 +44,42 @@ class ContactMessageSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Message must be at least 10 characters long.")
         return value
 
+    def validate_website(self, value):
+        """Honeypot validation - this field should always be empty"""
+        if value:
+            # Log the spam attempt but return a generic error
+            import logging
+
+            logger = logging.getLogger(__name__)
+            logger.warning(
+                f"Honeypot triggered - spam submission blocked (website field filled: {value[:50]})"
+            )
+            raise serializers.ValidationError("Invalid submission.")
+        return value
+
+    def validate_form_loaded_at(self, value):
+        """Time-based validation - reject submissions that happen too quickly"""
+        if value:
+            current_time_ms = int(time.time() * 1000)
+            elapsed_seconds = (current_time_ms - value) / 1000
+
+            if elapsed_seconds < MIN_SUBMISSION_TIME_SECONDS:
+                import logging
+
+                logger = logging.getLogger(__name__)
+                logger.warning(
+                    f"Time-based spam check triggered - form submitted in {elapsed_seconds:.1f}s "
+                    f"(minimum: {MIN_SUBMISSION_TIME_SECONDS}s)"
+                )
+                raise serializers.ValidationError("Please take your time filling out the form.")
+        return value
+
     def create(self, validated_data):
         """Create contact message and send email"""
+        # Remove spam protection fields (they're not in the model)
+        validated_data.pop("website", None)
+        validated_data.pop("form_loaded_at", None)
+
         # Get IP and user agent from request context
         request = self.context.get("request")
         if request:
